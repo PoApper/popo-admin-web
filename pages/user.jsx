@@ -8,29 +8,33 @@ import UserCreateModal from '../components/user/user.create.modal'
 const UserPage = () => {
   const [users, setUsers] = useState([])
   const [page, setPage] = useState(1)
-  const [total_count, setTotalCount] = useState(0)
-  const page_size = 10
+  const [totalCount, setTotalCount] = useState(0)
+  const pageSize = 20
 
-  useEffect(async () => {
-    try {
-      const res = await axios.get(
-        `${process.env.NEXT_PUBLIC_API}/user?take=${page_size}`,
+  useEffect(() => {
+    axios
+      .get(`${process.env.NEXT_PUBLIC_API}/user?take=${pageSize}`,
         { withCredentials: true })
-      setUsers(res.data)
-      const res2 = await axios.get(
-        `${process.env.NEXT_PUBLIC_API}/user/count`,
-      )
-      setTotalCount(res2.data)
-    } catch (err) {
-      alert('유저 목록을 불러오는데 실패했습니다.')
-      console.log(err)
-    }
+      .then((res) => setUsers(res.data))
+      .catch((err) => {
+        alert('유저 목록을 불러오는데 실패했습니다.')
+        console.log(err)
+      })
+
+    axios
+      .get(`${process.env.NEXT_PUBLIC_API}/user/count`,
+        { withCredentials: true })
+      .then((res) => setTotalCount(res.data))
+      .catch((err) => {
+        alert('전체 유저 수를 불러오는데 실패했습니다.')
+        console.log(err)
+      })
   }, [])
 
   const handlePageChange = async (e, target) => {
     const activePage = target.activePage
     const ret = await axios.get(
-      `${process.env.NEXT_PUBLIC_API}/user?take=${page_size}&skip=${page_size *
+      `${process.env.NEXT_PUBLIC_API}/user?take=${pageSize}&skip=${pageSize *
       (activePage - 1)}`, { withCredentials: true })
     setUsers(ret.data)
     setPage(activePage)
@@ -50,13 +54,13 @@ const UserPage = () => {
       <div>
         <UserTable
           users={users}
-          startIdx={(page - 1) * page_size}
+          startIdx={(page - 1) * pageSize}
         />
         <div style={{ display: 'flex' }}>
           <Pagination
             style={{ margin: '0 auto' }}
             activePage={page}
-            totalPages={Math.ceil(total_count / page_size)}
+            totalPages={Math.ceil(totalCount / pageSize)}
             prevItem={null} nextItem={null}
             onPageChange={handlePageChange}
           />
