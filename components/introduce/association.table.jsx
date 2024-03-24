@@ -1,15 +1,12 @@
-import moment from 'moment'
-import Link from "next/link";
-import { Table } from 'semantic-ui-react'
+import moment from 'moment';
+import Link from 'next/link';
+import { Table } from 'semantic-ui-react';
 
 const AssociationTable = (props) => {
-  const associations = props.associations
+  const associations = props.associations;
 
   return (
-    <Table
-      celled selectable
-      textAlign={'center'}
-    >
+    <Table celled selectable textAlign={'center'}>
       <Table.Header>
         <Table.Row>
           <Table.HeaderCell>idx.</Table.HeaderCell>
@@ -22,30 +19,27 @@ const AssociationTable = (props) => {
         </Table.Row>
       </Table.Header>
       <Table.Body>
-        {
-          associations.map((association, idx) =>
-            <Link
-              href={`/introduce/association/update/${association.uuid}`}
-              key={association.uuid}
-            >
-              <Table.Row key={association.uuid}>
-                <Table.Cell>{idx + 1}</Table.Cell>
-                <Table.Cell>{association.name}</Table.Cell>
-                <Table.Cell>{association.location}</Table.Cell>
-                <Table.Cell>{association.representative}</Table.Cell>
-                <Table.Cell>{association.contact}</Table.Cell>
-                <Table.Cell>{association.views}</Table.Cell>
-                <Table.Cell>
-                  {moment(association.updateAt).
-                    format('YYYY-MM-DD HH:mm')}
-                </Table.Cell>
-              </Table.Row>
-            </Link>
-          )
-        }
+        {associations.map((association, idx) => (
+          <Link
+            href={`/introduce/association/update/${association.uuid}`}
+            key={association.uuid}
+          >
+            <Table.Row key={association.uuid}>
+              <Table.Cell>{idx + 1}</Table.Cell>
+              <Table.Cell>{association.name}</Table.Cell>
+              <Table.Cell>{association.location}</Table.Cell>
+              <Table.Cell>{association.representative}</Table.Cell>
+              <Table.Cell>{association.contact}</Table.Cell>
+              <Table.Cell>{association.views}</Table.Cell>
+              <Table.Cell>
+                {moment(association.updateAt).format('YYYY-MM-DD HH:mm')}
+              </Table.Cell>
+            </Table.Row>
+          </Link>
+        ))}
       </Table.Body>
     </Table>
-  )
-}
+  );
+};
 
-export default AssociationTable
+export default AssociationTable;

@@ -1,57 +1,56 @@
-import React, { useState } from 'react'
-import { useRouter } from "next/router";
-import { Button, Form, Icon } from "semantic-ui-react";
+import React, { useState } from 'react';
+import { useRouter } from 'next/router';
+import { Button, Form, Icon } from 'semantic-ui-react';
 
-import { PoPoAxios } from "@/utils/axios.instance";
-import { ClubTypeOptions } from "@/assets/club.type.options";
-import IntroduceLayout from "@/components/introduce/introduce.layout";
-import DeleteConfirmModal from "@/components/common/delete.confirm.modal";
-import ImageUploadForm from "@/components/common/image-upload.form";
+import { PoPoAxios } from '@/utils/axios.instance';
+import { ClubTypeOptions } from '@/assets/club.type.options';
+import IntroduceLayout from '@/components/introduce/introduce.layout';
+import DeleteConfirmModal from '@/components/common/delete.confirm.modal';
+import ImageUploadForm from '@/components/common/image-upload.form';
 
 const ClubUpdatePage = ({ clubInfo }) => {
   const router = useRouter();
 
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false)
-  const [name, setName] = useState(clubInfo.name)
-  const [short_desc, setShortDesc] = useState(clubInfo.short_desc)
-  const [clubType, setClubType] = useState(clubInfo.clubType)
-  const [content, setContent] = useState(clubInfo.content)
-  const [location, setLocation] = useState(clubInfo.location)
-  const [representative, setRepresentative] = useState(clubInfo.representative)
-  const [contact, setContact] = useState(clubInfo.contact)
-  const [homepageUrl, setHomepageUrl] = useState(clubInfo.homepage_url)
-  const [facebookUrl, setFacebookUrl] = useState(clubInfo.facebook_url)
-  const [instagramUrl, setInstagramUrl] = useState(clubInfo.instagram_url)
-  const [youtubeUrl, setYoutubeUrl] = useState(clubInfo.youtube_url)
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [name, setName] = useState(clubInfo.name);
+  const [short_desc, setShortDesc] = useState(clubInfo.short_desc);
+  const [clubType, setClubType] = useState(clubInfo.clubType);
+  const [content, setContent] = useState(clubInfo.content);
+  const [location, setLocation] = useState(clubInfo.location);
+  const [representative, setRepresentative] = useState(clubInfo.representative);
+  const [contact, setContact] = useState(clubInfo.contact);
+  const [homepageUrl, setHomepageUrl] = useState(clubInfo.homepage_url);
+  const [facebookUrl, setFacebookUrl] = useState(clubInfo.facebook_url);
+  const [instagramUrl, setInstagramUrl] = useState(clubInfo.instagram_url);
+  const [youtubeUrl, setYoutubeUrl] = useState(clubInfo.youtube_url);
 
   const handleSubmit = async () => {
     const body = {
-      'name': name,
-      'short_desc': short_desc,
-      'clubType': clubType,
-      'content': content,
-      'location': location,
-      'representative': representative,
-      'contact': contact,
-      'homepage_url': homepageUrl,
-      'facebook_url': facebookUrl,
-      'instagram_url': instagramUrl,
-      'youtube_url': youtubeUrl,
+      name: name,
+      short_desc: short_desc,
+      clubType: clubType,
+      content: content,
+      location: location,
+      representative: representative,
+      contact: contact,
+      homepage_url: homepageUrl,
+      facebook_url: facebookUrl,
+      instagram_url: instagramUrl,
+      youtube_url: youtubeUrl,
     };
 
-    PoPoAxios.put(`/introduce/club/${clubInfo.uuid}`,
-      body,
-      {
-        withCredentials: true,
-      },
-    ).then(() => {
-      alert('동아리 정보를 수정 했습니다.');
-      router.push('/introduce/club');
-    }).catch((err) => {
-      alert('동아리 정보 수정에 실패했습니다.');
-      console.log(err);
-    });
-  }
+    PoPoAxios.put(`/introduce/club/${clubInfo.uuid}`, body, {
+      withCredentials: true,
+    })
+      .then(() => {
+        alert('동아리 정보를 수정 했습니다.');
+        router.push('/introduce/club');
+      })
+      .catch((err) => {
+        alert('동아리 정보 수정에 실패했습니다.');
+        console.log(err);
+      });
+  };
 
   return (
     <IntroduceLayout>
@@ -62,73 +61,73 @@ const ClubUpdatePage = ({ clubInfo }) => {
           required
           label={'동아리 이름'}
           value={name}
-          onChange={e => setName(e.target.value)}
+          onChange={(e) => setName(e.target.value)}
         />
         <Form.Input
           required
           label={'짧은 설명'}
           placeholder={'예: 개발, 축구, 재즈'}
           value={short_desc}
-          onChange={e => setShortDesc(e.target.value)}
+          onChange={(e) => setShortDesc(e.target.value)}
         />
         <Form.Select
           required
           label={'분과'}
           options={ClubTypeOptions}
           value={clubType}
-          onChange={e => setClubType(e.target.value)}
+          onChange={(e) => setClubType(e.target.value)}
         />
         <Form.TextArea
           required
           label={'소개글'}
           value={content}
-          onChange={e => setContent(e.target.value)}
+          onChange={(e) => setContent(e.target.value)}
         />
         <Form.Input
           required
           label={'위치'}
           placeholder={'예: 학생회관 OOO호'}
           value={location}
-          onChange={e => setLocation(e.target.value)}
+          onChange={(e) => setLocation(e.target.value)}
         />
         <Form.Input
           required
           label={'대표자'}
           placeholder={'홍길동'}
           value={representative}
-          onChange={e => setRepresentative(e.target.value)}
+          onChange={(e) => setRepresentative(e.target.value)}
         />
         <Form.Input
           required
           label={'연락처'}
           placeholder={'OOOOO@postech.ac.kr'}
           value={contact}
-          onChange={e => setContact(e.target.value)}
+          onChange={(e) => setContact(e.target.value)}
         />
 
         <Form.Input
           label={'홈페이지 링크'}
-          placeholder={"https://OOOOOOO"}
+          placeholder={'https://OOOOOOO'}
           value={homepageUrl}
-          onChange={e => setHomepageUrl(e.target.value)}
+          onChange={(e) => setHomepageUrl(e.target.value)}
         />
         <Form.Input
           label={'페이스북'}
-          placeholder={"https://www.facebook.com/profile.php?id=OOOOOOOO"}
+          placeholder={'https://www.facebook.com/profile.php?id=OOOOOOOO'}
           value={facebookUrl}
-          onChange={e => setFacebookUrl(e.target.value)}
+          onChange={(e) => setFacebookUrl(e.target.value)}
         />
         <Form.Input
           label={'인스타그램'}
-          placeholder={"https://www.instagram.com/OOOOOO"}
+          placeholder={'https://www.instagram.com/OOOOOO'}
           value={instagramUrl}
-          onChange={e => setInstagramUrl(e.target.value)}
+          onChange={(e) => setInstagramUrl(e.target.value)}
         />
         <Form.Input
           label={'유튜브'}
-          placeholder={"https://www.youtube.com/OOOOOO"}
+          placeholder={'https://www.youtube.com/OOOOOO'}
           value={youtubeUrl}
-          onChange={e => setYoutubeUrl(e.target.value)}
+          onChange={(e) => setYoutubeUrl(e.target.value)}
         />
 
         <ImageUploadForm
@@ -138,28 +137,24 @@ const ClubUpdatePage = ({ clubInfo }) => {
         />
 
         <Form.Group>
-          <Form.Button
-            type={'submit'}
-            onClick={handleSubmit}>
+          <Form.Button type={'submit'} onClick={handleSubmit}>
             수정
           </Form.Button>
           <DeleteConfirmModal
             open={deleteModalOpen}
             target={name}
             deleteURI={`introduce/club/${clubInfo.uuid}`}
-            trigger={(
-              <Button
-                negative
-                onClick={() => setDeleteModalOpen(true)}
-              >
-                <Icon name={'trash'}/> 삭제
-              </Button>)}
+            trigger={
+              <Button negative onClick={() => setDeleteModalOpen(true)}>
+                <Icon name={'trash'} /> 삭제
+              </Button>
+            }
           />
         </Form.Group>
       </Form>
     </IntroduceLayout>
-  )
-}
+  );
+};
 
 export default ClubUpdatePage;
 
@@ -168,5 +163,5 @@ export async function getServerSideProps(ctx) {
   const res = await PoPoAxios.get(`introduce/club/${uuid}`);
   const clubInfo = res.data;
 
-  return { props: { clubInfo } }
+  return { props: { clubInfo } };
 }

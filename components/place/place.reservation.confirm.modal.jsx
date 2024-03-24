@@ -1,31 +1,34 @@
-import { Button, Form, Icon, Modal, Segment } from 'semantic-ui-react'
-import React, { useState } from 'react'
-import moment from 'moment'
-import DeleteConfirmModal from '../common/delete.confirm.modal'
+import { Button, Form, Icon, Modal, Segment } from 'semantic-ui-react';
+import React, { useState } from 'react';
+import moment from 'moment';
+import DeleteConfirmModal from '../common/delete.confirm.modal';
 import { PoPoAxios } from '@/utils/axios.instance';
 
-const PlaceReservationConfirmModal = ({trigger, reservation}) => {
-  const [open, setOpen] = useState(false)
-  const [send_email, setSendEmail] = useState(true)
+const PlaceReservationConfirmModal = ({ trigger, reservation }) => {
+  const [open, setOpen] = useState(false);
+  const [send_email, setSendEmail] = useState(true);
 
   const handlePatch = async (e, data) => {
     try {
-      const patch_type = data.name // {accept, reject}
+      const patch_type = data.name; // {accept, reject}
       await PoPoAxios.patch(
         `/reservation-place/${reservation.uuid}/status/${patch_type}?sendEmail=${send_email}`,
-        {}, {withCredentials: true})
-      setOpen(false)
-      window.location.reload()
+        {},
+        { withCredentials: true },
+      );
+      setOpen(false);
+      window.location.reload();
     } catch (err) {
       const errMsg = err.response.data.message;
       alert(`예약 승인/거절에 실패했습니다.\n${errMsg}`);
     }
-  }
+  };
 
   return (
     <Modal
       closeIcon
-      open={open} trigger={trigger}
+      open={open}
+      trigger={trigger}
       onClose={() => setOpen(false)}
       onOpen={() => setOpen(true)}
     >
@@ -34,46 +37,33 @@ const PlaceReservationConfirmModal = ({trigger, reservation}) => {
         <Segment.Group>
           <Segment>
             <h4>장소</h4>
-            <div>
-              {reservation.place.name}
-            </div>
+            <div>{reservation.place.name}</div>
           </Segment>
           <Segment>
             <h4>사용자</h4>
-            <div>
-              {reservation.booker.name}
-            </div>
+            <div>{reservation.booker.name}</div>
           </Segment>
           <Segment>
             <h4>전화번호</h4>
-            <div>
-              {reservation.phone}
-            </div>
+            <div>{reservation.phone}</div>
           </Segment>
           <Segment>
             <h4>예약 제목</h4>
-            <div>
-              {reservation.title}
-            </div>
+            <div>{reservation.title}</div>
           </Segment>
           <Segment>
             <h4>설명</h4>
-            <div>
-              {reservation.description}
-            </div>
+            <div>{reservation.description}</div>
           </Segment>
           <Segment>
             <h4>예약 기간</h4>
             <div>
               <b>
-                {moment(reservation.date, 'YYYYMMDD').
-                  format('YYYY-MM-DD')}
+                {moment(reservation.date, 'YYYYMMDD').format('YYYY-MM-DD')}
                 &nbsp;
-                {moment(reservation.start_time, 'HHmm').
-                  format('HH:mm')}
+                {moment(reservation.start_time, 'HHmm').format('HH:mm')}
                 &nbsp;~&nbsp;
-                {moment(reservation.end_time, 'HHmm').
-                  format('HH:mm')}
+                {moment(reservation.end_time, 'HHmm').format('HH:mm')}
               </b>
             </div>
           </Segment>
@@ -93,15 +83,11 @@ const PlaceReservationConfirmModal = ({trigger, reservation}) => {
           />
           <Modal.Actions>
             <Button.Group floated={'left'}>
-              <Button
-                positive name={'통과'}
-                onClick={handlePatch}>
-                <Icon name={'check'}/> 예약 승인
+              <Button positive name={'통과'} onClick={handlePatch}>
+                <Icon name={'check'} /> 예약 승인
               </Button>
-              <Button
-                negative name={'거절'}
-                onClick={handlePatch}>
-                <Icon name={'ban'}/> 예약 거절
+              <Button negative name={'거절'} onClick={handlePatch}>
+                <Icon name={'ban'} /> 예약 거절
               </Button>
             </Button.Group>
             <Button.Group floated={'right'}>
@@ -110,7 +96,7 @@ const PlaceReservationConfirmModal = ({trigger, reservation}) => {
                 deleteURI={`reservation-place/${reservation.uuid}`}
                 trigger={
                   <Button negative>
-                    <Icon name={'trash'}/> 예약 삭제
+                    <Icon name={'trash'} /> 예약 삭제
                   </Button>
                 }
               />
@@ -119,7 +105,7 @@ const PlaceReservationConfirmModal = ({trigger, reservation}) => {
         </Form>
       </Modal.Content>
     </Modal>
-  )
-}
+  );
+};
 
-export default PlaceReservationConfirmModal
+export default PlaceReservationConfirmModal;

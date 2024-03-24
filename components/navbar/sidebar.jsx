@@ -1,8 +1,7 @@
-import Link from 'next/link'
-import { Menu, Segment, Sidebar } from 'semantic-ui-react'
+import Link from 'next/link';
+import { Menu, Segment, Sidebar } from 'semantic-ui-react';
 
 const SideBar = ({ visible, toggleSidebar, pushContent }) => {
-
   return (
     <Sidebar.Pushable as={Segment}>
       <Sidebar
@@ -16,39 +15,27 @@ const SideBar = ({ visible, toggleSidebar, pushContent }) => {
         onHide={toggleSidebar}
       >
         <Link href={'/user'} passHref>
-          <Menu.Item
-            style={{ zIndex: 5, marginTop: '5rem' }}
-          >
+          <Menu.Item style={{ zIndex: 5, marginTop: '5rem' }}>
             유저 관리
           </Menu.Item>
         </Link>
         <Link href={'/reservation'} passHref>
-          <Menu.Item as="a">
-            예약 관리
-          </Menu.Item>
+          <Menu.Item as="a">예약 관리</Menu.Item>
         </Link>
         <Link href={'/introduce'} passHref>
-          <Menu.Item as="a">
-            소개글 관리
-          </Menu.Item>
+          <Menu.Item as="a">소개글 관리</Menu.Item>
         </Link>
         <Link href={'/board'} passHref>
-          <Menu.Item as="a">
-            게시물 관리
-          </Menu.Item>
+          <Menu.Item as="a">게시물 관리</Menu.Item>
         </Link>
         <Link href={'/statistics'} passHref>
-          <Menu.Item as="a">
-            통계 보기
-          </Menu.Item>
+          <Menu.Item as="a">통계 보기</Menu.Item>
         </Link>
       </Sidebar>
 
-      <Sidebar.Pusher dimmed={visible}>
-        {pushContent}
-      </Sidebar.Pusher>
+      <Sidebar.Pusher dimmed={visible}>{pushContent}</Sidebar.Pusher>
     </Sidebar.Pushable>
-  )
-}
+  );
+};
 
-export default SideBar
+export default SideBar;

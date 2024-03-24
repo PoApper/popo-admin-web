@@ -1,22 +1,22 @@
-import React from 'react'
-import Link from "next/link";
-import { Table } from 'semantic-ui-react'
-import _ from 'lodash'
+import React from 'react';
+import Link from 'next/link';
+import { Table } from 'semantic-ui-react';
+import _ from 'lodash';
 
 const ownerNames = {
-  'chonghak': '총학생회',
-  'dongyeon': '동아리연합회',
-  'dormUnion': '생활관자치회',
-  'saengna': '생각나눔',
-  'others': '그 외',
-}
+  chonghak: '총학생회',
+  dongyeon: '동아리연합회',
+  dormUnion: '생활관자치회',
+  saengna: '생각나눔',
+  others: '그 외',
+};
 const EquipmentTable = ({ equipmentList }) => {
   const [state, dispatch] = React.useReducer(exampleReducer, {
     column: null,
     data: equipmentList,
     direction: null,
-  })
-  const { column, data, direction } = state
+  });
+  const { column, data, direction } = state;
 
   function exampleReducer(state, action) {
     switch (action.type) {
@@ -27,23 +27,21 @@ const EquipmentTable = ({ equipmentList }) => {
             data: state.data.slice().reverse(),
             direction:
               state.direction === 'ascending' ? 'descending' : 'ascending',
-          }
+          };
         }
 
         return {
           column: action.column,
           data: _.sortBy(state.data, [action.column]),
           direction: 'ascending',
-        }
+        };
       default:
-        throw new Error()
+        throw new Error();
     }
   }
 
   return (
-    <Table
-      celled selectable sortable
-      textAlign={'center'}>
+    <Table celled selectable sortable textAlign={'center'}>
       <Table.Header>
         <Table.Row>
           <Table.HeaderCell>idx.</Table.HeaderCell>
@@ -55,7 +53,9 @@ const EquipmentTable = ({ equipmentList }) => {
           </Table.HeaderCell>
           <Table.HeaderCell
             sorted={column === 'equip_owner' ? direction : null}
-            onClick={() => dispatch({ type: 'CHANGE_SORT', column: 'equip_owner' })}
+            onClick={() =>
+              dispatch({ type: 'CHANGE_SORT', column: 'equip_owner' })
+            }
           >
             장비 소속
           </Table.HeaderCell>
@@ -67,46 +67,53 @@ const EquipmentTable = ({ equipmentList }) => {
           </Table.HeaderCell>
           <Table.HeaderCell
             sorted={column === 'max_minutes' ? direction : null}
-            onClick={() => dispatch({ type: 'CHANGE_SORT', column: 'max_minutes' })}
+            onClick={() =>
+              dispatch({ type: 'CHANGE_SORT', column: 'max_minutes' })
+            }
           >
             일일 한도 (분)
           </Table.HeaderCell>
           <Table.HeaderCell
             sorted={column === 'total_reservation_count' ? direction : null}
-            onClick={() => dispatch({ type: 'CHANGE_SORT', column: 'total_reservation_count' })}
+            onClick={() =>
+              dispatch({
+                type: 'CHANGE_SORT',
+                column: 'total_reservation_count',
+              })
+            }
           >
             총 예약 갯수
           </Table.HeaderCell>
         </Table.Row>
       </Table.Header>
       <Table.Body>
-        {
-          data.map((equipment, idx) => (
-            <Link href={`/equipment/update/${equipment.uuid}`} key={equipment.uuid}>
-              <Table.Row>
-                <Table.Cell>{idx + 1}</Table.Cell>
-                <Table.Cell>{equipment.name}</Table.Cell>
-                <Table.Cell>{ownerNames[equipment.equip_owner]}</Table.Cell>
-                <Table.Cell>{equipment.fee.toLocaleString()}</Table.Cell>
-                <Table.Cell>
-                  {
-                    equipment.max_minutes === 1440 ?
-                      '제한 없음' :
-                      equipment.max_minutes.toLocaleString()
-                  }
-                </Table.Cell>
-                <Table.Cell>{equipment.total_reservation_count.toLocaleString()}</Table.Cell>
-              </Table.Row>
-            </Link>
-          ))
-        }
+        {data.map((equipment, idx) => (
+          <Link
+            href={`/equipment/update/${equipment.uuid}`}
+            key={equipment.uuid}
+          >
+            <Table.Row>
+              <Table.Cell>{idx + 1}</Table.Cell>
+              <Table.Cell>{equipment.name}</Table.Cell>
+              <Table.Cell>{ownerNames[equipment.equip_owner]}</Table.Cell>
+              <Table.Cell>{equipment.fee.toLocaleString()}</Table.Cell>
+              <Table.Cell>
+                {equipment.max_minutes === 1440
+                  ? '제한 없음'
+                  : equipment.max_minutes.toLocaleString()}
+              </Table.Cell>
+              <Table.Cell>
+                {equipment.total_reservation_count.toLocaleString()}
+              </Table.Cell>
+            </Table.Row>
+          </Link>
+        ))}
       </Table.Body>
       <Table.Footer>
-        <Table.Row>
-        </Table.Row>
+        <Table.Row></Table.Row>
       </Table.Footer>
     </Table>
-  )
-}
+  );
+};
 
-export default EquipmentTable
+export default EquipmentTable;

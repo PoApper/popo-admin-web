@@ -1,33 +1,36 @@
-import { Button, Form, Icon, Label, Modal, Segment } from 'semantic-ui-react'
-import React, { useState } from 'react'
-import moment from 'moment'
-import DeleteConfirmModal from '../common/delete.confirm.modal'
+import { Button, Form, Icon, Label, Modal, Segment } from 'semantic-ui-react';
+import React, { useState } from 'react';
+import moment from 'moment';
+import DeleteConfirmModal from '../common/delete.confirm.modal';
 import { PoPoAxios } from '@/utils/axios.instance';
 
 const EquipmentReservationConfirmModal = (props) => {
-  const reservation = props.reservation
+  const reservation = props.reservation;
 
-  const [open, setOpen] = useState(false)
-  const [send_email, setSendEmail] = useState(true)
+  const [open, setOpen] = useState(false);
+  const [send_email, setSendEmail] = useState(true);
 
   const handlePatch = async (e, data) => {
     try {
-      const patch_type = data.name // {accept, reject}
+      const patch_type = data.name; // {accept, reject}
       await PoPoAxios.patch(
         `/reservation-equip/${reservation.uuid}/status/${patch_type}?sendEmail=${send_email}`,
-        {}, {withCredentials: true})
-      setOpen(false)
-      window.location.reload()
+        {},
+        { withCredentials: true },
+      );
+      setOpen(false);
+      window.location.reload();
     } catch (err) {
       const errMsg = err.response.data.message;
       alert(`예약 승인/거절에 실패했습니다.\n${errMsg}`);
     }
-  }
+  };
 
   return (
     <Modal
       closeIcon
-      open={open} trigger={props.trigger}
+      open={open}
+      trigger={props.trigger}
       onClose={() => setOpen(false)}
       onOpen={() => setOpen(true)}
     >
@@ -37,56 +40,40 @@ const EquipmentReservationConfirmModal = (props) => {
           <Segment>
             <h4>장비 목록</h4>
             <div>
-              {
-                reservation.equipments.map(equipment => {
-                  return (
-                    <Label
-                      key={equipment.uuid}
-                      style={{margin: "4px"}}
-                    >
-                      {equipment.name}
-                    </Label>
-                  )
-                })
-              }
+              {reservation.equipments.map((equipment) => {
+                return (
+                  <Label key={equipment.uuid} style={{ margin: '4px' }}>
+                    {equipment.name}
+                  </Label>
+                );
+              })}
             </div>
           </Segment>
           <Segment>
             <h4>사용자</h4>
-            <div>
-              {reservation.booker.name}
-            </div>
+            <div>{reservation.booker.name}</div>
           </Segment>
           <Segment>
             <h4>전화번호</h4>
-            <div>
-              {reservation.phone}
-            </div>
+            <div>{reservation.phone}</div>
           </Segment>
           <Segment>
             <h4>예약 제목</h4>
-            <div>
-              {reservation.title}
-            </div>
+            <div>{reservation.title}</div>
           </Segment>
           <Segment>
             <h4>설명</h4>
-            <div>
-              {reservation.description}
-            </div>
+            <div>{reservation.description}</div>
           </Segment>
           <Segment>
             <h4>예약 기간</h4>
             <div>
               <b>
-                {moment(reservation.date, 'YYYYMMDD').
-                  format('YYYY-MM-DD')}
+                {moment(reservation.date, 'YYYYMMDD').format('YYYY-MM-DD')}
                 &nbsp;
-                {moment(reservation.start_time, 'HHmm').
-                  format('HH:mm')}
+                {moment(reservation.start_time, 'HHmm').format('HH:mm')}
                 &nbsp;~&nbsp;
-                {moment(reservation.end_time, 'HHmm').
-                  format('HH:mm')}
+                {moment(reservation.end_time, 'HHmm').format('HH:mm')}
               </b>
             </div>
           </Segment>
@@ -106,15 +93,11 @@ const EquipmentReservationConfirmModal = (props) => {
           />
           <Modal.Actions>
             <Button.Group floated={'left'}>
-              <Button
-                positive name={'통과'}
-                onClick={handlePatch}>
-                <Icon name={'check'}/> 예약 승인
+              <Button positive name={'통과'} onClick={handlePatch}>
+                <Icon name={'check'} /> 예약 승인
               </Button>
-              <Button
-                negative name={'거절'}
-                onClick={handlePatch}>
-                <Icon name={'ban'}/> 예약 거절
+              <Button negative name={'거절'} onClick={handlePatch}>
+                <Icon name={'ban'} /> 예약 거절
               </Button>
             </Button.Group>
             <Button.Group floated={'right'}>
@@ -123,7 +106,7 @@ const EquipmentReservationConfirmModal = (props) => {
                 deleteURI={`reservation-equip/${reservation.uuid}`}
                 trigger={
                   <Button negative>
-                    <Icon name={'trash'}/> 예약 삭제
+                    <Icon name={'trash'} /> 예약 삭제
                   </Button>
                 }
               />
@@ -132,7 +115,7 @@ const EquipmentReservationConfirmModal = (props) => {
         </Form>
       </Modal.Content>
     </Modal>
-  )
-}
+  );
+};
 
-export default EquipmentReservationConfirmModal
+export default EquipmentReservationConfirmModal;

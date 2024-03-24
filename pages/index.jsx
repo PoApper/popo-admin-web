@@ -1,5 +1,5 @@
-import { Divider, Grid, Image, List } from 'semantic-ui-react'
-import LayoutWithAuth from '@/components/layout/layout.auth.with'
+import { Divider, Grid, Image, List } from 'semantic-ui-react';
+import LayoutWithAuth from '@/components/layout/layout.auth.with';
 
 const HomePage = () => {
   return (
@@ -8,41 +8,47 @@ const HomePage = () => {
         <Grid.Column>
           <h2>POPO 관리자 페이지🎩</h2>
           <p style={{ fontSize: '16px', marginBottom: '2rem' }}>
-            안녕하세요, POPO의 관리자 페이지입니다.
-            이곳에서 POPO 사이트의 기능과 데이터베이스를 관리할 수 있습니다.
-            POPO 서비스가 지속되기 위해선 관리자 여러분의 노력이 필요합니다. 🙏
+            안녕하세요, POPO의 관리자 페이지입니다. 이곳에서 POPO 사이트의
+            기능과 데이터베이스를 관리할 수 있습니다. POPO 서비스가 지속되기
+            위해선 관리자 여러분의 노력이 필요합니다. 🙏
           </p>
           <p>
-            현재 POPO의 유지/보수는 동아리 PoApper가 진행하고 있습니다. 서비스 장애시 PoApper에 문의 부탁드립니다 👨‍💻
+            현재 POPO의 유지/보수는 동아리 PoApper가 진행하고 있습니다. 서비스
+            장애시 PoApper에 문의 부탁드립니다 👨‍💻
           </p>
           <p>
             리뉴얼 이전 &nbsp;
-            <a href="http://phome.postech.ac.kr/user/indexSub.action?codyMenuSeq=2316288&siteId=popo&menuUIType=top"
-               target="_blank" rel="noreferrer">
+            <a
+              href="http://phome.postech.ac.kr/user/indexSub.action?codyMenuSeq=2316288&siteId=popo&menuUIType=top"
+              target="_blank"
+              rel="noreferrer"
+            >
               (구) POPO 홈페이지
-            </a> &nbsp;
-            (2014 ~ 2019)
+            </a>{' '}
+            &nbsp; (2014 ~ 2019)
           </p>
-          <Divider/>
+          <Divider />
           <h2>최근 추가된 신규 기능 🚀</h2>
           <List as="ul">
             <List.Item as="li">공지사항 기능</List.Item>
             <List.Item as="li">대기중인 예약 목록 가시성 향상</List.Item>
-            <List.Item as="li">관리자 페이지에서 날짜 조건 없이 예약 생성 가능</List.Item>
+            <List.Item as="li">
+              관리자 페이지에서 날짜 조건 없이 예약 생성 가능
+            </List.Item>
           </List>
         </Grid.Column>
         <Grid.Column>
           <Image
-            centered rounded
+            centered
+            rounded
             size={'medium'}
             src={'/home_background.jpg'}
             alt={'home_background'}
           />
         </Grid.Column>
       </Grid>
-
     </LayoutWithAuth>
-  )
-}
+  );
+};
 
-export default HomePage
+export default HomePage;

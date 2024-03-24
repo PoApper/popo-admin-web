@@ -3,7 +3,7 @@
  * Used in src/components/layout.jsx
  */
 
- const theme = {
+const theme = {
   background: {
     default: '#ffffffff',
     sub: '#f5f5f5ff',
@@ -24,4 +24,4 @@
   contentWidth: '80rem',
 };
 
-export default theme; 
+export default theme;

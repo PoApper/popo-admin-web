@@ -1,7 +1,7 @@
-import styled from 'styled-components'
-import { Image, Menu } from 'semantic-ui-react'
-import Link from 'next/link'
-import MenuItemUser from './menu.item.user'
+import styled from 'styled-components';
+import { Image, Menu } from 'semantic-ui-react';
+import Link from 'next/link';
+import MenuItemUser from './menu.item.user';
 
 const NavbarDesktop = () => {
   return (
@@ -11,12 +11,14 @@ const NavbarDesktop = () => {
           <NavbarMenu borderless>
             <Link href={'/'} passHref>
               <Menu.Item position={'left'} style={{ paddingLeft: 0 }}>
-              <span style={{ textAlign: 'center' }}>
-                <Image
-                  centered
-                  src={'/popo.svg'} alt={'logo'}
-                  size={'small'}/>
-              </span>
+                <span style={{ textAlign: 'center' }}>
+                  <Image
+                    centered
+                    src={'/popo.svg'}
+                    alt={'logo'}
+                    size={'small'}
+                  />
+                </span>
                 관리자
               </Menu.Item>
             </Link>
@@ -36,15 +38,15 @@ const NavbarDesktop = () => {
               <Menu.Item link>통계 보기</Menu.Item>
             </Link>
 
-            <MenuItemUser/>
+            <MenuItemUser />
           </NavbarMenu>
         </NavbarInner>
       </NavbarWrapper>
     </>
-  )
-}
+  );
+};
 
-export default NavbarDesktop
+export default NavbarDesktop;
 
 const NavbarWrapper = styled.nav`
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
@@ -56,7 +58,7 @@ const NavbarWrapper = styled.nav`
   position: fixed;
   top: 0;
   z-index: 10;
-`
+`;
 
 const NavbarInner = styled.div`
   display: flex;
@@ -64,15 +66,11 @@ const NavbarInner = styled.div`
   align-items: center;
   margin: auto;
 
-  max-width: ${({
-    theme,
-  }) => theme.contentWidth
-  };
-`
+  max-width: ${({ theme }) => theme.contentWidth};
+`;
 
 const NavbarMenu = styled(Menu)`
   box-shadow: none !important;
   border: none !important;
   width: 100%;
-`
-
+`;

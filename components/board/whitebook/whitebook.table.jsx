@@ -1,14 +1,10 @@
-import moment from 'moment'
-import { Table } from 'semantic-ui-react'
-import WhitebookUpdateModal from './whitebook.update.modal'
+import moment from 'moment';
+import { Table } from 'semantic-ui-react';
+import WhitebookUpdateModal from './whitebook.update.modal';
 
-const WhitebookTable = ({whitebooks}) => {
-
+const WhitebookTable = ({ whitebooks }) => {
   return (
-    <Table
-      celled selectable
-      textAlign={'center'}
-    >
+    <Table celled selectable textAlign={'center'}>
       <Table.Header>
         <Table.Row>
           <Table.HeaderCell>idx.</Table.HeaderCell>
@@ -19,35 +15,30 @@ const WhitebookTable = ({whitebooks}) => {
         </Table.Row>
       </Table.Header>
       <Table.Body>
-        {
-          whitebooks.map((whitebook, idx) =>
-            <WhitebookUpdateModal
-              key={whitebook.uuid}
-              whitebook={whitebook}
-              trigger={
-                <Table.Row key={whitebook.uuid}>
-                  <Table.Cell>{idx + 1}</Table.Cell>
-                  <Table.Cell>
-                    <a href={whitebook.link} target={'_blank'} rel={"noreferrer"}>
-                      {whitebook.title}
-                    </a>
-                  </Table.Cell>
-                  <Table.Cell>{whitebook.content}</Table.Cell>
-                  <Table.Cell>
-                    {moment(whitebook.created_at).
-                      format('YYYY-MM-DD HH:mm')}
-                  </Table.Cell>
-                  <Table.Cell>
-                    {whitebook.click_count}
-                  </Table.Cell>
-                </Table.Row>
-              }
-            />
-          )
-        }
+        {whitebooks.map((whitebook, idx) => (
+          <WhitebookUpdateModal
+            key={whitebook.uuid}
+            whitebook={whitebook}
+            trigger={
+              <Table.Row key={whitebook.uuid}>
+                <Table.Cell>{idx + 1}</Table.Cell>
+                <Table.Cell>
+                  <a href={whitebook.link} target={'_blank'} rel={'noreferrer'}>
+                    {whitebook.title}
+                  </a>
+                </Table.Cell>
+                <Table.Cell>{whitebook.content}</Table.Cell>
+                <Table.Cell>
+                  {moment(whitebook.created_at).format('YYYY-MM-DD HH:mm')}
+                </Table.Cell>
+                <Table.Cell>{whitebook.click_count}</Table.Cell>
+              </Table.Row>
+            }
+          />
+        ))}
       </Table.Body>
     </Table>
-  )
-}
+  );
+};
 
-export default WhitebookTable
+export default WhitebookTable;

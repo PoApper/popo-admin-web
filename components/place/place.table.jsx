@@ -1,23 +1,23 @@
-import React from 'react'
-import Link from "next/link";
-import { Table } from 'semantic-ui-react'
-import _ from 'lodash'
+import React from 'react';
+import Link from 'next/link';
+import { Table } from 'semantic-ui-react';
+import _ from 'lodash';
 
 const regionNames = {
-  'STUDENT_HALL': '학생 회관',
-  'JIGOK_CENTER': '지곡 회관',
-  'COMMUNITY_CENTER': '커뮤니티 센터',
-  'RESIDENTIAL_COLLEGE': 'RC',
-  'OTHERS': 'OTHERS',
-}
+  STUDENT_HALL: '학생 회관',
+  JIGOK_CENTER: '지곡 회관',
+  COMMUNITY_CENTER: '커뮤니티 센터',
+  RESIDENTIAL_COLLEGE: 'RC',
+  OTHERS: 'OTHERS',
+};
 
 const PlaceTable = ({ placeList }) => {
   const [state, dispatch] = React.useReducer(exampleReducer, {
     column: null,
     data: placeList,
     direction: null,
-  })
-  const { column, data, direction } = state
+  });
+  const { column, data, direction } = state;
 
   function exampleReducer(state, action) {
     switch (action.type) {
@@ -28,23 +28,21 @@ const PlaceTable = ({ placeList }) => {
             data: state.data.slice().reverse(),
             direction:
               state.direction === 'ascending' ? 'descending' : 'ascending',
-          }
+          };
         }
 
         return {
           column: action.column,
           data: _.sortBy(state.data, [action.column]),
           direction: 'ascending',
-        }
+        };
       default:
-        throw new Error()
+        throw new Error();
     }
   }
 
   return (
-    <Table
-      celled selectable sortable
-      textAlign={'center'}>
+    <Table celled selectable sortable textAlign={'center'}>
       <Table.Header>
         <Table.Row>
           <Table.HeaderCell>idx.</Table.HeaderCell>
@@ -56,7 +54,9 @@ const PlaceTable = ({ placeList }) => {
           </Table.HeaderCell>
           <Table.HeaderCell
             sorted={column === 'location' ? direction : null}
-            onClick={() => dispatch({ type: 'CHANGE_SORT', column: 'location' })}
+            onClick={() =>
+              dispatch({ type: 'CHANGE_SORT', column: 'location' })
+            }
           >
             위치
           </Table.HeaderCell>
@@ -68,46 +68,50 @@ const PlaceTable = ({ placeList }) => {
           </Table.HeaderCell>
           <Table.HeaderCell
             sorted={column === 'max_minutes' ? direction : null}
-            onClick={() => dispatch({ type: 'CHANGE_SORT', column: 'max_minutes' })}
+            onClick={() =>
+              dispatch({ type: 'CHANGE_SORT', column: 'max_minutes' })
+            }
           >
             일일 한도 (분)
           </Table.HeaderCell>
           <Table.HeaderCell
             sorted={column === 'total_reservation_count' ? direction : null}
-            onClick={() => dispatch({ type: 'CHANGE_SORT', column: 'total_reservation_count' })}
+            onClick={() =>
+              dispatch({
+                type: 'CHANGE_SORT',
+                column: 'total_reservation_count',
+              })
+            }
           >
             총 예약 갯수
           </Table.HeaderCell>
         </Table.Row>
       </Table.Header>
       <Table.Body>
-        {
-          data.map((place, idx) => (
-            <Link href={`place/update/${place.uuid}`} key={place.uuid}>
-              <Table.Row>
-                <Table.Cell>{idx + 1}</Table.Cell>
-                <Table.Cell>{place.name}</Table.Cell>
-                <Table.Cell>{place.location}</Table.Cell>
-                <Table.Cell>{regionNames[place.region]}</Table.Cell>
-                <Table.Cell>
-                  {
-                    place.max_minutes === 1440 ?
-                      '제한 없음' :
-                      place.max_minutes.toLocaleString()
-                  }
-                </Table.Cell>
-                <Table.Cell>{place.total_reservation_count.toLocaleString()}</Table.Cell>
-              </Table.Row>
-            </Link>
-          ))
-        }
+        {data.map((place, idx) => (
+          <Link href={`place/update/${place.uuid}`} key={place.uuid}>
+            <Table.Row>
+              <Table.Cell>{idx + 1}</Table.Cell>
+              <Table.Cell>{place.name}</Table.Cell>
+              <Table.Cell>{place.location}</Table.Cell>
+              <Table.Cell>{regionNames[place.region]}</Table.Cell>
+              <Table.Cell>
+                {place.max_minutes === 1440
+                  ? '제한 없음'
+                  : place.max_minutes.toLocaleString()}
+              </Table.Cell>
+              <Table.Cell>
+                {place.total_reservation_count.toLocaleString()}
+              </Table.Cell>
+            </Table.Row>
+          </Link>
+        ))}
       </Table.Body>
       <Table.Footer>
-        <Table.Row>
-        </Table.Row>
+        <Table.Row></Table.Row>
       </Table.Footer>
     </Table>
-  )
-}
+  );
+};
 
 export default PlaceTable;

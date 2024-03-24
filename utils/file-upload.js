@@ -1,21 +1,21 @@
-import { PoPoAxios } from "./axios.instance";
+import { PoPoAxios } from './axios.instance';
 
 export function ImageUpload(uri, image_file) {
   let formData = new FormData();
-  formData.append("image", image_file);
+  formData.append('image', image_file);
 
   return PoPoAxios.post(uri, formData, {
     withCredentials: true,
-    headers: { "Content-Type": "multipart/form-data" },
+    headers: { 'Content-Type': 'multipart/form-data' },
   });
 }
 
 export function CsvUpload(uri, csv_file) {
   let formData = new FormData();
-  formData.append("csv_file", csv_file);
+  formData.append('csv_file', csv_file);
 
   return PoPoAxios.post(uri, formData, {
     withCredentials: true,
-    headers: { "Content-Type": "multipart/form-data" },
+    headers: { 'Content-Type': 'multipart/form-data' },
   });
 }

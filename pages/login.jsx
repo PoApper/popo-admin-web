@@ -1,45 +1,48 @@
-import { useEffect, useState } from 'react'
-import { useRouter } from 'next/router'
-import { Form, Image } from 'semantic-ui-react'
-import styled from 'styled-components'
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
+import { Form, Image } from 'semantic-ui-react';
+import styled from 'styled-components';
 
-import LayoutWithoutAuth from '@/components/layout/layout.auth.without'
+import LayoutWithoutAuth from '@/components/layout/layout.auth.without';
 import { PoPoAxios } from '@/utils/axios.instance';
 
 const LoginPage = () => {
-  const router = useRouter()
+  const router = useRouter();
 
-  const [email, setEmail] = useState('')
-  const [password, setPW] = useState('')
+  const [email, setEmail] = useState('');
+  const [password, setPW] = useState('');
 
   useEffect(() => {
     PoPoAxios.get('/auth/verifyToken', {
       withCredentials: true,
-    }).then(() => {
-      alert('이미 로그인 상태 입니다.')
-      router.push('/')
-    }).catch(() => {})
-  }, [router])
+    })
+      .then(() => {
+        alert('이미 로그인 상태 입니다.');
+        router.push('/');
+      })
+      .catch(() => {});
+  }, [router]);
 
   const handleLogin = async () => {
     try {
-      await PoPoAxios.post('/auth/login/admin', {
-        email: email,
-        password: password,
-      }, { withCredentials: true })
-      await router.push('/')
+      await PoPoAxios.post(
+        '/auth/login/admin',
+        {
+          email: email,
+          password: password,
+        },
+        { withCredentials: true },
+      );
+      await router.push('/');
     } catch (e) {
-      alert('로그인에 실패했습니다.')
-      console.log(e)
+      alert('로그인에 실패했습니다.');
+      console.log(e);
     }
-  }
+  };
 
   return (
     <LayoutWithoutAuth>
-      <Image
-        src={'/popo.svg'}
-        alt={'popo-logo'}
-      />
+      <Image src={'/popo.svg'} alt={'popo-logo'} />
       <SubTitle>관리자 페이지</SubTitle>
 
       <LoginFormDiv>
@@ -55,23 +58,20 @@ const LoginPage = () => {
             label={'비밀번호'}
             onChange={(e) => setPW(e.target.value)}
           />
-          <Form.Button onClick={handleLogin}>
-            로그인
-          </Form.Button>
+          <Form.Button onClick={handleLogin}>로그인</Form.Button>
         </Form>
       </LoginFormDiv>
-
     </LayoutWithoutAuth>
-  )
-}
+  );
+};
 
-export default LoginPage
+export default LoginPage;
 
 const SubTitle = styled.h2`
   margin-top: 0;
   font-size: 26px !important;
   font-weight: 500;
-`
+`;
 
 const LoginFormDiv = styled.div`
   width: 500px;
@@ -79,4 +79,4 @@ const LoginFormDiv = styled.div`
   @media only screen and (max-width: 768px) {
     width: 100%;
   }
-`
+`;

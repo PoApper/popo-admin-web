@@ -1,43 +1,45 @@
-import { Icon, Image, Menu } from 'semantic-ui-react'
-import styled from 'styled-components'
-import Link from 'next/link'
-import MenuItemUser from './menu.item.user'
+import { Icon, Image, Menu } from 'semantic-ui-react';
+import styled from 'styled-components';
+import Link from 'next/link';
+import MenuItemUser from './menu.item.user';
 
 const NavbarMobile = ({ openSidebar }) => {
   return (
     <NavbarWrapper>
-      <div style={{
-        backgroundColor: 'black',
-        textAlign: 'center',
-        color: 'white',
-      }}>
+      <div
+        style={{
+          backgroundColor: 'black',
+          textAlign: 'center',
+          color: 'white',
+        }}
+      >
         관리자
       </div>
       <NavbarInner>
         <NavbarMenu borderless>
-          <Menu.Item style={{ margin: 10 }} onClick={openSidebar} >
-            <Icon name={'sidebar'} style={{ margin: '0' }}/>
+          <Menu.Item style={{ margin: 10 }} onClick={openSidebar}>
+            <Icon name={'sidebar'} style={{ margin: '0' }} />
           </Menu.Item>
 
-          <Menu.Item position={'left'}
-                     style={{ paddingLeft: 0 }}>
+          <Menu.Item position={'left'} style={{ paddingLeft: 0 }}>
             <Link href={'/'} passHref>
               <Image
-                src={'/popo.svg'} alt={'logo'}
+                src={'/popo.svg'}
+                alt={'logo'}
                 size={'tiny'}
                 style={{ margin: 'rgba(255, 255, 255, 0.7)' }}
               />
             </Link>
           </Menu.Item>
 
-          <MenuItemUser/>
+          <MenuItemUser />
         </NavbarMenu>
       </NavbarInner>
     </NavbarWrapper>
-  )
-}
+  );
+};
 
-export default NavbarMobile
+export default NavbarMobile;
 
 const NavbarWrapper = styled.nav`
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
@@ -49,7 +51,7 @@ const NavbarWrapper = styled.nav`
   position: fixed;
   top: 0;
   z-index: 10;
-`
+`;
 
 const NavbarInner = styled.div`
   display: flex;
@@ -57,14 +59,11 @@ const NavbarInner = styled.div`
   align-items: center;
   margin: auto;
 
-  max-width: ${({
-    theme,
-  }) => theme.contentWidth
-  };
-`
+  max-width: ${({ theme }) => theme.contentWidth};
+`;
 
 const NavbarMenu = styled(Menu)`
   box-shadow: none !important;
   border: none !important;
   width: 100%;
-`
+`;

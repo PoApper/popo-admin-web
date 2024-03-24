@@ -1,14 +1,11 @@
-import React from 'react'
-import { Table } from 'semantic-ui-react'
-import moment from 'moment'
-import PlaceReservationConfirmModal
-  from './place.reservation.confirm.modal'
+import React from 'react';
+import { Table } from 'semantic-ui-react';
+import moment from 'moment';
+import PlaceReservationConfirmModal from './place.reservation.confirm.modal';
 
-const PlaceReservationTable = ({reservations, startIdx}) => {
+const PlaceReservationTable = ({ reservations, startIdx }) => {
   return (
-    <Table
-      celled selectable
-      textAlign={'center'}>
+    <Table celled selectable textAlign={'center'}>
       <Table.Header>
         <Table.Row>
           <Table.HeaderCell width={1}>idx.</Table.HeaderCell>
@@ -20,38 +17,35 @@ const PlaceReservationTable = ({reservations, startIdx}) => {
         </Table.Row>
       </Table.Header>
       <Table.Body>
-        {
-          reservations.map((reservation, idx) =>
-            <PlaceReservationConfirmModal
-              key={reservation.uuid}
-              reservation={reservation}
-              trigger={
-                <Table.Row key={reservation.uuid}>
-                  <Table.Cell>{startIdx + idx + 1}</Table.Cell>
-                  <Table.Cell>{reservation.place.name}</Table.Cell>
-                  <Table.Cell>{reservation.booker.name}</Table.Cell>
-                  <Table.Cell>{reservation.title}</Table.Cell>
-                  <Table.Cell>
-                    <b>
-                      {moment(reservation.date, 'YYYYMMDD').
-                        format('YYYY년 MM월 DD일')}
-                      <br/>
-                      {moment(reservation.start_time, 'HHmm').
-                        format('HH:mm')}
-                      &nbsp;~&nbsp;
-                      {moment(reservation.end_time, 'HHmm').
-                        format('HH:mm')}
-                    </b>
-                  </Table.Cell>
-                  <Table.Cell>{reservation.status}</Table.Cell>
-                </Table.Row>
-              }
-            />,
-          )
-        }
+        {reservations.map((reservation, idx) => (
+          <PlaceReservationConfirmModal
+            key={reservation.uuid}
+            reservation={reservation}
+            trigger={
+              <Table.Row key={reservation.uuid}>
+                <Table.Cell>{startIdx + idx + 1}</Table.Cell>
+                <Table.Cell>{reservation.place.name}</Table.Cell>
+                <Table.Cell>{reservation.booker.name}</Table.Cell>
+                <Table.Cell>{reservation.title}</Table.Cell>
+                <Table.Cell>
+                  <b>
+                    {moment(reservation.date, 'YYYYMMDD').format(
+                      'YYYY년 MM월 DD일',
+                    )}
+                    <br />
+                    {moment(reservation.start_time, 'HHmm').format('HH:mm')}
+                    &nbsp;~&nbsp;
+                    {moment(reservation.end_time, 'HHmm').format('HH:mm')}
+                  </b>
+                </Table.Cell>
+                <Table.Cell>{reservation.status}</Table.Cell>
+              </Table.Row>
+            }
+          />
+        ))}
       </Table.Body>
     </Table>
-  )
-}
+  );
+};
 
-export default PlaceReservationTable
+export default PlaceReservationTable;

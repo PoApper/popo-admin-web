@@ -1,29 +1,35 @@
-import React from 'react'
-import Link from 'next/link'
-import { Button, Select } from 'semantic-ui-react'
+import React from 'react';
+import Link from 'next/link';
+import { Button, Select } from 'semantic-ui-react';
 
-import ReservationLayout from '@/components/reservation/reservation.layout'
-import PlaceTable from '@/components/place/place.table'
-import { PoPoAxios } from "@/utils/axios.instance";
-import { RegionOptions } from '@/assets/region.options'
+import ReservationLayout from '@/components/reservation/reservation.layout';
+import PlaceTable from '@/components/place/place.table';
+import { PoPoAxios } from '@/utils/axios.instance';
+import { RegionOptions } from '@/assets/region.options';
 
 const PlaceRegionOptions = [
   { key: 'ALL', value: 'ALL', text: '전체' },
   ...RegionOptions,
-]
+];
 
 const PlacePage = ({ placeList }) => {
   const [selectedRegion, setSelectedRegion] = React.useState('ALL');
 
   const filteredPlaceList = React.useMemo(() => {
     if (selectedRegion === 'ALL') return placeList;
-    return placeList.filter(place => place.region === selectedRegion);
+    return placeList.filter((place) => place.region === selectedRegion);
   }, [selectedRegion, placeList]);
 
   return (
     <ReservationLayout>
       <h3>장소 목록</h3>
-      <div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'space-between' }}>
+      <div
+        style={{
+          marginBottom: '1rem',
+          display: 'flex',
+          justifyContent: 'space-between',
+        }}
+      >
         <div>
           <Link href={'/place/create'}>
             <Button>장소 생성</Button>
@@ -38,15 +44,16 @@ const PlacePage = ({ placeList }) => {
         </div>
       </div>
       <p>
-        퍼블릭 페이지에는 마지막 수정일 순서로 정렬되어 표시됩니다.<br/>
+        퍼블릭 페이지에는 마지막 수정일 순서로 정렬되어 표시됩니다.
+        <br />
         테이블 헤더를 클릭하여 정렬된 결과를 확인할 수 있습니다.
       </p>
       <div>
-        <PlaceTable placeList={filteredPlaceList}/>
+        <PlaceTable placeList={filteredPlaceList} />
       </div>
     </ReservationLayout>
-  )
-}
+  );
+};
 
 export default PlacePage;
 
