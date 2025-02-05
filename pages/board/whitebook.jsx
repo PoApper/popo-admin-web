@@ -26,7 +26,10 @@ const WhitebookPage = () => {
       <div style={{ marginBottom: '1rem' }}>
         <WhitebookCreateModal trigger={<Button>생활백서 생성</Button>} />
       </div>
-      <p>생활백서는 조회순으로 정렬되어 표시됩니다!</p>
+      <p>
+        생활백서는 조회순으로 정렬되어 표시됩니다. 박스 안을 클릭하면 수정할 수
+        있습니다.
+      </p>
       <div>
         <WhitebookTable whitebooks={whitebooks} />
       </div>

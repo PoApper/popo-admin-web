@@ -7,7 +7,7 @@ const WhitebookTable = ({ whitebooks }) => {
     <Table celled selectable textAlign={'center'}>
       <Table.Header>
         <Table.Row>
-          <Table.HeaderCell>idx.</Table.HeaderCell>
+          <Table.HeaderCell>번호</Table.HeaderCell>
           <Table.HeaderCell>제목</Table.HeaderCell>
           <Table.HeaderCell>내용</Table.HeaderCell>
           <Table.HeaderCell>생성일</Table.HeaderCell>
