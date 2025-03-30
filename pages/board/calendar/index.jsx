@@ -22,7 +22,7 @@ const AnnouncementPage = ({ calendarList }) => {
 
         <Button
           href={
-            'https://www.postech.ac.kr/academics/academic-info/academic-calendar/'
+            'https://www.postech.ac.kr/kor/college-life/academic_schedule.do'
           }
           style={{ backgroundColor: 'rgb(200, 1, 80)', color: 'white' }}
         >
