@@ -25,7 +25,8 @@ const AnnouncementPage = ({ calendarList }) => {
             'https://www.postech.ac.kr/kor/college-life/academic_schedule.do'
           }
           style={{ backgroundColor: 'rgb(200, 1, 80)', color: 'white' }}
-          target="_blank" rel="noopener noreferrer"
+          target="_blank"
+          rel="noopener noreferrer"
         >
           공식 학사일정 확인하기
         </Button>
