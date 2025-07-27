@@ -38,7 +38,7 @@ const NoticeCreatePage = () => {
       return;
     }
 
-    PoPoAxios.post('/notice', body, { withCredentials: true })
+    PoPoAxios.post('/notice', body)
       .then(() => {
         alert('공지사항이 등록 되었습니다!');
         router.push('/board/notice');

@@ -11,7 +11,7 @@ const RcStudentsListPage = ({ popoRcStdntCnt, totalRcStdntCnt }) => {
   const [rcStudentStatusList, setRcStudentStatusList] = useState([]);
 
   useEffect(() => {
-    PoPoAxios.get('/setting/get-rc-students-status', { withCredentials: true })
+    PoPoAxios.get('/setting/get-rc-students-status')
       .then((res) => {
         setRcStudentStatusList(res.data);
         setIsLoaded(true);
@@ -59,9 +59,7 @@ const RcStudentsListPage = ({ popoRcStdntCnt, totalRcStdntCnt }) => {
         <Button
           size="tiny"
           onClick={() => {
-            PoPoAxios.get('/setting/sync-rc-students-list', {
-              withCredentials: true,
-            })
+            PoPoAxios.get('/setting/sync-rc-students-list')
               .then(() => {
                 alert('싱크에 성공 했습니다.');
                 window.location.reload();

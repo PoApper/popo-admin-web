@@ -13,14 +13,10 @@ const PlaceReservationPage = () => {
 
   useEffect(() => {
     try {
-      PoPoAxios.get(`/reservation-place?take=${page_size}`, {
-        withCredentials: true,
-      }).then((res) => {
+      PoPoAxios.get(`/reservation-place?take=${page_size}`).then((res) => {
         setReservations(res.data);
       });
-      PoPoAxios.get('/reservation-place/count', {
-        withCredentials: true,
-      }).then((res) => {
+      PoPoAxios.get('/reservation-place/count').then((res) => {
         setTotalCount(res.data);
       });
     } catch (err) {
@@ -33,7 +29,6 @@ const PlaceReservationPage = () => {
     const activePage = target.activePage;
     const ret = await PoPoAxios.get(
       `/reservation-place?take=10&skip=${page_size * (activePage - 1)}`,
-      { withCredentials: true },
     );
     setReservations(ret.data);
     setPage(activePage);

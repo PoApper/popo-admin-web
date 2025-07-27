@@ -33,9 +33,7 @@ const EquipmentUpdatePage = ({ equipmentInfo }) => {
       body['max_minutes'] = max_minutes;
     }
 
-    PoPoAxios.put(`/equip/${equipmentInfo.uuid}`, body, {
-      withCredentials: true,
-    })
+    PoPoAxios.put(`/equip/${equipmentInfo.uuid}`, body)
       .then(() => {
         alert('장비 정보가 수정 되었습니다!');
         router.push('/equipment');

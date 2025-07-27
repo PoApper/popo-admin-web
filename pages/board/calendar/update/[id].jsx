@@ -26,7 +26,7 @@ const CalendarUpdatePage = ({ calendarInfo }) => {
       event_date: event_date,
     };
 
-    PoPoAxios.put(`/calendar/${id}`, body, { withCredentials: true })
+    PoPoAxios.put(`/calendar/${id}`, body)
       .then(() => {
         alert('학사일정이 업데이트 되었습니다!');
         router.push('/board/calendar');

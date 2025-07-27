@@ -27,9 +27,7 @@ const ReservationPage = ({
 
   useEffect(() => {
     async function getCurrentPlaceReservations() {
-      const res = await PoPoAxios.get('reservation-place?status=심사중', {
-        withCredentials: true,
-      });
+      const res = await PoPoAxios.get('reservation-place?status=심사중');
       const sortedPlace = res.data.sort(
         (a, b) =>
           new moment(`${b.date}T${b.start_time}`) -
@@ -38,9 +36,7 @@ const ReservationPage = ({
       setPlaceReservations(sortedPlace);
     }
     async function getCurrentEquipReservations() {
-      const res = await PoPoAxios.get('reservation-equip?status=심사중', {
-        withCredentials: true,
-      });
+      const res = await PoPoAxios.get('reservation-equip?status=심사중');
       const sortedEquip = res.data.sort(
         (a, b) =>
           new moment(`${b.date}T${b.start_time}`) -

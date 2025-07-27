@@ -60,7 +60,7 @@ const PlaceReservationCreatePage = ({ placeList }) => {
     : false;
 
   useEffect(() => {
-    PoPoAxios.get('/auth/verifyToken', { withCredentials: true })
+    PoPoAxios.get('/auth/verifyToken')
       .then((res) => setUserInfo(res.data))
       .catch(() => {
         // alert('로그인 후 예약 할 수 있습니다.');
@@ -74,19 +74,15 @@ const PlaceReservationCreatePage = ({ placeList }) => {
       return;
     }
 
-    PoPoAxios.post(
-      '/reservation-place',
-      {
-        place_id: placeInfo.uuid,
-        phone: phone,
-        title: title,
-        description: description,
-        date: date.format('YYYYMMDD'), // YYYYMMDD
-        start_time: startTime.format('HHmm'), // HHmm
-        end_time: endTime.format('HHmm'), // HHmm
-      },
-      { withCredentials: true },
-    )
+    PoPoAxios.post('/reservation-place', {
+      place_id: placeInfo.uuid,
+      phone: phone,
+      title: title,
+      description: description,
+      date: date.format('YYYYMMDD'), // YYYYMMDD
+      start_time: startTime.format('HHmm'), // HHmm
+      end_time: endTime.format('HHmm'), // HHmm
+    })
       .then(() => {
         alert('예약을 생성했습니다!');
         router.push('/place/reservation');

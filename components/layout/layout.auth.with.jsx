@@ -11,9 +11,7 @@ const LayoutWithAuth = ({ children }) => {
   const router = useRouter();
 
   useEffect(() => {
-    PoPoAxios.get('/auth/verifyToken/admin', {
-      withCredentials: true,
-    }).catch(() => {
+    PoPoAxios.get('/auth/verifyToken/admin', {}).catch(() => {
       router.push('/login');
     });
   }, [router]);

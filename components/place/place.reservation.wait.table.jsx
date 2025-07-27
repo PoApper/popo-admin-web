@@ -8,11 +8,9 @@ const PlaceReservationWaitTable = ({ reservations }) => {
   const [selectedUuidList, setSelectedUuidList] = useState([]);
 
   function acceptAllInProgressPlaceReservations() {
-    PoPoAxios.patch(
-      '/reservation-place/all/status/accept',
-      { uuid_list: selectedUuidList },
-      { withCredentials: true },
-    )
+    PoPoAxios.patch('/reservation-place/all/status/accept', {
+      uuid_list: selectedUuidList,
+    })
       .then(() => {
         alert(`${selectedUuidList.length}개 장소 예약을 일괄 승인했습니다.`);
         window.location.reload();

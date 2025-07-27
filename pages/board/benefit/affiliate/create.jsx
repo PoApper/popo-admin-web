@@ -19,7 +19,7 @@ const AffiliateCreatePage = () => {
       content: content,
     };
 
-    PoPoAxios.post('/benefit/affiliate', body, { withCredentials: true })
+    PoPoAxios.post('/benefit/affiliate', body)
       .then(() => {
         alert('제휴 업체가 등록 되었습니다!');
         router.push('/board/benefit');

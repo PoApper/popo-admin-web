@@ -39,9 +39,7 @@ const ClubUpdatePage = ({ clubInfo }) => {
       youtube_url: youtubeUrl,
     };
 
-    PoPoAxios.put(`/introduce/club/${clubInfo.uuid}`, body, {
-      withCredentials: true,
-    })
+    PoPoAxios.put(`/introduce/club/${clubInfo.uuid}`, body)
       .then(() => {
         alert('동아리 정보를 수정 했습니다.');
         router.push('/introduce/club');
