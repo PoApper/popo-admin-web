@@ -37,7 +37,6 @@ const WhitebookCreateModal = (props) => {
     }
 
     await PoPoAxios.post(`/whitebook`, formData, {
-      withCredentials: true,
       headers: { 'Content-Type': 'multipart/form-data' },
     })
       .then(() => {

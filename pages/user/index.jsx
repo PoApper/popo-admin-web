@@ -23,9 +23,9 @@ const UserPage = ({
 
   useEffect(() => {
     const skip = PAGE_SIZE * (page - 1);
-    PoPoAxios.get(`/search/user?q=${keyword}&take=${PAGE_SIZE}&skip=${skip}`, {
-      withCredentials: true,
-    }).then((res) => {
+    PoPoAxios.get(
+      `/search/user?q=${keyword}&take=${PAGE_SIZE}&skip=${skip}`,
+    ).then((res) => {
       const ret = res.data;
       setUsers(ret['users']);
       setTotalCount(ret['count']);

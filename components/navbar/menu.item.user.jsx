@@ -8,18 +8,14 @@ const MenuItemUser = () => {
   const [user, setUser] = useState({});
 
   useEffect(() => {
-    PoPoAxios.get('/auth/verifyToken', {
-      withCredentials: true,
-    })
+    PoPoAxios.get('/auth/verifyToken')
       .then((res) => setUser(res.data))
       .catch(() => {});
   }, []);
 
   const handleLogout = async () => {
     try {
-      await PoPoAxios.get('/auth/logout', {
-        withCredentials: true,
-      });
+      await PoPoAxios.get('/auth/logout');
       await router.push('/login');
     } catch (err) {
       alert('로그아웃에 실패했습니다.');

@@ -44,7 +44,7 @@ const PlaceCreatePage = () => {
       enable_auto_accept: enable_auto_accept,
     };
 
-    PoPoAxios.post('/place', body, { withCredentials: true })
+    PoPoAxios.post('/place', body)
       .then(() => {
         alert('장소가 생성 되었습니다!');
         router.push('/place');

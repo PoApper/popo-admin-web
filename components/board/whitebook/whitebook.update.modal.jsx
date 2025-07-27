@@ -61,7 +61,6 @@ const WhitebookUpdateModal = ({ trigger, whitebook }) => {
     }
 
     await PoPoAxios.put(`/whitebook/${whitebook.uuid}`, formData, {
-      withCredentials: true,
       headers: { 'Content-Type': 'multipart/form-data' },
     })
       .then(() => {

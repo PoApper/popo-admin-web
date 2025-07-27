@@ -40,7 +40,7 @@ const NoticeUpdatePage = ({ noticeInfo }) => {
       return;
     }
 
-    PoPoAxios.put(`/notice/${id}`, body, { withCredentials: true })
+    PoPoAxios.put(`/notice/${id}`, body)
       .then(() => {
         alert('공지사항이 업데이트 되었습니다!');
         router.push('/board/notice');

@@ -52,7 +52,7 @@ const PlaceUpdatePage = ({ placeInfo }) => {
       enable_auto_accept: enable_auto_accept,
     };
 
-    PoPoAxios.put(`/place/${placeInfo.uuid}`, body, { withCredentials: true })
+    PoPoAxios.put(`/place/${placeInfo.uuid}`, body)
       .then(() => {
         alert('장소 정보가 수정 되었습니다!');
         router.push('/place');

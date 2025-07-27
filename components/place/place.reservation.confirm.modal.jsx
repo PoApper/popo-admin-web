@@ -13,8 +13,6 @@ const PlaceReservationConfirmModal = ({ trigger, reservation }) => {
       const patch_type = data.name; // {accept, reject}
       await PoPoAxios.patch(
         `/reservation-place/${reservation.uuid}/status/${patch_type}?sendEmail=${send_email}`,
-        {},
-        { withCredentials: true },
       );
       setOpen(false);
       window.location.reload();

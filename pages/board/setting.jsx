@@ -20,17 +20,13 @@ const SettingPage = ({ settingKeyValue }) => {
   );
 
   function handleSubmit() {
-    PoPoAxios.post(
-      '/setting',
-      {
-        popo_crm_email: popoCRMEmail,
-        stu_email: STUEmail,
-        dongyeon_bank: dongyeonBank,
-        dongyeon_service_time: dongyeonServiceTime,
-        dongyeon_contact: dongyeonContact,
-      },
-      { withCredentials: true },
-    )
+    PoPoAxios.post('/setting', {
+      popo_crm_email: popoCRMEmail,
+      stu_email: STUEmail,
+      dongyeon_bank: dongyeonBank,
+      dongyeon_service_time: dongyeonServiceTime,
+      dongyeon_contact: dongyeonContact,
+    })
       .then(() => alert('설정값을 저장했습니다!'))
       .catch((err) => {
         const errMsg = err.response.data.message;

@@ -13,9 +13,7 @@ const LoginPage = () => {
   const [password, setPW] = useState('');
 
   useEffect(() => {
-    PoPoAxios.get('/auth/verifyToken/admin', {
-      withCredentials: true,
-    })
+    PoPoAxios.get('/auth/verifyToken/admin')
       .then(() => {
         alert('이미 로그인 상태 입니다.');
         router.push('/');
@@ -25,14 +23,10 @@ const LoginPage = () => {
 
   const handleLogin = async () => {
     try {
-      await PoPoAxios.post(
-        '/auth/login/admin',
-        {
-          email: email,
-          password: password,
-        },
-        { withCredentials: true },
-      );
+      await PoPoAxios.post('/auth/login/admin', {
+        email: email,
+        password: password,
+      });
       await router.push('/');
     } catch (e) {
       alert('로그인에 실패했습니다.');

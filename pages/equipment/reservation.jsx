@@ -13,9 +13,7 @@ const EquipmentReservationPage = () => {
 
   useEffect(() => {
     try {
-      PoPoAxios.get(`/reservation-equip?take=${page_size}`, {
-        withCredentials: true,
-      }).then((res) => {
+      PoPoAxios.get(`/reservation-equip?take=${page_size}`).then((res) => {
         setReservations(res.data);
       });
       PoPoAxios.get('/reservation-equip/count').then((res) => {
@@ -33,7 +31,6 @@ const EquipmentReservationPage = () => {
       `/reservation-equip?take=${page_size}&skip=${
         page_size * (activePage - 1)
       }`,
-      { withCredentials: true },
     );
     setReservations(ret.data);
     setPage(activePage);

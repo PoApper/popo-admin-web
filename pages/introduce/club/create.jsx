@@ -28,7 +28,7 @@ const ClubIntroduceCreatePage = () => {
       contact: contact,
     };
 
-    PoPoAxios.post('/introduce/club', body, { withCredentials: true })
+    PoPoAxios.post('/introduce/club', body)
       .then(() => {
         alert('소개글을 생성 했습니다.');
         router.push('/introduce/club');

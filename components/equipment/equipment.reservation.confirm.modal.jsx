@@ -16,7 +16,6 @@ const EquipmentReservationConfirmModal = (props) => {
       await PoPoAxios.patch(
         `/reservation-equip/${reservation.uuid}/status/${patch_type}?sendEmail=${send_email}`,
         {},
-        { withCredentials: true },
       );
       setOpen(false);
       window.location.reload();

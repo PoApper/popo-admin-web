@@ -23,16 +23,12 @@ const UserCreateModal = ({ trigger }) => {
 
   const handleSubmit = async () => {
     try {
-      await PoPoAxios.post(
-        '/user',
-        {
-          email: email,
-          password: password,
-          name: name,
-          userType: userType,
-        },
-        { withCredentials: true },
-      );
+      await PoPoAxios.post('/user', {
+        email: email,
+        password: password,
+        name: name,
+        userType: userType,
+      });
       window.location.reload();
     } catch (err) {
       alert('유저 생성에 실패했습니다.');
