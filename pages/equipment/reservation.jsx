@@ -18,7 +18,9 @@ const EquipmentReservationPage = () => {
       }).then((res) => {
         setReservations(res.data);
       });
-      PoPoAxios.get('/reservation-equip/count').then((res) => {
+      PoPoAxios.get('/reservation-equip/count', {
+        withCredentials: true,
+      }).then((res) => {
         setTotalCount(res.data);
       });
     } catch (err) {

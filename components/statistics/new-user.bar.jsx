@@ -6,6 +6,7 @@ const NewUserBar = ({ year }) => {
   const [barData, setBarData] = useState([]);
 
   useEffect(() => {
+    // 현재는 통계 데이터 조회가 Public API 이므로 withCredentials 옵션 필요 없음
     PoPoAxios.get(`/statistics/user?start=${year}01&end=${year + 1}01`).then(
       (res) => {
         // process data format

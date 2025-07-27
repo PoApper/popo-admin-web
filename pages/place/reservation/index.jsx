@@ -18,7 +18,9 @@ const PlaceReservationPage = () => {
       }).then((res) => {
         setReservations(res.data);
       });
-      PoPoAxios.get('/reservation-place/count').then((res) => {
+      PoPoAxios.get('/reservation-place/count', {
+        withCredentials: true,
+      }).then((res) => {
         setTotalCount(res.data);
       });
     } catch (err) {

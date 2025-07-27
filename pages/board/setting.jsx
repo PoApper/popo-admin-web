@@ -84,7 +84,7 @@ const SettingPage = ({ settingKeyValue }) => {
 export default SettingPage;
 
 export async function getServerSideProps() {
-  const res = await PoPoAxios.get('/setting');
+  const res = await PoPoAxios.get('/setting'); // 현재는 설정값 조회가 Public API 이므로 withCredentials 옵션 필요 없음
   const settingKeyValue = res.data;
 
   return { props: { settingKeyValue } };
