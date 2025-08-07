@@ -35,7 +35,7 @@ const CsvUploadForm = ({ label, uploadUri }) => {
 
           PoPoAxios.get('/setting/sync-rc-students-list')
             .then(() => {
-              alert('업로드가 완료 되었습니다!');
+              alert('업로드가 완료되었습니다!');
             })
             .catch((err) => {
               const errMsg = err.response.data.message;
