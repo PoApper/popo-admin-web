@@ -31,7 +31,7 @@ const DiscountTable = ({ discountList }) => {
               {moment(discount.created_at).format('YYYY-MM-DD HH:mm')}
             </Table.Cell>
             <Table.Cell>
-              <Link href={`/benefit/discount/update/${discount.id}`}>
+              <Link href={`/board/benefit/discount/update/${discount.id}`}>
                 <Icon name={'edit'} />
               </Link>
             </Table.Cell>

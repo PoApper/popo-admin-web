@@ -36,9 +36,7 @@ const AssociationUpdatePage = ({ associationInfo }) => {
       instagram_url: instagramUrl,
     };
 
-    PoPoAxios.put(`/introduce/association/${associationInfo.uuid}`, body, {
-      withCredentials: true,
-    })
+    PoPoAxios.put(`/introduce/association/${associationInfo.uuid}`, body)
       .then(() => {
         alert('자치단체 정보를 수정 했습니다.');
         router.push('/introduce/association');

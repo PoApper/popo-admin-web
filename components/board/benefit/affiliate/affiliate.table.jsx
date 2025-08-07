@@ -27,7 +27,7 @@ const AffiliateTable = ({ affiliateList }) => {
               {moment(affiliate.created_at).format('YYYY-MM-DD HH:mm')}
             </Table.Cell>
             <Table.Cell>
-              <Link href={`/benefit/affiliate/update/${affiliate.id}`}>
+              <Link href={`/board/benefit/affiliate/update/${affiliate.id}`}>
                 <Icon name={'edit'} />
               </Link>
             </Table.Cell>

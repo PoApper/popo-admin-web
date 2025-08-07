@@ -14,7 +14,7 @@ const DeleteConfirmModal = (props) => {
 
   const handleDelete = async () => {
     try {
-      await PoPoAxios.delete(`/${deleteURI}`, { withCredentials: true });
+      await PoPoAxios.delete(`/${deleteURI}`);
       if (afterDeleteURI) {
         router.push(afterDeleteURI);
       } else {

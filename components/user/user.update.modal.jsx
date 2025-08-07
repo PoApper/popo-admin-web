@@ -31,16 +31,12 @@ const UserUpdateModal = ({ user, trigger }) => {
 
   const handleSubmit = async () => {
     try {
-      await PoPoAxios.put(
-        `/user/${user.uuid}`,
-        {
-          email: email,
-          name: name,
-          userType: userType,
-          userStatus: userStatus,
-        },
-        { withCredentials: true },
-      );
+      await PoPoAxios.put(`/user/${user.uuid}`, {
+        email: email,
+        name: name,
+        userType: userType,
+        userStatus: userStatus,
+      });
       window.location.reload();
     } catch (err) {
       alert('유저 정보 수정에 실패했습니다.');

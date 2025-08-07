@@ -28,7 +28,7 @@ const EquipmentCreatePage = () => {
       body['max_minutes'] = max_minutes;
     }
 
-    PoPoAxios.post('/equip', body, { withCredentials: true })
+    PoPoAxios.post('/equip', body)
       .then(() => {
         alert('장비가 생성 되었습니다!');
         router.push('/equipment');

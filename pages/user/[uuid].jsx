@@ -43,16 +43,12 @@ const UserDetailPage = () => {
 
   useEffect(() => {
     setIsLoading(true);
-    const fetchUser = PoPoAxios.get(`user/admin/${uuid}`, {
-      withCredentials: true,
-    });
+    const fetchUser = PoPoAxios.get(`user/admin/${uuid}`);
     const fetchPlaceReservations = PoPoAxios.get(
       `reservation-place/user/admin/${uuid}`,
-      { withCredentials: true },
     );
     const fetchEquipReservations = PoPoAxios.get(
       `reservation-equip/user/admin/${uuid}`,
-      { withCredentials: true },
     );
 
     Promise.all([fetchUser, fetchPlaceReservations, fetchEquipReservations])
@@ -75,16 +71,12 @@ const UserDetailPage = () => {
 
   const handleSubmit = async () => {
     try {
-      await PoPoAxios.put(
-        `/user/${user.uuid}`,
-        {
-          email: email,
-          name: name,
-          userType: userType,
-          userStatus: userStatus,
-        },
-        { withCredentials: true },
-      );
+      await PoPoAxios.put(`/user/${user.uuid}`, {
+        email: email,
+        name: name,
+        userType: userType,
+        userStatus: userStatus,
+      });
       router.push('/user');
     } catch (err) {
       alert('유저 정보 수정에 실패했습니다.');

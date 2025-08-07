@@ -13,6 +13,7 @@ export const popoApiUrl =
 
 export const PoPoAxios = axios.create({
   baseURL: popoApiUrl,
+  withCredentials: true,
 });
 
 export const PopoCdnUrl = 'https://cdn.popo.poapper.club';

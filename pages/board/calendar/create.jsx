@@ -22,7 +22,7 @@ const CalendarCreatePage = () => {
       event_date: event_date,
     };
 
-    PoPoAxios.post('/calendar', body, { withCredentials: true })
+    PoPoAxios.post('/calendar', body)
       .then(() => {
         alert('학사일정이 등록 되었습니다!');
         router.push('/board/calendar');

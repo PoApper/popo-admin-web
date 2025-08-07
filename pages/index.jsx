@@ -30,10 +30,8 @@ const HomePage = () => {
           <Divider />
           <h2>최근 추가된 신규 기능 🚀</h2>
           <List as="ul">
-            <List.Item as="li">공지사항 기능</List.Item>
-            <List.Item as="li">대기중인 예약 목록 가시성 향상</List.Item>
             <List.Item as="li">
-              관리자 페이지에서 날짜 조건 없이 예약 생성 가능
+              생활백서 PDF 업로드 기능 추가 (2025.02.12)
             </List.Item>
           </List>
         </Grid.Column>
