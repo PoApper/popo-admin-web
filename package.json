@@ -14,9 +14,9 @@
   "dependencies": {
     "@nivo/bar": "^0.88.0",
     "@nivo/core": "^0.88.0",
-    "axios": "^1.7.9",
+    "axios": "^1.8.2",
     "moment": "^2.30.1",
-    "next": "^14.2.13",
+    "next": "^14.2.30",
     "react": "^18.3.1",
     "react-datepicker": "^7.4.0",
     "react-dom": "^18.3.1",
