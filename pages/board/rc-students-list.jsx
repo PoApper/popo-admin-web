@@ -29,8 +29,8 @@ const RcStudentsListPage = ({ popoRcStdntCnt, totalRcStdntCnt }) => {
       <p style={{ lineHeight: '1.6em' }}>
         RC 사생에게만 RC 장소 예약을 받기 위해 RC 사생 명단 정보가 필요합니다.
         <br />
-        아래 주소에서 CSV 파일을 다운받아 이 형식에 맞춰 입력 후, 다시 CSV 파일을
-        업로드해주세요.
+        아래 주소에서 CSV 파일을 다운받아 이 형식에 맞춰 입력 후, 다시 CSV
+        파일을 업로드해주세요.
         <span style={{ color: 'red' }}>(name, email 컬럼은 필수입니다.)</span>
         <br />
         CSV 파일이 업로드되면, RC 사생 명단 초기화(reset) 후 업로드된 명단에
