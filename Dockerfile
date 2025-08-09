@@ -18,7 +18,6 @@ ARG POPO_VERSION
 ENV NEXT_PUBLIC_POPO_VERSION ${POPO_VERSION}
 
 RUN npm run build
-RUN npm prune --production
 
 # Run Step
 FROM node:20-alpine AS runner
@@ -27,8 +26,9 @@ WORKDIR /usr/src/app
 
 COPY --from=builder /usr/src/app/.next ./.next
 COPY --from=builder /usr/src/app/public ./public
-COPY --from=builder /usr/src/app/node_modules ./node_modules
 COPY --from=builder /usr/src/app/package*.json ./
+
+RUN npm ci --only=production --ignore-scripts
 
 EXPOSE 3001
 
