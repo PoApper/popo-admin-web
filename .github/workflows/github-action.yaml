@@ -13,7 +13,7 @@ env:
 
 # 같은 PR 안에서는 가장 최근 push만 워크플로우를 실행하도록 설정
 concurrency:
-  group: ${{ github.head_ref }} 
+  group: ${{ github.head_ref }}
   cancel-in-progress: true
 
 jobs:
