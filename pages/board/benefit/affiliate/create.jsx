@@ -21,7 +21,7 @@ const AffiliateCreatePage = () => {
 
     PoPoAxios.post('/benefit/affiliate', body)
       .then(() => {
-        alert('제휴 업체가 등록 되었습니다!');
+        alert('제휴 업체가 등록되었습니다!');
         router.push('/board/benefit');
       })
       .catch((err) => {

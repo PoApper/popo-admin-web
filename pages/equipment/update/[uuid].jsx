@@ -35,7 +35,7 @@ const EquipmentUpdatePage = ({ equipmentInfo }) => {
 
     PoPoAxios.put(`/equip/${equipmentInfo.uuid}`, body)
       .then(() => {
-        alert('장비 정보가 수정 되었습니다!');
+        alert('장비 정보가 수정되었습니다!');
         router.push('/equipment');
       })
       .catch((err) => {

@@ -64,7 +64,7 @@ const WhitebookUpdateModal = ({ trigger, whitebook }) => {
       headers: { 'Content-Type': 'multipart/form-data' },
     })
       .then(() => {
-        alert('생활백서 정보를 수정 했습니다.');
+        alert('생활백서 정보를 수정했습니다.');
         window.location.reload();
       })
       .catch((err) => {

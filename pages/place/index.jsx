@@ -43,11 +43,7 @@ const PlacePage = ({ placeList }) => {
           />
         </div>
       </div>
-      <p>
-        퍼블릭 페이지에는 마지막 수정일 순서로 정렬되어 표시됩니다.
-        <br />
-        테이블 헤더를 클릭하여 정렬된 결과를 확인할 수 있습니다.
-      </p>
+      <p>테이블 헤더를 클릭하여 정렬 방식을 변경할 수 있습니다.</p>
       <div>
         <PlaceTable placeList={filteredPlaceList} />
       </div>

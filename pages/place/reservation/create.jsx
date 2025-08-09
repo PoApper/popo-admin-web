@@ -70,7 +70,7 @@ const PlaceReservationCreatePage = ({ placeList }) => {
 
   function handleSubmit() {
     if (title.length == 1 || description.length == 1) {
-      alert('예약 설명이 너무 짤습니다.');
+      alert('예약 설명이 너무 짧습니다.');
       return;
     }
 
@@ -143,7 +143,7 @@ const PlaceReservationCreatePage = ({ placeList }) => {
         <Form.TextArea
           required
           label={'설명'}
-          placeholder={'사용 인원을 꼭 작성 해주세요.'}
+          placeholder={'사용 인원을 꼭 작성해주세요.'}
           onChange={(e) => setDescription(e.target.value)}
         />
 

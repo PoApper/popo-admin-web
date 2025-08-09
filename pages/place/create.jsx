@@ -46,7 +46,7 @@ const PlaceCreatePage = () => {
 
     PoPoAxios.post('/place', body)
       .then(() => {
-        alert('장소가 생성 되었습니다!');
+        alert('장소가 생성되었습니다!');
         router.push('/place');
       })
       .catch((err) => {
@@ -94,9 +94,9 @@ const PlaceCreatePage = () => {
         </p>
 
         <Form.Input
-          label={'최대 동시 예약 갯수'}
+          label={'최대 동시 예약 개수'}
           placeholder={
-            '해당 장소를 동시 예약 가능한 최대 갯수를 입력해주세요 (ex. 1)'
+            '해당 장소를 동시 예약 가능한 최대 개수를 입력해주세요 (ex. 1)'
           }
           onChange={(e) => setMaxConcurrentReservation(e.target.value)}
         />

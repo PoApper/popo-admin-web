@@ -15,7 +15,7 @@ const LoginPage = () => {
   useEffect(() => {
     PoPoAxios.get('/auth/verifyToken/admin')
       .then(() => {
-        alert('이미 로그인 상태 입니다.');
+        alert('이미 로그인 상태입니다.');
         router.push('/');
       })
       .catch(() => {});

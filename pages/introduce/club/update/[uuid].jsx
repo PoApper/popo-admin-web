@@ -41,7 +41,7 @@ const ClubUpdatePage = ({ clubInfo }) => {
 
     PoPoAxios.put(`/introduce/club/${clubInfo.uuid}`, body)
       .then(() => {
-        alert('동아리 정보를 수정 했습니다.');
+        alert('동아리 정보를 수정했습니다.');
         router.push('/introduce/club');
       })
       .catch((err) => {

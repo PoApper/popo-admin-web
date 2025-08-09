@@ -25,7 +25,7 @@ const DiscountCreatePage = () => {
 
     PoPoAxios.post('/benefit/discount', body)
       .then(() => {
-        alert('할인 업체가 등록 되었습니다!');
+        alert('할인 업체가 등록되었습니다!');
         router.push('/board/benefit');
       })
       .catch((err) => {
