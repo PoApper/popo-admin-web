@@ -16,6 +16,20 @@ export const PoPoAxios = axios.create({
   withCredentials: true,
 });
 
+export const paxiApiUrl =
+  next_env === 'prod'
+    ? 'https://api.paxi.popo-dev.poapper.club' // TODO: Prod 서비스 할 때 수정
+    : next_env === 'dev'
+      ? 'https://api.paxi.popo-dev.poapper.club'
+      : next_env === 'local'
+        ? 'https://localhost:4100'
+        : new Error('NEXT_PUBLIC_PAXI_ENV is not set or invalid');
+
+export const PaxiAxios = axios.create({
+  baseURL: paxiApiUrl,
+  withCredentials: true,
+});
+
 export const PopoCdnUrl = 'https://cdn.popo.poapper.club';
 
 export const PopoCdnAxios = axios.create({

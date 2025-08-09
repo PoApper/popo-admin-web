@@ -2,9 +2,10 @@ import { useEffect, useState } from 'react';
 import { Button, Form, Tab } from 'semantic-ui-react';
 
 import LayoutWithAuth from '@/components/layout/layout.auth.with';
-import { PoPoAxios } from '@/utils/axios.instance';
+import { PoPoAxios, PaxiAxios } from '@/utils/axios.instance';
 import EquipmentReservationTable2 from '@/components/equipment/equipment.reservation.table2';
 import PlaceReservationTable2 from '@/components/place/place.reservation.table2';
+import CarpoolRoomTable from '@/components/carpool/carpool.room.table';
 import DeleteConfirmModal from '@/components/common/delete.confirm.modal';
 import { useRouter } from 'next/router';
 
@@ -33,11 +34,14 @@ const UserDetailPage = () => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
   const [user, setUser] = useState({});
+  const [paxiUserInfo, setPaxiUserInfo] = useState({});
   const [placeReservations, setPlaceReservations] = useState([]);
   const [equipReservations, setEquipReservations] = useState([]);
+  const [carpoolRooms, setCarpoolRooms] = useState([]);
 
   const [email, setEmail] = useState();
   const [name, setName] = useState();
+  const [nickname, setNickname] = useState();
   const [userType, setUserType] = useState();
   const [userStatus, setUserStatus] = useState();
 
@@ -50,9 +54,15 @@ const UserDetailPage = () => {
     const fetchEquipReservations = PoPoAxios.get(
       `reservation-equip/user/admin/${uuid}`,
     );
+    const fetchCarpoolRooms = PaxiAxios.get(`/room/my/${uuid}`);
 
-    Promise.all([fetchUser, fetchPlaceReservations, fetchEquipReservations])
-      .then(([userRes, placeRes, equipRes]) => {
+    Promise.all([
+      fetchUser,
+      fetchPlaceReservations,
+      fetchEquipReservations,
+      fetchCarpoolRooms,
+    ])
+      .then(([userRes, placeRes, equipRes, carpoolRes]) => {
         setUser(userRes.data);
         setEmail(userRes.data.email);
         setName(userRes.data.name);
@@ -61,11 +71,21 @@ const UserDetailPage = () => {
 
         setPlaceReservations(placeRes.data);
         setEquipReservations(equipRes.data);
+        setCarpoolRooms(carpoolRes.data || []);
 
+        // paxi API에서 유저 정보 가져오기
+        return PaxiAxios.get(`/user/my/${uuid}`);
+      })
+      .then((paxiRes) => {
+        if (paxiRes && paxiRes.data) {
+          setPaxiUserInfo(paxiRes.data);
+          setNickname(paxiRes.data.nickname || '');
+        }
         setIsLoading(false);
       })
       .catch((err) => {
         console.log('API 요청 중 오류 발생:', err);
+        setIsLoading(false);
       });
   }, [uuid]);
 
@@ -77,6 +97,15 @@ const UserDetailPage = () => {
         userType: userType,
         userStatus: userStatus,
       });
+
+      // 닉네임이 변경된 경우 paxi API로 닉네임 업데이트
+      if (nickname !== paxiUserInfo.nickname) {
+        await PaxiAxios.put(`/user/nickname/${uuid}`, {
+          nickname: nickname,
+        });
+      }
+
+      alert('유저 정보가 성공적으로 수정되었습니다.');
       router.push('/user');
     } catch (err) {
       alert('유저 정보 수정에 실패했습니다.');
@@ -120,6 +149,12 @@ const UserDetailPage = () => {
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                     />
+                    <Form.Input
+                      label={'닉네임'}
+                      value={nickname}
+                      onChange={(e) => setNickname(e.target.value)}
+                      placeholder="닉네임을 입력하세요"
+                    />
                     <Form.Select
                       required
                       label={'유저 타입'}
@@ -146,6 +181,27 @@ const UserDetailPage = () => {
                         <p>{user.lastLoginAt}</p>
                       </Form.Field>
                     </Form.Group>
+
+                    {paxiUserInfo.accountNumber && (
+                      <Form.Group style={{ display: 'flex' }}>
+                        <Form.Field style={{ flex: 1 }}>
+                          <label>계좌번호</label>
+                          <p>{paxiUserInfo.accountNumber}</p>
+                        </Form.Field>
+                        <Form.Field style={{ flex: 1 }}>
+                          <label>계좌주명</label>
+                          <p>{paxiUserInfo.accountHolderName}</p>
+                        </Form.Field>
+                      </Form.Group>
+                    )}
+
+                    {paxiUserInfo.bankName && (
+                      <Form.Field>
+                        <label>은행명</label>
+                        <p>{paxiUserInfo.bankName}</p>
+                      </Form.Field>
+                    )}
+
                     <Form.Group>
                       <Form.Button type="submit" onClick={handleSubmit}>
                         수정
@@ -189,6 +245,15 @@ const UserDetailPage = () => {
                     reservations={equipReservations}
                     startIdx={1}
                   />
+                </Tab.Pane>
+              ),
+            },
+            {
+              menuItem: `카풀 참여 현황 (${carpoolRooms.length}개)`,
+              render: () => (
+                <Tab.Pane>
+                  <h3>카풀 참여 현황 ({carpoolRooms.length}개)</h3>
+                  <CarpoolRoomTable rooms={carpoolRooms} startIdx={1} />
                 </Tab.Pane>
               ),
             },
