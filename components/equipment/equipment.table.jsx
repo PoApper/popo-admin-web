@@ -82,7 +82,7 @@ const EquipmentTable = ({ equipmentList }) => {
               })
             }
           >
-            총 예약 갯수
+            총 예약 개수
           </Table.HeaderCell>
           <Table.HeaderCell></Table.HeaderCell>
         </Table.Row>

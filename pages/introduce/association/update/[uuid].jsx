@@ -38,7 +38,7 @@ const AssociationUpdatePage = ({ associationInfo }) => {
 
     PoPoAxios.put(`/introduce/association/${associationInfo.uuid}`, body)
       .then(() => {
-        alert('자치단체 정보를 수정 했습니다.');
+        alert('자치단체 정보를 수정했습니다.');
         router.push('/introduce/association');
       })
       .catch((err) => {
