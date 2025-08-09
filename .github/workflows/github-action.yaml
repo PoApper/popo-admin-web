@@ -1,9 +1,11 @@
+name: Docker Build and Push
+
 on:
-  push:
+  pull_request:
+    branches:
+      - main
   release:
     types: [published]
-
-name: Docker Build and Push
 
 env:
   ECR_REGISTRY: 151345152001.dkr.ecr.ap-northeast-2.amazonaws.com
