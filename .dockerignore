@@ -62,17 +62,13 @@ temp/
 .Trashes
 ehthumbs.db
 Thumbs.db
+Desktop.ini
 
 # Nginx
 nginx/
 
 # Certificates
 certificates/
-
-# IDE and editor files
-*.swp
-*.swo
-*~
 
 # Backup files
 *.bak
@@ -105,29 +101,15 @@ tsconfig.json
 # Build artifacts
 build/
 dist/
-*.tsbuildinfo
 
 # Development server files
 .next/cache/
 .next/server/
 
-# Coverage reports
-coverage/
-*.lcov
-
 # Test results
 test-results/
 playwright-report/
 test-results.xml
-
-# IDE specific files
-.vscode/settings.json
-.vscode/launch.json
-.vscode/extensions.json
-
-# OS specific files
-ehthumbs.db
-Desktop.ini
 
 # Temporary files
 *.tmp
