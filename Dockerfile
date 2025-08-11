@@ -31,6 +31,7 @@ COPY --from=builder /usr/src/app/public ./public
 
 # Set port environment variable for standalone server
 ENV PORT=3001
+ENV HOSTNAME=0.0.0.0
 
 EXPOSE 3001
 
