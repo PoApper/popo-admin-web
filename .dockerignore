@@ -70,7 +70,6 @@ nginx/
 certificates/
 
 # IDE and editor files
-.idea/
 *.swp
 *.swo
 *~
