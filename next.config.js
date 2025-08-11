@@ -1,6 +1,1 @@
-module.exports = {
-  env: {
-    node: true,
-  },
-  reactStrictMode: true,
-};
+module.exports = {};
