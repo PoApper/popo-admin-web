@@ -253,7 +253,11 @@ const UserDetailPage = () => {
               render: () => (
                 <Tab.Pane>
                   <h3>카풀 참여 현황 ({paxiRooms.length}개)</h3>
-                  <PaxiRoomTable rooms={paxiRooms} startIdx={1} />
+                  <PaxiRoomTable
+                    rooms={paxiRooms}
+                    startIdx={1}
+                    userUuid={user.uuid}
+                  />
                 </Tab.Pane>
               ),
             },

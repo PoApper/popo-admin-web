@@ -1,28 +1,31 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Table, Modal, Form, Button, Message } from 'semantic-ui-react';
 import { PaxiAxios } from '@/utils/axios.instance';
+import moment from 'moment';
 
 // Paxi에서 사용하는 방 및 유저 상태
 const RoomStatus = {
-  ACTIVE: 'ACTIVE', // 모집 중 및 정산 신청 전까지
-  IN_SETTLEMENT: 'IN_SETTLEMENT', // 정산 신청 후 정산 중
+  ACTIVE: 'ACTIVE', // 출발 전
+  IN_SETTLEMENT: 'IN_SETTLEMENT', // 정산 중
   COMPLETED: 'COMPLETED', // 정산 완료
-  DELETED: 'DELETED', // 방장이 삭제한 방
+  DELETED: 'DELETED', // 삭제됨
 };
 
 const RoomUserStatus = {
-  JOINED: 'JOINED', // 가입 완료
+  JOINED: 'JOINED', // 참여 중
   KICKED: 'KICKED', // 강퇴됨
 };
 
-const PaxiRoomTable = ({ rooms, startIdx = 1 }) => {
+const PaxiRoomTable = ({ rooms, startIdx = 1, userUuid }) => {
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
   const [selectedRoom, setSelectedRoom] = useState(null);
   const [editForm, setEditForm] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [paymentStatuses, setPaymentStatuses] = useState({});
 
+  // 방 상태에 따른 텍스트 반환
   const getStatusText = (status) => {
     switch (status) {
       case RoomStatus.ACTIVE:
@@ -34,10 +37,11 @@ const PaxiRoomTable = ({ rooms, startIdx = 1 }) => {
       case RoomStatus.DELETED:
         return '삭제됨';
       default:
-        return status;
+        return '알 수 없음';
     }
   };
 
+  // 방 상태에 따른 색상 반환
   const getStatusColor = (status) => {
     switch (status) {
       case RoomStatus.ACTIVE:
@@ -53,19 +57,21 @@ const PaxiRoomTable = ({ rooms, startIdx = 1 }) => {
     }
   };
 
-  const getUserStatusText = (userStatus) => {
-    switch (userStatus) {
+  // 사용자 상태에 따른 텍스트 반환
+  const getUserStatusText = (status) => {
+    switch (status) {
       case RoomUserStatus.JOINED:
         return '참여 중';
       case RoomUserStatus.KICKED:
         return '추방됨';
       default:
-        return userStatus;
+        return '알 수 없음';
     }
   };
 
-  const getUserStatusColor = (userStatus) => {
-    switch (userStatus) {
+  // 사용자 상태에 따른 색상 반환
+  const getUserStatusColor = (status) => {
+    switch (status) {
       case RoomUserStatus.JOINED:
         return 'green';
       case RoomUserStatus.KICKED:
@@ -75,13 +81,43 @@ const PaxiRoomTable = ({ rooms, startIdx = 1 }) => {
     }
   };
 
+  // 정산 여부 조회
+  const fetchPaymentStatus = async (roomUuid, userUuid) => {
+    try {
+      const response = await PaxiAxios.get(`/room/${roomUuid}/pay/${userUuid}`);
+      return response.data.isPaid;
+    } catch (error) {
+      console.error('정산 여부 조회 실패:', error);
+      return false;
+    }
+  };
+
+  // 모든 방의 정산 여부 조회
+  const fetchAllPaymentStatuses = async () => {
+    const statuses = {};
+
+    for (const room of rooms) {
+      const isPaid = await fetchPaymentStatus(room.uuid, userUuid);
+      statuses[room.uuid] = isPaid;
+    }
+
+    setPaymentStatuses(statuses);
+  };
+
+  // 컴포넌트 마운트 시 정산 여부 조회
+  useEffect(() => {
+    if (rooms && rooms.length > 0 && userUuid) {
+      fetchAllPaymentStatuses();
+    }
+  }, [rooms, userUuid]);
+
   const handleRowClick = (room) => {
     setSelectedRoom(room);
     setEditForm({
       title: room.title || '',
       description: room.description || '',
       departureTime: room.departureTime
-        ? new Date(room.departureTime).toISOString().slice(0, 16)
+        ? moment(room.departureTime).format('YYYY-MM-DDTHH:mm')
         : '',
       departureLocation: room.departureLocation || '',
       destinationLocation: room.destinationLocation || '',
@@ -143,58 +179,68 @@ const PaxiRoomTable = ({ rooms, startIdx = 1 }) => {
           <Table.Row>
             <Table.HeaderCell>번호</Table.HeaderCell>
             <Table.HeaderCell>방 이름</Table.HeaderCell>
+            <Table.HeaderCell>설명</Table.HeaderCell>
+            <Table.HeaderCell>출발 시각</Table.HeaderCell>
             <Table.HeaderCell>출발지</Table.HeaderCell>
             <Table.HeaderCell>도착지</Table.HeaderCell>
-            <Table.HeaderCell>인원</Table.HeaderCell>
-            <Table.HeaderCell>출발 시각</Table.HeaderCell>
+            <Table.HeaderCell>최대 인원</Table.HeaderCell>
+            <Table.HeaderCell>현재 인원</Table.HeaderCell>
             <Table.HeaderCell>방 상태</Table.HeaderCell>
             <Table.HeaderCell>참여 상태</Table.HeaderCell>
+            <Table.HeaderCell>정산 여부</Table.HeaderCell>
           </Table.Row>
         </Table.Header>
 
         <Table.Body>
-          {rooms.map((room, index) => (
-            <Table.Row
-              key={room.uuid}
-              onClick={() => handleRowClick(room)}
-              style={{ cursor: 'pointer' }}
-            >
-              <Table.Cell>{startIdx + index}</Table.Cell>
-              <Table.Cell>{room.title}</Table.Cell>
-              <Table.Cell>{room.departureLocation}</Table.Cell>
-              <Table.Cell>{room.destinationLocation}</Table.Cell>
-              <Table.Cell>
-                {room.currentParticipant}/{room.maxParticipant}
-              </Table.Cell>
-              <Table.Cell>
-                {room.departureTime
-                  ? new Date(room.departureTime).toLocaleString('ko-KR')
-                  : '-'}
-              </Table.Cell>
-              <Table.Cell>
-                <span style={{ color: getStatusColor(room.status) }}>
-                  {getStatusText(room.status)}
-                </span>
-              </Table.Cell>
-              <Table.Cell>
-                <span style={{ color: getUserStatusColor(room.userStatus) }}>
-                  {getUserStatusText(room.userStatus)}
-                </span>
-                {room.userStatus === RoomUserStatus.KICKED &&
-                  room.kickedReason && (
-                    <div
-                      style={{
-                        fontSize: '0.8em',
-                        color: 'red',
-                        marginTop: '2px',
-                      }}
-                    >
-                      사유: {room.kickedReason}
-                    </div>
-                  )}
-              </Table.Cell>
-            </Table.Row>
-          ))}
+          {rooms.map((room, index) => {
+            const isPaid = paymentStatuses[room.uuid];
+
+            return (
+              <Table.Row
+                key={room.uuid}
+                onClick={() => handleRowClick(room)}
+                style={{ cursor: 'pointer' }}
+              >
+                <Table.Cell>{startIdx + index}</Table.Cell>
+                <Table.Cell>{room.title}</Table.Cell>
+                <Table.Cell>{room.description || '-'}</Table.Cell>
+                <Table.Cell>
+                  {room.departureTime
+                    ? new Date(room.departureTime).toLocaleString('ko-KR', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })
+                    : '-'}
+                </Table.Cell>
+                <Table.Cell>{room.departureLocation}</Table.Cell>
+                <Table.Cell>{room.destinationLocation}</Table.Cell>
+                <Table.Cell>{room.maxParticipant}명</Table.Cell>
+                <Table.Cell>{room.currentParticipant}명</Table.Cell>
+                <Table.Cell>
+                  <span style={{ color: getStatusColor(room.status) }}>
+                    {getStatusText(room.status)}
+                  </span>
+                </Table.Cell>
+                <Table.Cell>
+                  <span style={{ color: getUserStatusColor(room.userStatus) }}>
+                    {getUserStatusText(room.userStatus)}
+                  </span>
+                </Table.Cell>
+                <Table.Cell>
+                  <span
+                    style={{
+                      color: isPaid ? 'green' : 'red',
+                    }}
+                  >
+                    {isPaid ? 'O' : 'X'}
+                  </span>
+                </Table.Cell>
+              </Table.Row>
+            );
+          })}
         </Table.Body>
       </Table>
 
