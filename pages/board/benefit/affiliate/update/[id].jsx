@@ -27,7 +27,7 @@ const AffiliateUpdatePage = ({ affiliateInfo }) => {
 
     PoPoAxios.put(`/benefit/affiliate/${id}`, body)
       .then(() => {
-        alert('제휴 업체 정보가 수정 되었습니다!');
+        alert('제휴 업체 정보가 수정되었습니다!');
         router.push('/board/benefit');
       })
       .catch((err) => {

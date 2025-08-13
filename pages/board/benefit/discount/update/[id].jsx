@@ -29,7 +29,7 @@ const DiscountUpdatePage = ({ discountInfo }) => {
 
     PoPoAxios.put(`/benefit/discount/${id}`, body)
       .then(() => {
-        alert('할인 업체 정보가 수정 되었습니다!');
+        alert('할인 업체 정보가 수정되었습니다!');
         router.push('/board/benefit');
       })
       .catch((err) => {

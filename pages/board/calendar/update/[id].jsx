@@ -28,7 +28,7 @@ const CalendarUpdatePage = ({ calendarInfo }) => {
 
     PoPoAxios.put(`/calendar/${id}`, body)
       .then(() => {
-        alert('학사일정이 업데이트 되었습니다!');
+        alert('학사일정이 업데이트되었습니다!');
         router.push('/board/calendar');
       })
       .catch((err) => {

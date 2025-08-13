@@ -30,7 +30,7 @@ const EquipmentCreatePage = () => {
 
     PoPoAxios.post('/equip', body)
       .then(() => {
-        alert('장비가 생성 되었습니다!');
+        alert('장비가 생성되었습니다!');
         router.push('/equipment');
       })
       .catch((err) => {

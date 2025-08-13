@@ -40,7 +40,7 @@ const WhitebookCreateModal = (props) => {
       headers: { 'Content-Type': 'multipart/form-data' },
     })
       .then(() => {
-        alert('생활백서를 생성 했습니다.');
+        alert('생활백서를 생성했습니다.');
         window.location.reload();
       })
       .catch((err) => {
