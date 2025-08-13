@@ -31,7 +31,7 @@ const UserDetailPage = () => {
   const { uuid: routerUuid } = router.query;
 
   // uuid를 상태로 저장하여 router.query가 undefined일 때도 사용
-  const [uuid, setUuid] = useState(null);
+  const [userUuid, setUserUuid] = useState(null);
 
   const [isLoading, setIsLoading] = useState(true);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -51,23 +51,23 @@ const UserDetailPage = () => {
   // router.query의 uuid가 변경될 때 상태 업데이트
   useEffect(() => {
     if (routerUuid) {
-      setUuid(routerUuid);
+      setUserUuid(routerUuid);
     }
   }, [routerUuid]);
 
   useEffect(() => {
     // uuid가 없으면 API 호출하지 않음
-    if (!uuid) return;
+    if (!userUuid) return;
 
     setIsLoading(true);
-    const fetchUser = PoPoAxios.get(`user/admin/${uuid}`);
+    const fetchUser = PoPoAxios.get(`user/admin/${userUuid}`);
     const fetchPlaceReservations = PoPoAxios.get(
-      `reservation-place/user/admin/${uuid}`,
+      `reservation-place/user/admin/${userUuid}`,
     );
     const fetchEquipReservations = PoPoAxios.get(
-      `reservation-equip/user/admin/${uuid}`,
+      `reservation-equip/user/admin/${userUuid}`,
     );
-    const fetchPaxiRooms = PaxiAxios.get(`/room/my/${uuid}`);
+    const fetchPaxiRooms = PaxiAxios.get(`/room/my/${userUuid}`);
 
     Promise.all([
       fetchUser,
@@ -87,7 +87,7 @@ const UserDetailPage = () => {
         setPaxiRooms(paxiRes.data || []);
 
         // paxi API에서 유저 정보 가져오기
-        return PaxiAxios.get(`/user/my/${uuid}`);
+        return PaxiAxios.get(`/user/my/${userUuid}`);
       })
       .then((paxiRes) => {
         if (paxiRes && paxiRes.data) {
@@ -100,7 +100,7 @@ const UserDetailPage = () => {
         console.log('API 요청 중 오류 발생:', err);
         setIsLoading(false);
       });
-  }, [uuid]);
+  }, [userUuid]);
 
   const handleSubmit = async () => {
     try {
@@ -113,7 +113,7 @@ const UserDetailPage = () => {
 
       // 닉네임이 변경된 경우 paxi API로 닉네임 업데이트
       if (nickname !== paxiUserInfo.nickname) {
-        await PaxiAxios.put(`/user/nickname/${uuid}`, {
+        await PaxiAxios.put(`/user/nickname/${userUuid}`, {
           nickname: nickname,
         });
       }
@@ -269,7 +269,7 @@ const UserDetailPage = () => {
                   <PaxiRoomTable
                     rooms={paxiRooms}
                     startIdx={1}
-                    userUuid={uuid}
+                    userUuid={userUuid}
                   />
                 </Tab.Pane>
               ),
