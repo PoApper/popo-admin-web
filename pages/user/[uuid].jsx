@@ -8,6 +8,7 @@ import PlaceReservationTable2 from '@/components/place/place.reservation.table2'
 import PaxiRoomTable from '@/components/paxi/paxi.room.table';
 import DeleteConfirmModal from '@/components/common/delete.confirm.modal';
 import { useRouter } from 'next/router';
+import moment from 'moment';
 
 const userTypeOptions = [
   { key: 'STUDENT', text: '학생', value: 'STUDENT' },
@@ -187,11 +188,15 @@ const UserDetailPage = () => {
                     <Form.Group style={{ display: 'flex' }}>
                       <Form.Field style={{ flex: 1 }}>
                         <label>생성일</label>
-                        <p>{user.createdAt}</p>
+                        <p>
+                          {moment(user.createdAt).format('YYYY-MM-DD HH:mm')}
+                        </p>
                       </Form.Field>
                       <Form.Field style={{ flex: 1 }}>
                         <label>마지막 로그인</label>
-                        <p>{user.lastLoginAt}</p>
+                        <p>
+                          {moment(user.lastLoginAt).format('YYYY-MM-DD HH:mm')}
+                        </p>
                       </Form.Field>
                     </Form.Group>
 
