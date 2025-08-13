@@ -360,7 +360,7 @@ const PaxiRoomTable = ({ rooms, startIdx = 1, userUuid }) => {
                 onChange={(e) =>
                   setEditForm({
                     ...editForm,
-                    maxParticipant: parseInt(e.target.value),
+                    maxParticipant: parseInt(e.target.value, 10),
                   })
                 }
                 placeholder="최대 인원을 입력하세요"
