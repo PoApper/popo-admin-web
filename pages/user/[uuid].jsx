@@ -28,7 +28,10 @@ const userStatusOptions = [
 
 const UserDetailPage = () => {
   const router = useRouter();
-  const { uuid } = router.query;
+  const { uuid: routerUuid } = router.query;
+
+  // uuid를 상태로 저장하여 router.query가 undefined일 때도 사용
+  const [uuid, setUuid] = useState(null);
 
   const [isLoading, setIsLoading] = useState(true);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -45,7 +48,17 @@ const UserDetailPage = () => {
   const [userType, setUserType] = useState();
   const [userStatus, setUserStatus] = useState();
 
+  // router.query의 uuid가 변경될 때 상태 업데이트
   useEffect(() => {
+    if (routerUuid) {
+      setUuid(routerUuid);
+    }
+  }, [routerUuid]);
+
+  useEffect(() => {
+    // uuid가 없으면 API 호출하지 않음
+    if (!uuid) return;
+
     setIsLoading(true);
     const fetchUser = PoPoAxios.get(`user/admin/${uuid}`);
     const fetchPlaceReservations = PoPoAxios.get(
@@ -256,7 +269,7 @@ const UserDetailPage = () => {
                   <PaxiRoomTable
                     rooms={paxiRooms}
                     startIdx={1}
-                    userUuid={user.uuid}
+                    userUuid={uuid}
                   />
                 </Tab.Pane>
               ),
