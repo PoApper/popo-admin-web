@@ -58,7 +58,10 @@ const UserDetailPage = () => {
 
   useEffect(() => {
     // uuid가 없으면 API 호출하지 않음
-    if (!userUuid) return;
+    if (!userUuid) {
+      setIsLoading(false);
+      return;
+    }
 
     setIsLoading(true);
     const fetchUser = PoPoAxios.get(`user/admin/${userUuid}`);
@@ -95,10 +98,11 @@ const UserDetailPage = () => {
           setPaxiUserInfo(paxiRes.data);
           setNickname(paxiRes.data.nickname || '');
         }
-        setIsLoading(false);
       })
       .catch((err) => {
         console.log('API 요청 중 오류 발생:', err);
+      })
+      .finally(() => {
         setIsLoading(false);
       });
   }, [userUuid]);
