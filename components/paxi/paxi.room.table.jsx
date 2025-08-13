@@ -14,7 +14,7 @@ const RoomUserStatus = {
   KICKED: 'KICKED', // 강퇴됨
 };
 
-const CarpoolRoomTable = ({ rooms, startIdx = 1 }) => {
+const PaxiRoomTable = ({ rooms, startIdx = 1 }) => {
   const getStatusText = (status) => {
     switch (status) {
       case RoomStatus.ACTIVE:
@@ -126,4 +126,4 @@ const CarpoolRoomTable = ({ rooms, startIdx = 1 }) => {
   );
 };
 
-export default CarpoolRoomTable;
+export default PaxiRoomTable;

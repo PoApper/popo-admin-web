@@ -5,7 +5,7 @@ import LayoutWithAuth from '@/components/layout/layout.auth.with';
 import { PoPoAxios, PaxiAxios } from '@/utils/axios.instance';
 import EquipmentReservationTable2 from '@/components/equipment/equipment.reservation.table2';
 import PlaceReservationTable2 from '@/components/place/place.reservation.table2';
-import CarpoolRoomTable from '@/components/carpool/carpool.room.table';
+import PaxiRoomTable from '@/components/paxi/paxi.room.table';
 import DeleteConfirmModal from '@/components/common/delete.confirm.modal';
 import { useRouter } from 'next/router';
 
@@ -37,7 +37,7 @@ const UserDetailPage = () => {
   const [paxiUserInfo, setPaxiUserInfo] = useState({});
   const [placeReservations, setPlaceReservations] = useState([]);
   const [equipReservations, setEquipReservations] = useState([]);
-  const [carpoolRooms, setCarpoolRooms] = useState([]);
+  const [paxiRooms, setPaxiRooms] = useState([]);
 
   const [email, setEmail] = useState();
   const [name, setName] = useState();
@@ -54,15 +54,15 @@ const UserDetailPage = () => {
     const fetchEquipReservations = PoPoAxios.get(
       `reservation-equip/user/admin/${uuid}`,
     );
-    const fetchCarpoolRooms = PaxiAxios.get(`/room/my/${uuid}`);
+    const fetchPaxiRooms = PaxiAxios.get(`/room/my/${uuid}`);
 
     Promise.all([
       fetchUser,
       fetchPlaceReservations,
       fetchEquipReservations,
-      fetchCarpoolRooms,
+      fetchPaxiRooms,
     ])
-      .then(([userRes, placeRes, equipRes, carpoolRes]) => {
+      .then(([userRes, placeRes, equipRes, paxiRes]) => {
         setUser(userRes.data);
         setEmail(userRes.data.email);
         setName(userRes.data.name);
@@ -71,7 +71,7 @@ const UserDetailPage = () => {
 
         setPlaceReservations(placeRes.data);
         setEquipReservations(equipRes.data);
-        setCarpoolRooms(carpoolRes.data || []);
+        setPaxiRooms(paxiRes.data || []);
 
         // paxi API에서 유저 정보 가져오기
         return PaxiAxios.get(`/user/my/${uuid}`);
@@ -249,11 +249,11 @@ const UserDetailPage = () => {
               ),
             },
             {
-              menuItem: `카풀 참여 현황 (${carpoolRooms.length}개)`,
+              menuItem: `카풀 참여 현황 (${paxiRooms.length}개)`,
               render: () => (
                 <Tab.Pane>
-                  <h3>카풀 참여 현황 ({carpoolRooms.length}개)</h3>
-                  <CarpoolRoomTable rooms={carpoolRooms} startIdx={1} />
+                  <h3>카풀 참여 현황 ({paxiRooms.length}개)</h3>
+                  <PaxiRoomTable rooms={paxiRooms} startIdx={1} />
                 </Tab.Pane>
               ),
             },
