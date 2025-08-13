@@ -443,7 +443,7 @@ const PaxiManagementPage = () => {
                         <Table.HeaderCell>UUID</Table.HeaderCell>
                         <Table.HeaderCell>상태</Table.HeaderCell>
                         <Table.HeaderCell>결제 여부</Table.HeaderCell>
-                        <Table.HeaderCell>음소거</Table.HeaderCell>
+                        <Table.HeaderCell>음소거 여부</Table.HeaderCell>
                       </Table.Row>
                     </Table.Header>
                     <Table.Body>
@@ -473,7 +473,7 @@ const PaxiManagementPage = () => {
                                 color: user.isMuted ? 'orange' : 'green',
                               }}
                             >
-                              {user.isMuted ? '음소거' : '정상'}
+                              {user.isMuted ? 'O' : 'X'}
                             </span>
                           </Table.Cell>
                         </Table.Row>
