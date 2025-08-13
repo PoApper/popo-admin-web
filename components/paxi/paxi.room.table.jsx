@@ -24,6 +24,8 @@ const PaxiRoomTable = ({ rooms, startIdx = 1, userUuid }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [paymentStatuses, setPaymentStatuses] = useState({});
+  const [kickReasonModalOpen, setKickReasonModalOpen] = useState(false);
+  const [selectedKickReason, setSelectedKickReason] = useState('');
 
   // 방 상태에 따른 텍스트 반환
   const getStatusText = (status) => {
@@ -126,6 +128,15 @@ const PaxiRoomTable = ({ rooms, startIdx = 1, userUuid }) => {
     setEditModalOpen(true);
   };
 
+  // 추방 사유 클릭 핸들러
+  const handleKickReasonClick = (e, room) => {
+    e.stopPropagation(); // 행 클릭 이벤트 전파 방지
+    if (room.userStatus === RoomUserStatus.KICKED && room.kickedReason) {
+      setSelectedKickReason(room.kickedReason);
+      setKickReasonModalOpen(true);
+    }
+  };
+
   const handleEditSubmit = () => {
     setEditModalOpen(false);
     setConfirmModalOpen(true);
@@ -178,13 +189,11 @@ const PaxiRoomTable = ({ rooms, startIdx = 1, userUuid }) => {
         <Table.Header>
           <Table.Row>
             <Table.HeaderCell>번호</Table.HeaderCell>
-            <Table.HeaderCell>방 이름</Table.HeaderCell>
-            <Table.HeaderCell>설명</Table.HeaderCell>
+            <Table.HeaderCell>방 정보</Table.HeaderCell>
             <Table.HeaderCell>출발 시각</Table.HeaderCell>
             <Table.HeaderCell>출발지</Table.HeaderCell>
             <Table.HeaderCell>도착지</Table.HeaderCell>
-            <Table.HeaderCell>최대 인원</Table.HeaderCell>
-            <Table.HeaderCell>현재 인원</Table.HeaderCell>
+            <Table.HeaderCell>인원</Table.HeaderCell>
             <Table.HeaderCell>방 상태</Table.HeaderCell>
             <Table.HeaderCell>참여 상태</Table.HeaderCell>
             <Table.HeaderCell>정산 여부</Table.HeaderCell>
@@ -202,8 +211,18 @@ const PaxiRoomTable = ({ rooms, startIdx = 1, userUuid }) => {
                 style={{ cursor: 'pointer' }}
               >
                 <Table.Cell>{startIdx + index}</Table.Cell>
-                <Table.Cell>{room.title}</Table.Cell>
-                <Table.Cell>{room.description || '-'}</Table.Cell>
+                <Table.Cell>
+                  <div>
+                    <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>
+                      {room.title}
+                    </div>
+                    {room.description && (
+                      <div style={{ fontSize: '0.9em', color: '#666' }}>
+                        {room.description}
+                      </div>
+                    )}
+                  </div>
+                </Table.Cell>
                 <Table.Cell>
                   {room.departureTime
                     ? new Date(room.departureTime).toLocaleString('ko-KR', {
@@ -217,15 +236,37 @@ const PaxiRoomTable = ({ rooms, startIdx = 1, userUuid }) => {
                 </Table.Cell>
                 <Table.Cell>{room.departureLocation}</Table.Cell>
                 <Table.Cell>{room.destinationLocation}</Table.Cell>
-                <Table.Cell>{room.maxParticipant}명</Table.Cell>
-                <Table.Cell>{room.currentParticipant}명</Table.Cell>
+                <Table.Cell>
+                  {room.currentParticipant}/{room.maxParticipant}명
+                </Table.Cell>
                 <Table.Cell>
                   <span style={{ color: getStatusColor(room.status) }}>
                     {getStatusText(room.status)}
                   </span>
                 </Table.Cell>
                 <Table.Cell>
-                  <span style={{ color: getUserStatusColor(room.userStatus) }}>
+                  <span
+                    style={{
+                      color: getUserStatusColor(room.userStatus),
+                      cursor:
+                        room.userStatus === RoomUserStatus.KICKED &&
+                        room.kickedReason
+                          ? 'pointer'
+                          : 'default',
+                      textDecoration:
+                        room.userStatus === RoomUserStatus.KICKED &&
+                        room.kickedReason
+                          ? 'underline'
+                          : 'none',
+                    }}
+                    onClick={(e) => handleKickReasonClick(e, room)}
+                    title={
+                      room.userStatus === RoomUserStatus.KICKED &&
+                      room.kickedReason
+                        ? '클릭하여 추방 사유 확인'
+                        : ''
+                    }
+                  >
                     {getUserStatusText(room.userStatus)}
                   </span>
                 </Table.Cell>
@@ -377,6 +418,21 @@ const PaxiRoomTable = ({ rooms, startIdx = 1, userUuid }) => {
           <Button primary onClick={handleConfirmEdit} loading={isLoading}>
             확인
           </Button>
+        </Modal.Actions>
+      </Modal>
+
+      {/* 추방 사유 모달 */}
+      <Modal
+        open={kickReasonModalOpen}
+        onClose={() => setKickReasonModalOpen(false)}
+        size="tiny"
+      >
+        <Modal.Header>추방 사유</Modal.Header>
+        <Modal.Content>
+          <p>{selectedKickReason}</p>
+        </Modal.Content>
+        <Modal.Actions>
+          <Button onClick={() => setKickReasonModalOpen(false)}>확인</Button>
         </Modal.Actions>
       </Modal>
     </>
