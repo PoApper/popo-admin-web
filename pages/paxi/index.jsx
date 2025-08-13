@@ -54,7 +54,11 @@ const PaxiManagementPage = () => {
       setIsLoading(true);
       setError('');
 
-      const response = await PaxiAxios.get('/room');
+      const response = await PaxiAxios.get('/room', {
+        params: {
+          all: true,
+        },
+      });
       setRooms(response.data || []);
     } catch (err) {
       console.error('카풀 방 조회 실패:', err);
