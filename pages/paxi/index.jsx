@@ -36,6 +36,11 @@ const PaxiManagementPage = () => {
   const [editLoading, setEditLoading] = useState(false);
   const [editError, setEditError] = useState('');
 
+  // 삭제 모달 관련 상태
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [deleteError, setDeleteError] = useState('');
+
   // 방 상태에 따른 텍스트 반환
   const getStatusText = (status) => {
     switch (status) {
@@ -202,6 +207,42 @@ const PaxiManagementPage = () => {
     setSelectedRoom(null);
     setEditForm({});
     setEditError('');
+  };
+
+  // 삭제 모달 열기
+  const handleDeleteClick = () => {
+    setDeleteModalOpen(true);
+  };
+
+  // 삭제 확인
+  const handleConfirmDelete = async () => {
+    if (!selectedRoom) return;
+
+    setDeleteLoading(true);
+    setDeleteError('');
+
+    try {
+      await PaxiAxios.delete(`/room/${selectedRoom.uuid}`);
+
+      alert('방이 성공적으로 삭제되었습니다.');
+      setDeleteModalOpen(false);
+      setDetailModalOpen(false);
+      setSelectedRoom(null);
+
+      // 목록 새로고침
+      await fetchRooms();
+    } catch (err) {
+      setDeleteError('방 삭제에 실패했습니다.');
+      console.error('방 삭제 오류:', err);
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
+
+  // 삭제 취소
+  const handleCancelDelete = () => {
+    setDeleteModalOpen(false);
+    setDeleteError('');
   };
 
   useEffect(() => {
@@ -488,10 +529,13 @@ const PaxiManagementPage = () => {
           )}
         </Modal.Content>
         <Modal.Actions>
-          <Button onClick={() => setDetailModalOpen(false)}>닫기</Button>
+          <Button negative onClick={handleDeleteClick}>
+            방 삭제
+          </Button>
           <Button primary onClick={handleEditClick}>
             수정하기
           </Button>
+          <Button onClick={() => setDetailModalOpen(false)}>닫기</Button>
         </Modal.Actions>
       </Modal>
 
@@ -627,6 +671,35 @@ const PaxiManagementPage = () => {
           </Button>
           <Button primary onClick={handleConfirmEdit} loading={editLoading}>
             확인
+          </Button>
+        </Modal.Actions>
+      </Modal>
+
+      {/* 방 삭제 확인 모달 */}
+      <Modal open={deleteModalOpen} onClose={handleCancelDelete} size="tiny">
+        <Modal.Header>방 삭제 확인</Modal.Header>
+        <Modal.Content>
+          {deleteError && (
+            <Message negative>
+              <Message.Header>오류</Message.Header>
+              <p>{deleteError}</p>
+            </Message>
+          )}
+          <p>정말로 이 방을 삭제하시겠습니까?</p>
+          <p style={{ fontWeight: 'bold', color: 'red' }}>
+            이 작업은 되돌릴 수 없습니다.
+          </p>
+        </Modal.Content>
+        <Modal.Actions>
+          <Button onClick={handleCancelDelete} disabled={deleteLoading}>
+            취소
+          </Button>
+          <Button
+            negative
+            onClick={handleConfirmDelete}
+            loading={deleteLoading}
+          >
+            삭제
           </Button>
         </Modal.Actions>
       </Modal>
