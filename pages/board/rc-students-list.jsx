@@ -98,7 +98,7 @@ const RcStudentsListPage = ({ popoRcStdntCnt, totalRcStdntCnt }) => {
 export default RcStudentsListPage;
 
 export async function getServerSideProps(ctx) {
-  // 브라우저와 다르게 SSR 가져오려면 아래와 같이 쿠키를 직접 헤더에 넣어줘야 함
+  // SSR에서 인증/인가가 필요한 엔드포인트로 요청을 보내려면 아래와 같이 쿠키를 명시적으로 넣어줘야 함
   const { cookie } = ctx.req.headers;
 
   try {
