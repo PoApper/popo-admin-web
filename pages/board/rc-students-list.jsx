@@ -97,12 +97,24 @@ const RcStudentsListPage = ({ popoRcStdntCnt, totalRcStdntCnt }) => {
 
 export default RcStudentsListPage;
 
-export async function getServerSideProps() {
-  const res1 = await PoPoAxios.get('/user/count/RC_STUDENT');
-  const popoRcStdntCnt = res1.data;
+export async function getServerSideProps(ctx) {
+  // 브라우저와 다르게 SSR 가져오려면 아래와 같이 쿠키를 직접 헤더에 넣어줘야 함
+  const { cookie } = ctx.req.headers;
 
-  const res2 = await PoPoAxios.get('/setting/count-rc-students-list');
-  const totalRcStdntCnt = res2.data;
+  try {
+    const res1 = await PoPoAxios.get('/user/count/RC_STUDENT', {
+      headers: cookie ? { cookie: cookie.toString() } : null,
+    });
+    const popoRcStdntCnt = res1.data;
 
-  return { props: { popoRcStdntCnt, totalRcStdntCnt } };
+    const res2 = await PoPoAxios.get('/setting/count-rc-students-list', {
+      headers: cookie ? { cookie: cookie.toString() } : null,
+    });
+    const totalRcStdntCnt = res2.data;
+
+    return { props: { popoRcStdntCnt, totalRcStdntCnt } };
+  } catch (err) {
+    console.log(err);
+    throw err;
+  }
 }
