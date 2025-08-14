@@ -1,13 +1,117 @@
-# add git-ignore syntax here of things you don't want copied into docker image
-
+# Git and version control
 .git
+.gitignore
+.gitattributes
+
+# Docker files
 *Dockerfile*
 *docker-compose*
+docker-stack.yaml
+
+# Dependencies (will be installed fresh)
 node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
-.env
+# Environment files
+.env*
 .env.example
-.github
-README.md
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 
+# Documentation
+README.md
+*.md
+docs/
+
+# GitHub workflows and CI/CD
+.github/
+
+# Development and build tools
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Testing
+coverage/
+.nyc_output/
+.jest/
+
+# Logs
+logs/
+*.log
+
+# Next.js build output (exclude to rebuild fresh)
+.next/
+out/
+
+# Temporary folders
+tmp/
+temp/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# Nginx
 nginx/
+
+# Certificates
+certificates/
+
+# Backup files
+*.bak
+*.backup
+*.old
+
+# Archive files
+*.zip
+*.tar.gz
+*.rar
+
+# Local development files
+.local
+local/
+
+# Docker build context
+.dockerignore
+
+# Pre-commit hooks
+.pre-commit-config.yaml
+
+# ESLint and Prettier configs (will be handled by build process)
+.eslintrc*
+.prettierrc*
+
+# TypeScript configs
+tsconfig.json
+*.tsbuildinfo
+
+# Build artifacts
+build/
+dist/
+
+# Development server files
+.next/cache/
+.next/server/
+
+# Test results
+test-results/
+playwright-report/
+test-results.xml
+
+# Temporary files
+*.tmp
+*.temp
+.cache/

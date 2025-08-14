@@ -1,6 +1,3 @@
 module.exports = {
-  env: {
-    node: true,
-  },
-  reactStrictMode: true,
+  output: 'standalone',
 };
