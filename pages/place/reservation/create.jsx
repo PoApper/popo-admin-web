@@ -63,8 +63,8 @@ const PlaceReservationCreatePage = ({ placeList }) => {
     PoPoAxios.get('/auth/verifyToken')
       .then((res) => setUserInfo(res.data))
       .catch(() => {
-        // alert('로그인 후 예약 할 수 있습니다.');
-        // router.push('/auth/login');
+        alert('로그인 후 예약 할 수 있습니다.');
+        router.push('/auth/login');
       });
   }, [router]);
 
