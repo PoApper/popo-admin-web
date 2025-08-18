@@ -18,7 +18,7 @@ export const PoPoAxios = axios.create({
 
 export const paxiApiUrl =
   next_env === 'prod'
-    ? 'https://api.paxi.popo-dev.poapper.club' // TODO: Prod 서비스 할 때 수정
+    ? 'https://api.paxi.popo.poapper.club'
     : next_env === 'dev'
       ? 'https://api.paxi.popo-dev.poapper.club'
       : next_env === 'local'
