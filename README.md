@@ -33,6 +33,7 @@ Dev-Prod의 two-stage 배포 정책을 가지고 있으며, 각 stage에 배포�
   - POPO 도커 이미지의 `latest` 버전을 업데이트 한다.
   - 이때, Web 어플리케이션의 경우는 도커 이미지 빌드 때 `NEXT_PUBLIC_ENV=dev`로 설정해줘야 한다.
   - `latest` 버전이 업데이트 되면, Github Action을 통해 Auto-deploy 해준다.
+    - Github Action은 remote push로는 트리거되지 않고, PR을 생성해야 트리거된다. [참고](https://github.com/PoApper/popo-admin-web/blob/main/.github/workflows/github-action.yaml)
 - Prod Stage
   - POPO 도커 이미지의 특정 태그를 업데이트 한다. (ex. `v1.2.3`)
   - 이때, Web 어플리케이션의 경우는 도커 이미지 빌드 때 `NEXT_PUBLIC_ENV=prod`로 설정해줘야 한다.
