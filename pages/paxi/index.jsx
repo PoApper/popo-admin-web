@@ -436,43 +436,49 @@ const PaxiManagementPage = () => {
                 </Table.Body>
               </Table>
 
-              <h3 style={{ marginTop: '2rem' }}>정산 정보</h3>
-              <Table celled style={{ marginLeft: '0' }}>
-                <Table.Body>
-                  <Table.Row>
-                    <Table.Cell style={{ fontWeight: 'bold' }}>
-                      결제자 UUID
-                    </Table.Cell>
-                    <Table.Cell style={{ fontFamily: 'monospace' }}>
-                      {roomDetail.payerUuid || '-'}
-                    </Table.Cell>
-                  </Table.Row>
-                  <Table.Row>
-                    <Table.Cell style={{ fontWeight: 'bold' }}>
-                      결제 금액
-                    </Table.Cell>
-                    <Table.Cell>
-                      {roomDetail.payAmount
-                        ? `${roomDetail.payAmount.toLocaleString()}원`
-                        : '-'}
-                    </Table.Cell>
-                  </Table.Row>
-                  <Table.Row>
-                    <Table.Cell style={{ fontWeight: 'bold' }}>
-                      은행명
-                    </Table.Cell>
-                    <Table.Cell>{roomDetail.payerBankName || '-'}</Table.Cell>
-                  </Table.Row>
-                  <Table.Row>
-                    <Table.Cell style={{ fontWeight: 'bold' }}>
-                      계좌주명
-                    </Table.Cell>
-                    <Table.Cell>
-                      {roomDetail.payerAccountHolderName || '-'}
-                    </Table.Cell>
-                  </Table.Row>
-                </Table.Body>
-              </Table>
+              {roomDetail.status === RoomStatus.IN_SETTLEMENT && (
+                <>
+                  <h3 style={{ marginTop: '2rem' }}>정산 정보</h3>
+                  <Table celled>
+                    <Table.Body>
+                      <Table.Row>
+                        <Table.Cell style={{ fontWeight: 'bold' }}>
+                          결제자 UUID
+                        </Table.Cell>
+                        <Table.Cell style={{ fontFamily: 'monospace' }}>
+                          {roomDetail.payerUuid || '-'}
+                        </Table.Cell>
+                      </Table.Row>
+                      <Table.Row>
+                        <Table.Cell style={{ fontWeight: 'bold' }}>
+                          결제 금액
+                        </Table.Cell>
+                        <Table.Cell>
+                          {roomDetail.payAmount
+                            ? `${roomDetail.payAmount.toLocaleString()}원`
+                            : '-'}
+                        </Table.Cell>
+                      </Table.Row>
+                      <Table.Row>
+                        <Table.Cell style={{ fontWeight: 'bold' }}>
+                          은행명
+                        </Table.Cell>
+                        <Table.Cell>
+                          {roomDetail.payerBankName || '-'}
+                        </Table.Cell>
+                      </Table.Row>
+                      <Table.Row>
+                        <Table.Cell style={{ fontWeight: 'bold' }}>
+                          계좌주명
+                        </Table.Cell>
+                        <Table.Cell>
+                          {roomDetail.payerAccountHolderName || '-'}
+                        </Table.Cell>
+                      </Table.Row>
+                    </Table.Body>
+                  </Table>
+                </>
+              )}
 
               {roomDetail.room_users && roomDetail.room_users.length > 0 && (
                 <>
