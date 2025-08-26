@@ -41,6 +41,13 @@ const PaxiManagementPage = () => {
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [deleteError, setDeleteError] = useState('');
 
+  // 강퇴 모달 관련 상태
+  const [kickModalOpen, setKickModalOpen] = useState(false);
+  const [kickLoading, setKickLoading] = useState(false);
+  const [kickError, setKickError] = useState('');
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [kickReason, setKickReason] = useState('');
+
   // 방 상태에 따른 텍스트 반환
   const getStatusText = (status) => {
     switch (status) {
@@ -207,6 +214,57 @@ const PaxiManagementPage = () => {
     setSelectedRoom(null);
     setEditForm({});
     setEditError('');
+  };
+
+  // 강퇴 버튼 클릭 핸들러
+  const handleKickClick = (e, user) => {
+    e.stopPropagation(); // 이벤트 전파 방지
+    setSelectedUser(user);
+    setKickReason('');
+    setKickError('');
+    setKickModalOpen(true);
+  };
+
+  // 강퇴 실행 핸들러
+  const handleKickSubmit = async () => {
+    if (!kickReason.trim()) {
+      setKickError('강퇴 사유를 입력해주세요.');
+      return;
+    }
+
+    setKickLoading(true);
+    setKickError('');
+
+    try {
+      await PaxiAxios.put(`/room/kick/${selectedRoom.uuid}`, {
+        kickedUserUuid: selectedUser.userUuid,
+        reason: kickReason.trim(),
+      });
+
+      alert('사용자가 성공적으로 강퇴되었습니다.');
+      setKickModalOpen(false);
+      setSelectedUser(null);
+      setKickReason('');
+
+      // 상세 정보 새로고침
+      if (selectedRoom) {
+        fetchRoomDetail(selectedRoom.uuid);
+      }
+    } catch (err) {
+      console.error('강퇴 실패:', err);
+      setKickError(
+        err.response?.data?.message || '강퇴 처리 중 오류가 발생했습니다.',
+      );
+    } finally {
+      setKickLoading(false);
+    }
+  };
+
+  const handleCancelKick = () => {
+    setKickModalOpen(false);
+    setSelectedUser(null);
+    setKickReason('');
+    setKickError('');
   };
 
   // 삭제 모달 열기
@@ -491,6 +549,7 @@ const PaxiManagementPage = () => {
                         <Table.HeaderCell>상태</Table.HeaderCell>
                         <Table.HeaderCell>결제 여부</Table.HeaderCell>
                         <Table.HeaderCell>음소거 여부</Table.HeaderCell>
+                        <Table.HeaderCell>작업</Table.HeaderCell>
                       </Table.Row>
                     </Table.Header>
                     <Table.Body>
@@ -522,6 +581,17 @@ const PaxiManagementPage = () => {
                             >
                               {user.isMuted ? 'O' : 'X'}
                             </span>
+                          </Table.Cell>
+                          <Table.Cell>
+                            {user.status === RoomUserStatus.JOINED && (
+                              <Button
+                                size="tiny"
+                                negative
+                                onClick={(e) => handleKickClick(e, user)}
+                              >
+                                강퇴
+                              </Button>
+                            )}
                           </Table.Cell>
                         </Table.Row>
                       ))}
@@ -706,6 +776,42 @@ const PaxiManagementPage = () => {
             loading={deleteLoading}
           >
             삭제
+          </Button>
+        </Modal.Actions>
+      </Modal>
+
+      {/* 강퇴 모달 */}
+      <Modal open={kickModalOpen} onClose={handleCancelKick} size="small">
+        <Modal.Header>사용자 강퇴</Modal.Header>
+        <Modal.Content>
+          {kickError && (
+            <Message negative>
+              <Message.Header>오류</Message.Header>
+              <p>{kickError}</p>
+            </Message>
+          )}
+          <p>
+            <strong>{selectedUser?.nickname}</strong> 사용자를 강퇴하시겠습니까?
+          </p>
+          <Form>
+            <Form.Field>
+              <label>강퇴 사유</label>
+              <Form.TextArea
+                value={kickReason}
+                onChange={(e) => setKickReason(e.target.value)}
+                placeholder="강퇴 사유를 입력하세요"
+                rows={3}
+                required
+              />
+            </Form.Field>
+          </Form>
+        </Modal.Content>
+        <Modal.Actions>
+          <Button onClick={handleCancelKick} disabled={kickLoading}>
+            취소
+          </Button>
+          <Button negative onClick={handleKickSubmit} loading={kickLoading}>
+            강퇴
           </Button>
         </Modal.Actions>
       </Modal>
