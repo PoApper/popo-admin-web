@@ -48,6 +48,11 @@ const PaxiManagementPage = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [kickReason, setKickReason] = useState('');
 
+  // 강퇴 취소 모달 관련 상태
+  const [kickCancelModalOpen, setKickCancelModalOpen] = useState(false);
+  const [kickCancelLoading, setKickCancelLoading] = useState(false);
+  const [kickCancelError, setKickCancelError] = useState('');
+
   // 방 상태에 따른 텍스트 반환
   const getStatusText = (status) => {
     switch (status) {
@@ -265,6 +270,50 @@ const PaxiManagementPage = () => {
     setSelectedUser(null);
     setKickReason('');
     setKickError('');
+  };
+
+  // 강퇴 취소 버튼 클릭 핸들러
+  const handleKickCancelClick = (e, user) => {
+    e.stopPropagation(); // 이벤트 전파 방지
+    setSelectedUser(user);
+    setKickCancelError('');
+    setKickCancelModalOpen(true);
+  };
+
+  // 강퇴 취소 실행 핸들러
+  const handleKickCancelSubmit = async () => {
+    setKickCancelLoading(true);
+    setKickCancelError('');
+
+    try {
+      await PaxiAxios.delete(`/room/kick/${selectedRoom.uuid}`, {
+        data: {
+          kickedUserUuid: selectedUser.userUuid,
+        },
+      });
+
+      alert('사용자의 강퇴가 취소되었습니다.');
+      setKickCancelModalOpen(false);
+      setSelectedUser(null);
+
+      // 상세 정보 새로고침
+      if (selectedRoom) {
+        fetchRoomDetail(selectedRoom.uuid);
+      }
+    } catch (err) {
+      console.error('강퇴 취소 실패:', err);
+      setKickCancelError(
+        err.response?.data?.message || '강퇴 취소 처리 중 오류가 발생했습니다.',
+      );
+    } finally {
+      setKickCancelLoading(false);
+    }
+  };
+
+  const handleCancelKickCancel = () => {
+    setKickCancelModalOpen(false);
+    setSelectedUser(null);
+    setKickCancelError('');
   };
 
   // 삭제 모달 열기
@@ -592,6 +641,15 @@ const PaxiManagementPage = () => {
                                 강퇴
                               </Button>
                             )}
+                            {user.status === RoomUserStatus.KICKED && (
+                              <Button
+                                size="tiny"
+                                positive
+                                onClick={(e) => handleKickCancelClick(e, user)}
+                              >
+                                강퇴 취소
+                              </Button>
+                            )}
                           </Table.Cell>
                         </Table.Row>
                       ))}
@@ -812,6 +870,42 @@ const PaxiManagementPage = () => {
           </Button>
           <Button negative onClick={handleKickSubmit} loading={kickLoading}>
             강퇴
+          </Button>
+        </Modal.Actions>
+      </Modal>
+
+      {/* 강퇴 취소 모달 */}
+      <Modal
+        open={kickCancelModalOpen}
+        onClose={handleCancelKickCancel}
+        size="tiny"
+      >
+        <Modal.Header>강퇴 취소</Modal.Header>
+        <Modal.Content>
+          {kickCancelError && (
+            <Message negative>
+              <Message.Header>오류</Message.Header>
+              <p>{kickCancelError}</p>
+            </Message>
+          )}
+          <p>
+            <strong>{selectedUser?.nickname}</strong> 사용자의 강퇴를
+            취소하시겠습니까?
+          </p>
+          <p style={{ color: 'green', fontWeight: 'bold' }}>
+            취소 후 해당 사용자는 다시 방에 참여할 수 있습니다.
+          </p>
+        </Modal.Content>
+        <Modal.Actions>
+          <Button onClick={handleCancelKickCancel} disabled={kickCancelLoading}>
+            취소
+          </Button>
+          <Button
+            positive
+            onClick={handleKickCancelSubmit}
+            loading={kickCancelLoading}
+          >
+            강퇴 취소
           </Button>
         </Modal.Actions>
       </Modal>
