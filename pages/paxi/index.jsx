@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Table, Message, Modal, Form, Button } from 'semantic-ui-react';
-import LayoutWithAuth from '@/components/layout/layout.auth.with';
+import PaxiLayout from '@/components/paxi/paxi.layout';
 import { PaxiAxios } from '@/utils/axios.instance';
 import moment from 'moment';
 
@@ -357,8 +357,8 @@ const PaxiManagementPage = () => {
   }, []);
 
   return (
-    <LayoutWithAuth>
-      <h2>카풀 방 내역</h2>
+    <PaxiLayout>
+      <h3>카풀 방 내역</h3>
 
       {error && (
         <Message negative>
@@ -909,7 +909,7 @@ const PaxiManagementPage = () => {
           </Button>
         </Modal.Actions>
       </Modal>
-    </LayoutWithAuth>
+    </PaxiLayout>
   );
 };
 
