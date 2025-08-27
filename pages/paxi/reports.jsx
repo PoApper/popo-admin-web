@@ -32,6 +32,63 @@ const PaxiReportsPage = () => {
   const [resolutionLoading, setResolutionLoading] = useState(false);
   const [resolutionError, setResolutionError] = useState('');
 
+  // 채팅 보기 관련 상태
+  const [chatModalOpen, setChatModalOpen] = useState(false);
+  const [chatLoading, setChatLoading] = useState(false);
+  const [chatError, setChatError] = useState('');
+  const [chatMessages, setChatMessages] = useState([]);
+  const [chatHasMore, setChatHasMore] = useState(true);
+
+  const sortMessagesAsc = (list) =>
+    [...list].sort(
+      (a, b) =>
+        new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+    );
+
+  const fetchChatMessages = async (
+    roomUuid,
+    before = null,
+    take = 30,
+    append = false,
+    currentList = [],
+  ) => {
+    setChatLoading(true);
+    setChatError('');
+    try {
+      const res = await PaxiAxios.get(`/chat/${roomUuid}`, {
+        params: { before, take },
+      });
+      const data = res.data || [];
+      const merged = append ? [...data, ...currentList] : data;
+      setChatMessages(sortMessagesAsc(merged));
+      setChatHasMore(data.length === take);
+    } catch (err) {
+      console.error('채팅 조회 실패:', err);
+      setChatError('채팅을 불러오는데 실패했습니다.');
+    } finally {
+      setChatLoading(false);
+    }
+  };
+
+  const handleOpenChatModal = async () => {
+    if (!selectedReport?.targetRoomUuid) return;
+    setChatModalOpen(true);
+    setChatMessages([]);
+    await fetchChatMessages(selectedReport.targetRoomUuid, null, 30, false, []);
+  };
+
+  const handleLoadOlderMessages = async () => {
+    if (!selectedReport?.targetRoomUuid || chatMessages.length === 0) return;
+    const oldest = chatMessages[0];
+    await fetchChatMessages(
+      selectedReport.targetRoomUuid,
+      oldest.uuid,
+      30,
+      true,
+      chatMessages,
+    );
+  };
+
   // 신고 상태에 따른 텍스트 반환
   const getStatusText = (status) => {
     switch (status) {
@@ -287,6 +344,13 @@ const PaxiReportsPage = () => {
                               {selectedReport.targetRoomUuid}
                             </div>
                           )}
+                          {selectedReport.targetRoomUuid && (
+                            <div style={{ marginTop: '8px' }}>
+                              <Button size="tiny" onClick={handleOpenChatModal}>
+                                채팅 보기
+                              </Button>
+                            </div>
+                          )}
                         </div>
                       </Table.Cell>
                     </Table.Row>
@@ -433,6 +497,90 @@ const PaxiReportsPage = () => {
             </Button>
           )}
           <Button onClick={() => setDetailModalOpen(false)}>닫기</Button>
+        </Modal.Actions>
+      </Modal>
+
+      {/* 채팅 보기 모달 */}
+      <Modal open={chatModalOpen} onClose={() => setChatModalOpen(false)}>
+        <Modal.Header>
+          채팅 내역
+          {selectedReport?.targetRoomName && (
+            <span
+              style={{ marginLeft: '8px', fontWeight: 'normal', color: '#666' }}
+            >
+              ({selectedReport.targetRoomName})
+            </span>
+          )}
+        </Modal.Header>
+        <Modal.Content scrolling>
+          {chatError && (
+            <Message negative>
+              <Message.Header>오류</Message.Header>
+              <p>{chatError}</p>
+            </Message>
+          )}
+          <div style={{ marginBottom: '1rem' }}>
+            <Button
+              size="tiny"
+              onClick={handleLoadOlderMessages}
+              loading={chatLoading}
+              disabled={!chatHasMore || chatLoading}
+            >
+              이전 메세지 더 보기
+            </Button>
+          </div>
+          <Table basic="very" celled>
+            <Table.Header>
+              <Table.Row>
+                <Table.HeaderCell>시간</Table.HeaderCell>
+                <Table.HeaderCell>보낸이</Table.HeaderCell>
+                <Table.HeaderCell>메시지</Table.HeaderCell>
+              </Table.Row>
+            </Table.Header>
+            <Table.Body>
+              {chatMessages.map((m) => (
+                <Table.Row key={m.uuid}>
+                  <Table.Cell style={{ whiteSpace: 'nowrap' }}>
+                    {new Date(m.createdAt).toLocaleString('ko-KR')}
+                  </Table.Cell>
+                  <Table.Cell>
+                    {m.senderNickname || '시스템'}
+                    {m.isEdited && (
+                      <span
+                        style={{
+                          marginLeft: 6,
+                          color: '#999',
+                          fontSize: '0.8em',
+                        }}
+                      >
+                        (수정됨)
+                      </span>
+                    )}
+                  </Table.Cell>
+                  <Table.Cell>
+                    <div
+                      style={{
+                        whiteSpace: 'pre-wrap',
+                        wordBreak: 'break-word',
+                      }}
+                    >
+                      {m.message}
+                    </div>
+                  </Table.Cell>
+                </Table.Row>
+              ))}
+              {chatMessages.length === 0 && !chatLoading && (
+                <Table.Row>
+                  <Table.Cell colSpan="3" textAlign="center">
+                    채팅이 없습니다.
+                  </Table.Cell>
+                </Table.Row>
+              )}
+            </Table.Body>
+          </Table>
+        </Modal.Content>
+        <Modal.Actions>
+          <Button onClick={() => setChatModalOpen(false)}>닫기</Button>
         </Modal.Actions>
       </Modal>
     </PaxiLayout>
