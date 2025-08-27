@@ -37,12 +37,8 @@ const PaxiReportsPage = () => {
     switch (status) {
       case ReportStatus.PENDING:
         return '대기 중';
-      case ReportStatus.IN_PROGRESS:
-        return '처리 중';
       case ReportStatus.COMPLETED:
         return '완료';
-      case ReportStatus.REJECTED:
-        return '거절';
       default:
         return '알 수 없음';
     }
@@ -53,12 +49,8 @@ const PaxiReportsPage = () => {
     switch (status) {
       case ReportStatus.PENDING:
         return 'orange';
-      case ReportStatus.IN_PROGRESS:
-        return 'blue';
       case ReportStatus.COMPLETED:
         return 'green';
-      case ReportStatus.REJECTED:
-        return 'red';
       default:
         return 'grey';
     }
