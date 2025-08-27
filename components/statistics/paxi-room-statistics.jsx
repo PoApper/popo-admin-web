@@ -50,7 +50,10 @@ const colorsFor = (keys) => {
   return ({ id }) => map[id] || '#888';
 };
 
-const Chart = ({ title, data, keys }) => {
+const identity = (v) => v;
+
+const Chart = ({ title, data, keys, labelMap = identity }) => {
+  const getColor = colorsFor(keys);
   return (
     <div style={{ marginTop: 16 }}>
       <h3>{title}</h3>
@@ -62,11 +65,36 @@ const Chart = ({ title, data, keys }) => {
           minValue={0}
           margin={{ top: 10, right: 50, bottom: 30, left: 50 }}
           padding={0.25}
-          colors={colorsFor(keys)}
+          colors={getColor}
           axisBottom={{ tickRotation: 0 }}
           isInteractive={false}
         />
       </div>
+      {keys.length > 0 && (
+        <div
+          style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: '12px',
+            marginTop: '8px',
+          }}
+        >
+          {keys.map((k) => (
+            <div key={k} style={{ display: 'flex', alignItems: 'center' }}>
+              <span
+                style={{
+                  width: 12,
+                  height: 12,
+                  background: getColor({ id: k }),
+                  display: 'inline-block',
+                  marginRight: 6,
+                }}
+              />
+              <span style={{ fontSize: '0.9em' }}>{labelMap(k)}</span>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
@@ -109,12 +137,30 @@ const PaxiRoomStatistics = ({ year }) => {
   if (loading) return <div>통계를 불러오는 중...</div>;
   if (error) return <div>{error}</div>;
 
+  const statusLabel = (k) => {
+    switch (k) {
+      case 'ACTIVE':
+        return '출발 전';
+      case 'IN_SETTLEMENT':
+        return '정산 중';
+      case 'COMPLETED':
+        return '정산 완료';
+      case 'DEACTIVATED':
+        return '비활성화';
+      case 'DELETED':
+        return '삭제됨';
+      default:
+        return k;
+    }
+  };
+
   return (
     <>
       <Chart
         title={'방 상태별 생성 수'}
         data={status.data}
         keys={status.keys}
+        labelMap={statusLabel}
       />
       <Chart
         title={'출발지별 생성 수'}
