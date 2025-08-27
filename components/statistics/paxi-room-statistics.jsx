@@ -67,7 +67,32 @@ const Chart = ({ title, data, keys, labelMap = identity }) => {
           padding={0.25}
           colors={getColor}
           axisBottom={{ tickRotation: 0 }}
-          isInteractive={false}
+          isInteractive={true}
+          tooltip={({ id, value, color, indexValue }) => (
+            <div
+              style={{
+                background: 'white',
+                border: '1px solid #ddd',
+                padding: '6px 8px',
+                fontSize: '12px',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span
+                  style={{
+                    width: 10,
+                    height: 10,
+                    background: color,
+                    display: 'inline-block',
+                  }}
+                />
+                <span style={{ fontWeight: 'bold' }}>{indexValue}</span>
+              </div>
+              <div style={{ marginTop: 4 }}>
+                {labelMap(id)}: {value}
+              </div>
+            </div>
+          )}
         />
       </div>
       {keys.length > 0 && (
