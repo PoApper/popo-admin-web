@@ -3,7 +3,7 @@ import { ResponsiveBar } from '@nivo/bar';
 
 import { PaxiAxios } from '@/utils/axios.instance';
 
-const buildStackedBarData = (monthlyMap, field) => {
+const buildStackedBarData = (monthlyMap, field, year) => {
   // Collect all keys across months (excluding 'total') for stable keys order
   const keySet = new Set();
   Object.values(monthlyMap).forEach((dto) => {
@@ -12,21 +12,31 @@ const buildStackedBarData = (monthlyMap, field) => {
       .filter((k) => k !== 'total')
       .forEach((k) => keySet.add(k));
   });
-  const keys = Array.from(keySet);
+  const realKeys = Array.from(keySet);
+
+  // Build month list for the whole year to ensure consistent 0s
+  const months = Array.from({ length: 12 }).map((_, i) => {
+    const m = (i + 1).toString().padStart(2, '0');
+    return `${year}-${m}`;
+  });
 
   // Build data rows per month
-  const data = Object.entries(monthlyMap)
-    .sort(([a], [b]) => (a > b ? 1 : -1))
-    .map(([month, dto]) => {
-      const row = { month };
-      const counts = dto[field] || {};
-      keys.forEach((k) => {
+  const chartKeys = realKeys.length > 0 ? realKeys : ['__zero__'];
+  const data = months.map((month) => {
+    const dto = monthlyMap[month] || {};
+    const counts = dto[field] || {};
+    const row = { month };
+    if (realKeys.length > 0) {
+      realKeys.forEach((k) => {
         row[k] = counts[k] || 0;
       });
-      return row;
-    });
+    } else {
+      row['__zero__'] = 0;
+    }
+    return row;
+  });
 
-  return { data, keys };
+  return { data, keys: chartKeys, legendKeys: realKeys };
 };
 
 const colorsFor = (keys) => {
@@ -52,7 +62,7 @@ const colorsFor = (keys) => {
 
 const identity = (v) => v;
 
-const Chart = ({ title, data, keys, labelMap = identity }) => {
+const Chart = ({ title, data, keys, legendKeys, labelMap = identity }) => {
   const getColor = colorsFor(keys);
   return (
     <div style={{ marginTop: 16 }}>
@@ -95,7 +105,7 @@ const Chart = ({ title, data, keys, labelMap = identity }) => {
           )}
         />
       </div>
-      {keys.length > 0 && (
+      {legendKeys && legendKeys.length > 0 && (
         <div
           style={{
             display: 'flex',
@@ -104,7 +114,7 @@ const Chart = ({ title, data, keys, labelMap = identity }) => {
             marginTop: '8px',
           }}
         >
-          {keys.map((k) => (
+          {legendKeys.map((k) => (
             <div key={k} style={{ display: 'flex', alignItems: 'center' }}>
               <span
                 style={{
@@ -153,11 +163,11 @@ const PaxiRoomStatistics = ({ year }) => {
 
   const { status, departure, destination } = useMemo(() => {
     return {
-      status: buildStackedBarData(raw, 'statusCounts'),
-      departure: buildStackedBarData(raw, 'departureLocationCounts'),
-      destination: buildStackedBarData(raw, 'destinationLocationCounts'),
+      status: buildStackedBarData(raw, 'statusCounts', year),
+      departure: buildStackedBarData(raw, 'departureLocationCounts', year),
+      destination: buildStackedBarData(raw, 'destinationLocationCounts', year),
     };
-  }, [raw]);
+  }, [raw, year]);
 
   if (loading) return <div>통계를 불러오는 중...</div>;
   if (error) return <div>{error}</div>;
@@ -185,17 +195,20 @@ const PaxiRoomStatistics = ({ year }) => {
         title={'방 상태별 생성 수'}
         data={status.data}
         keys={status.keys}
+        legendKeys={status.legendKeys}
         labelMap={statusLabel}
       />
       <Chart
         title={'출발지별 생성 수'}
         data={departure.data}
         keys={departure.keys}
+        legendKeys={departure.legendKeys}
       />
       <Chart
         title={'도착지별 생성 수'}
         data={destination.data}
         keys={destination.keys}
+        legendKeys={destination.legendKeys}
       />
     </>
   );
