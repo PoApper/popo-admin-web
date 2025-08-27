@@ -271,6 +271,26 @@ const PaxiReportsPage = () => {
                     </Table.Cell>
                     <Table.Cell>{selectedReport.id}</Table.Cell>
                   </Table.Row>
+                  {(selectedReport.targetRoomName ||
+                    selectedReport.targetRoomUuid) && (
+                    <Table.Row>
+                      <Table.Cell style={{ fontWeight: 'bold' }}>
+                        방 정보
+                      </Table.Cell>
+                      <Table.Cell>
+                        <div>
+                          <div style={{ fontWeight: 'bold' }}>
+                            {selectedReport.targetRoomName || '-'}
+                          </div>
+                          {selectedReport.targetRoomUuid && (
+                            <div style={{ fontSize: '0.7em', color: '#999' }}>
+                              {selectedReport.targetRoomUuid}
+                            </div>
+                          )}
+                        </div>
+                      </Table.Cell>
+                    </Table.Row>
+                  )}
                   <Table.Row>
                     <Table.Cell style={{ fontWeight: 'bold' }}>
                       신고자
