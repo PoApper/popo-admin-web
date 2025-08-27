@@ -63,48 +63,63 @@ const UserDetailPage = () => {
       return;
     }
 
-    setIsLoading(true);
-    const fetchUser = PoPoAxios.get(`user/admin/${userUuid}`);
-    const fetchPlaceReservations = PoPoAxios.get(
-      `reservation-place/user/admin/${userUuid}`,
-    );
-    const fetchEquipReservations = PoPoAxios.get(
-      `reservation-equip/user/admin/${userUuid}`,
-    );
-    const fetchPaxiRooms = PaxiAxios.get(`/room/my/${userUuid}`);
+    const run = async () => {
+      setIsLoading(true);
+      try {
+        const [userRes, placeRes, equipRes, paxiRoomsRes] =
+          await Promise.allSettled([
+            PoPoAxios.get(`user/admin/${userUuid}`),
+            PoPoAxios.get(`reservation-place/user/admin/${userUuid}`),
+            PoPoAxios.get(`reservation-equip/user/admin/${userUuid}`),
+            PaxiAxios.get(`/room/my/${userUuid}`),
+          ]);
 
-    Promise.all([
-      fetchUser,
-      fetchPlaceReservations,
-      fetchEquipReservations,
-      fetchPaxiRooms,
-    ])
-      .then(([userRes, placeRes, equipRes, paxiRes]) => {
-        setUser(userRes.data);
-        setEmail(userRes.data.email);
-        setName(userRes.data.name);
-        setUserType(userRes.data.userType);
-        setUserStatus(userRes.data.userStatus);
-
-        setPlaceReservations(placeRes.data);
-        setEquipReservations(equipRes.data);
-        setPaxiRooms(paxiRes.data || []);
-
-        // paxi API에서 유저 정보 가져오기
-        return PaxiAxios.get(`/user/my/${userUuid}`);
-      })
-      .then((paxiRes) => {
-        if (paxiRes && paxiRes.data) {
-          setPaxiUserInfo(paxiRes.data);
-          setNickname(paxiRes.data.nickname || '');
+        if (userRes.status === 'fulfilled' && userRes.value?.data) {
+          setUser(userRes.value.data);
+          setEmail(userRes.value.data.email);
+          setName(userRes.value.data.name);
+          setUserType(userRes.value.data.userType);
+          setUserStatus(userRes.value.data.userStatus);
+        } else {
+          console.warn('유저 기본 정보 불러오기 실패');
         }
-      })
-      .catch((err) => {
-        console.log('API 요청 중 오류 발생:', err);
-      })
-      .finally(() => {
+
+        if (placeRes.status === 'fulfilled') {
+          setPlaceReservations(placeRes.value.data || []);
+        } else {
+          console.warn('장소 예약 불러오기 실패');
+        }
+
+        if (equipRes.status === 'fulfilled') {
+          setEquipReservations(equipRes.value.data || []);
+        } else {
+          console.warn('장비 예약 불러오기 실패');
+        }
+
+        if (paxiRoomsRes.status === 'fulfilled') {
+          setPaxiRooms(paxiRoomsRes.value.data || []);
+        } else {
+          console.warn('Paxi 방 목록 불러오기 실패');
+        }
+
+        // Paxi 유저 정보는 별도 호출 (닉네임 등)
+        try {
+          const paxiRes = await PaxiAxios.get(`/user/my/${userUuid}`);
+          if (paxiRes?.data) {
+            setPaxiUserInfo(paxiRes.data);
+            setNickname(paxiRes.data.nickname || '');
+          }
+        } catch (e) {
+          console.warn('Paxi 유저 정보 불러오기 실패');
+        }
+      } catch (e) {
+        console.log('API 요청 중 오류 발생:', e);
+      } finally {
         setIsLoading(false);
-      });
+      }
+    };
+
+    run();
   }, [userUuid]);
 
   const handleSubmit = async () => {
