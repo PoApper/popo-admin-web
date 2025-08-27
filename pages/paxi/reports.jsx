@@ -6,6 +6,8 @@ import {
   Button,
   Modal,
   Form,
+  Icon,
+  Popup,
 } from 'semantic-ui-react';
 import PaxiLayout from '@/components/paxi/paxi.layout';
 import { PaxiAxios } from '@/utils/axios.instance';
@@ -139,7 +141,38 @@ const PaxiReportsPage = () => {
 
   return (
     <PaxiLayout>
-      <h3>신고 처리</h3>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <h3>신고 처리</h3>
+        <Popup
+          trigger={
+            <Icon
+              name="question circle"
+              style={{
+                cursor: 'default',
+                color: '#666',
+                fontSize: '1.1em',
+                marginLeft: '-3px',
+                marginBottom: '13px',
+                verticalAlign: 'middle',
+              }}
+            />
+          }
+          content={
+            <div style={{ maxWidth: '300px' }}>
+              <p style={{ margin: '0 0 8px 0', fontWeight: 'bold' }}>
+                신고 처리 가이드
+              </p>
+              <p style={{ margin: '0', fontSize: '0.9em', lineHeight: '1.4' }}>
+                신고자 및 피신고자 이메일로 연락 후 경위를 조사합니다. 중재를
+                하거나 과한 경우라면 패널티를 부여할 수 있습니다. <br></br>{' '}
+                패널티 내용은 추후 논의가 필요합니다.
+              </p>
+            </div>
+          }
+          position="bottom left"
+          size="small"
+        />
+      </div>
 
       {error && (
         <Message negative>
