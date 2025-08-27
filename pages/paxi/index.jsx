@@ -1,5 +1,12 @@
-import { useEffect, useState } from 'react';
-import { Table, Message, Modal, Form, Button } from 'semantic-ui-react';
+import { useEffect, useState, useCallback } from 'react';
+import {
+  Table,
+  Message,
+  Modal,
+  Form,
+  Button,
+  Dropdown,
+} from 'semantic-ui-react';
 import PaxiLayout from '@/components/paxi/paxi.layout';
 import { PaxiAxios } from '@/utils/axios.instance';
 import moment from 'moment';
@@ -52,6 +59,26 @@ const PaxiManagementPage = () => {
   const [kickCancelModalOpen, setKickCancelModalOpen] = useState(false);
   const [kickCancelLoading, setKickCancelLoading] = useState(false);
   const [kickCancelError, setKickCancelError] = useState('');
+
+  // 방 상태 필터링 관련 상태
+  const [selectedStatus, setSelectedStatus] = useState('ALL');
+  const [filteredRooms, setFilteredRooms] = useState([]);
+
+  const statusOptions = [
+    { key: 'ALL', text: '전체', value: 'ALL' },
+    { key: RoomStatus.ACTIVE, text: '출발 전', value: RoomStatus.ACTIVE },
+    {
+      key: RoomStatus.IN_SETTLEMENT,
+      text: '정산 중',
+      value: RoomStatus.IN_SETTLEMENT,
+    },
+    {
+      key: RoomStatus.COMPLETED,
+      text: '정산 완료',
+      value: RoomStatus.COMPLETED,
+    },
+    { key: RoomStatus.DELETED, text: '삭제됨', value: RoomStatus.DELETED },
+  ];
 
   // 방 상태에 따른 텍스트 반환
   const getStatusText = (status) => {
@@ -110,7 +137,7 @@ const PaxiManagementPage = () => {
   };
 
   // 모든 카풀 방 조회
-  const fetchRooms = async () => {
+  const fetchRooms = useCallback(async () => {
     try {
       setIsLoading(true);
       setError('');
@@ -120,14 +147,15 @@ const PaxiManagementPage = () => {
           all: true,
         },
       });
-      setRooms(response.data || []);
+      const fetched = response.data || [];
+      setRooms(fetched);
     } catch (err) {
       console.error('카풀 방 조회 실패:', err);
       setError('카풀 방 목록을 불러오는데 실패했습니다.');
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
   // 특정 방의 상세 정보 조회
   const fetchRoomDetail = async (roomUuid) => {
@@ -354,7 +382,20 @@ const PaxiManagementPage = () => {
 
   useEffect(() => {
     fetchRooms();
-  }, []);
+  }, [fetchRooms]);
+
+  // 방 상태 필터링 적용
+  useEffect(() => {
+    if (!rooms) {
+      setFilteredRooms([]);
+      return;
+    }
+    if (selectedStatus === 'ALL') {
+      setFilteredRooms(rooms);
+    } else {
+      setFilteredRooms(rooms.filter((room) => room.status === selectedStatus));
+    }
+  }, [rooms, selectedStatus]);
 
   return (
     <PaxiLayout>
@@ -366,6 +407,16 @@ const PaxiManagementPage = () => {
           <p>{error}</p>
         </Message>
       )}
+
+      <div style={{ marginBottom: '1rem' }}>
+        <Dropdown
+          selection
+          options={statusOptions}
+          value={selectedStatus}
+          onChange={(e, { value }) => setSelectedStatus(value)}
+          placeholder="상태 선택"
+        />
+      </div>
 
       {isLoading ? (
         <div>카풀 방 목록을 불러오는 중...</div>
@@ -385,7 +436,7 @@ const PaxiManagementPage = () => {
           </Table.Header>
 
           <Table.Body>
-            {rooms.map((room, index) => (
+            {filteredRooms.map((room, index) => (
               <Table.Row
                 key={room.uuid}
                 onClick={() => handleRowClick(room)}
