@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Button, Form, Tab } from 'semantic-ui-react';
+import { Button, Form, Tab, Icon, Popup } from 'semantic-ui-react';
 
 import LayoutWithAuth from '@/components/layout/layout.auth.with';
 import { PoPoAxios, PaxiAxios } from '@/utils/axios.instance';
@@ -182,12 +182,31 @@ const UserDetailPage = () => {
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                     />
-                    <Form.Input
-                      label={'닉네임'}
-                      value={nickname}
-                      onChange={(e) => setNickname(e.target.value)}
-                      placeholder="닉네임을 입력하세요"
-                    />
+                    <Form.Field>
+                      <label>
+                        닉네임
+                        <Popup
+                          trigger={
+                            <Icon
+                              name="question circle"
+                              style={{
+                                marginLeft: '3px',
+                                color: '#666',
+                                cursor: 'default',
+                              }}
+                            />
+                          }
+                          content="Paxi 카풀 서비스 이용 시, 실명 대신 사용됩니다"
+                          position="top left"
+                          size="small"
+                        />
+                      </label>
+                      <Form.Input
+                        value={nickname}
+                        onChange={(e) => setNickname(e.target.value)}
+                        placeholder="닉네임을 입력하세요"
+                      />
+                    </Form.Field>
                     <Form.Select
                       required
                       label={'유저 타입'}
