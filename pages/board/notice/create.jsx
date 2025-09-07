@@ -14,26 +14,26 @@ const NoticeCreatePage = () => {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState();
   const [link, setLink] = useState();
-  const [start_datetime, setStartDatetime] = useState();
-  const [end_datetime, setEndDatetime] = useState();
+  const [startDatetime, setStartDatetime] = useState();
+  const [endDatetime, setEndDatetime] = useState();
 
-  const duration = moment(end_datetime).diff(moment(start_datetime), 'hours');
+  const duration = moment(endDatetime).diff(moment(startDatetime), 'hours');
 
   const handleSubmit = async () => {
     const body = {
       title: title,
       content: content,
       link: link,
-      start_datetime: start_datetime,
-      end_datetime: end_datetime,
+      startDatetime: startDatetime,
+      endDatetime: endDatetime,
     };
 
-    if (!start_datetime || !end_datetime) {
+    if (!startDatetime || !endDatetime) {
       alert('시작 일자와 종료 일자를 입력해주세요.');
       return;
     }
 
-    if (start_datetime > end_datetime) {
+    if (startDatetime > endDatetime) {
       alert('시작 일자가 종료 일자보다 늦을 수 없습니다.');
       return;
     }
@@ -80,7 +80,7 @@ const NoticeCreatePage = () => {
           <div className={'required field'}>
             <label>시작 날짜</label>
             <ReactDatePicker
-              selected={start_datetime ? moment(start_datetime).toDate() : null}
+              selected={startDatetime ? moment(startDatetime).toDate() : null}
               onChange={(date) =>
                 setStartDatetime(moment(date).format('YYYY-MM-DD HH:mm:ss'))
               }
@@ -94,24 +94,24 @@ const NoticeCreatePage = () => {
           <div className={'required field'}>
             <label>종료 날짜</label>
             <ReactDatePicker
-              selected={end_datetime ? moment(end_datetime).toDate() : null}
+              selected={endDatetime ? moment(endDatetime).toDate() : null}
               onChange={(date) =>
                 setEndDatetime(moment(date).format('YYYY-MM-DD HH:mm:ss'))
               }
               onKeyDown={(e) => e.preventDefault()}
               dateFormat="yyyy-MM-dd HH:mm"
               timeIntervals={60}
-              minDate={moment(start_datetime).toDate()}
+              minDate={moment(startDatetime).toDate()}
               showTimeSelect
             />
           </div>
         </div>
         <Message>
-          {!start_datetime || !end_datetime
+          {!startDatetime || !endDatetime
             ? '게시 시작 날짜와 종료 날짜를 입력해주세요.'
-            : start_datetime > end_datetime
+            : startDatetime > endDatetime
               ? '시작 날짜가 종료 날짜보다 늦을 수 없습니다.'
-              : `게시 기간: ${start_datetime} ~ ${end_datetime} (${Number(duration / 24).toFixed(0)}일 ${duration % 24}시간)`}
+              : `게시 기간: ${startDatetime} ~ ${endDatetime} (${Number(duration / 24).toFixed(0)}일 ${duration % 24}시간)`}
         </Message>
 
         <Form.Button type={'submit'}>생성</Form.Button>

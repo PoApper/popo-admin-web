@@ -18,7 +18,7 @@ const EquipmentPage = ({ equipmentList }) => {
   const filteredEquipmentList = useMemo(() => {
     if (selectedOwner === 'ALL') return equipmentList;
     return equipmentList.filter(
-      (equipment) => equipment.equip_owner === selectedOwner,
+      (equipment) => equipment.equipOwner === selectedOwner,
     );
   }, [selectedOwner, equipmentList]);
 

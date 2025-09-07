@@ -12,14 +12,14 @@ const CalendarCreatePage = () => {
   const router = useRouter();
 
   const [title, setTitle] = useState('');
-  const [event_date, setEventDate] = useState();
+  const [eventDate, setEventDate] = useState();
 
-  const dDay = moment(event_date).diff(moment(), 'days');
+  const dDay = moment(eventDate).diff(moment(), 'days');
 
   const handleSubmit = async () => {
     const body = {
       title: title,
-      event_date: event_date,
+      eventDate: eventDate,
     };
 
     PoPoAxios.post('/calendar', body)
@@ -48,7 +48,7 @@ const CalendarCreatePage = () => {
           <div className={'required field'}>
             <label>시작 날짜</label>
             <ReactDatePicker
-              selected={event_date ? moment(event_date).toDate() : null}
+              selected={eventDate ? moment(eventDate).toDate() : null}
               onChange={(date) =>
                 setEventDate(moment(date).format('YYYY-MM-DD'))
               }
@@ -58,7 +58,7 @@ const CalendarCreatePage = () => {
           </div>
         </div>
         <Message>
-          {!event_date
+          {!eventDate
             ? '게시 시작 날짜와 종료 날짜를 입력해주세요.'
             : `D-${dDay}`}
         </Message>

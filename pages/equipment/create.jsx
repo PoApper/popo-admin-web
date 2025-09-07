@@ -9,23 +9,23 @@ import { OwnerOptions } from '@/assets/owner.options';
 const EquipmentCreatePage = () => {
   const router = useRouter();
   const [name, setName] = useState('');
-  const [equip_owner, setEquipOwner] = useState('');
+  const [equipOwner, setEquipOwner] = useState('');
   const [fee, setFee] = useState('');
   const [description, setDescription] = useState('');
-  const [staff_email, setStaffEmail] = useState('');
-  const [max_minutes, setMaxMinutes] = useState();
+  const [staffEmail, setStaffEmail] = useState('');
+  const [maxMinutes, setMaxMinutes] = useState();
 
   const handleSubmit = async () => {
     const body = {
       name: name,
-      equip_owner: equip_owner,
+      equipOwner: equipOwner,
       fee: fee,
       description: description,
-      staff_email: staff_email,
+      staffEmail: staffEmail,
     };
 
-    if (max_minutes) {
-      body['max_minutes'] = max_minutes;
+    if (maxMinutes) {
+      body['maxMinutes'] = maxMinutes;
     }
 
     PoPoAxios.post('/equip', body)
@@ -53,7 +53,7 @@ const EquipmentCreatePage = () => {
           <Form.Select
             required
             label={'장비 소속'}
-            value={equip_owner}
+            value={equipOwner}
             options={OwnerOptions}
             onChange={(e, { value }) => setEquipOwner(value)}
           />
@@ -85,7 +85,7 @@ const EquipmentCreatePage = () => {
         <Form.Input
           label={'담당자 이메일'}
           placeholder="장비 예약을 처리할 담당자의 이메일을 작성해주세요"
-          value={staff_email}
+          value={staffEmail}
           onChange={(e) => setStaffEmail(e.target.value)}
         />
         <p>장비 예약이 생성되면, 담당자 메일로 예약 생성 메일이 갑니다.</p>
