@@ -62,9 +62,7 @@ const EquipmentReservationWaitTable = ({ reservations, startIdx }) => {
                         'YYYY년 MM월 DD일',
                       )}
                       <br />
-                      {moment(reservation.startTime, 'HHmm').format(
-                        'HH:mm',
-                      )}
+                      {moment(reservation.startTime, 'HHmm').format('HH:mm')}
                       &nbsp;~&nbsp;
                       {moment(reservation.endTime, 'HHmm').format('HH:mm')}
                     </b>
