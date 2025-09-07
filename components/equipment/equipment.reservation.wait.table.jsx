@@ -19,11 +19,11 @@ const EquipmentReservationWaitTable = ({ reservations, startIdx }) => {
       <Table.Body>
         {reservations.map((reservation, idx) => {
           const startDatetime = moment(
-            `${reservation.date} ${reservation.startDatetime}`,
+            `${reservation.date} ${reservation.startTime}`,
             'YYYYMMDD HHmm',
           );
           const endDatetime = moment(
-            `${reservation.date} ${reservation.endDatetime}`,
+            `${reservation.date} ${reservation.endTime}`,
             'YYYYMMDD HHmm',
           );
 
@@ -62,11 +62,11 @@ const EquipmentReservationWaitTable = ({ reservations, startIdx }) => {
                         'YYYY년 MM월 DD일',
                       )}
                       <br />
-                      {moment(reservation.startDatetime, 'HHmm').format(
+                      {moment(reservation.startTime, 'HHmm').format(
                         'HH:mm',
                       )}
                       &nbsp;~&nbsp;
-                      {moment(reservation.endDatetime, 'HHmm').format('HH:mm')}
+                      {moment(reservation.endTime, 'HHmm').format('HH:mm')}
                     </b>
                   </Table.Cell>
                   <Table.Cell>{reservation.status}</Table.Cell>
