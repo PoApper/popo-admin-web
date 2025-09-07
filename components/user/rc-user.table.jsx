@@ -23,9 +23,9 @@ const RcUserTable = ({ userStatusList }) => {
               <Table.Cell>{idx + 1}</Table.Cell>
               <Table.Cell>{userStatus.name}</Table.Cell>
               <Table.Cell>{userStatus.email}</Table.Cell>
-              <Table.Cell>{userStatus.user_name}</Table.Cell>
-              <Table.Cell>{userStatus.created_at}</Table.Cell>
-              <Table.Cell>{userStatus.user_type}</Table.Cell>
+              <Table.Cell>{userStatus.userName}</Table.Cell>
+              <Table.Cell>{userStatus.createdAt}</Table.Cell>
+              <Table.Cell>{userStatus.userType}</Table.Cell>
             </Table.Row>
           );
         })}

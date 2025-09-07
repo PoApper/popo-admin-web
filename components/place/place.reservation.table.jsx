@@ -33,9 +33,9 @@ const PlaceReservationTable = ({ reservations, startIdx }) => {
                       'YYYY년 MM월 DD일',
                     )}
                     <br />
-                    {moment(reservation.start_time, 'HHmm').format('HH:mm')}
+                    {moment(reservation.startTime, 'HHmm').format('HH:mm')}
                     &nbsp;~&nbsp;
-                    {moment(reservation.end_time, 'HHmm').format('HH:mm')}
+                    {moment(reservation.endTime, 'HHmm').format('HH:mm')}
                   </b>
                 </Table.Cell>
                 <Table.Cell>{reservation.status}</Table.Cell>

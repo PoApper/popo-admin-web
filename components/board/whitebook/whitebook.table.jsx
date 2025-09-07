@@ -29,9 +29,9 @@ const WhitebookTable = ({ whitebooks }) => {
                 </Table.Cell>
                 <Table.Cell>{whitebook.content}</Table.Cell>
                 <Table.Cell>
-                  {moment(whitebook.created_at).format('YYYY-MM-DD HH:mm')}
+                  {moment(whitebook.createdAt).format('YYYY-MM-DD HH:mm')}
                 </Table.Cell>
-                <Table.Cell>{whitebook.click_count}</Table.Cell>
+                <Table.Cell>{whitebook.clickCount}</Table.Cell>
               </Table.Row>
             }
           />

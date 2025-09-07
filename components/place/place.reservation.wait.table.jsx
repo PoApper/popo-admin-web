@@ -9,7 +9,7 @@ const PlaceReservationWaitTable = ({ reservations }) => {
 
   function acceptAllInProgressPlaceReservations() {
     PoPoAxios.patch('/reservation-place/all/status/accept', {
-      uuid_list: selectedUuidList,
+      uuidList: selectedUuidList,
     })
       .then(() => {
         alert(`${selectedUuidList.length}개 장소 예약을 일괄 승인했습니다.`);
@@ -76,17 +76,17 @@ const PlaceReservationWaitTable = ({ reservations }) => {
       </Table.Header>
       <Table.Body>
         {reservations.map((reservation, idx) => {
-          const start_datetime = moment(
-            `${reservation.date} ${reservation.start_time}`,
+          const startDatetime = moment(
+            `${reservation.date} ${reservation.startDatetime}`,
             'YYYYMMDD HHmm',
           );
-          const end_datetime = moment(
-            `${reservation.date} ${reservation.end_time}`,
+          const endDatetime = moment(
+            `${reservation.date} ${reservation.endDatetime}`,
             'YYYYMMDD HHmm',
           );
 
-          const isOutdated = moment() > end_datetime;
-          const isNow = start_datetime <= moment() && moment() <= end_datetime;
+          const isOutdated = moment() > endDatetime;
+          const isNow = startDatetime <= moment() && moment() <= endDatetime;
 
           return (
             <Table.Row
@@ -108,9 +108,9 @@ const PlaceReservationWaitTable = ({ reservations }) => {
                     'YYYY년 MM월 DD일',
                   )}
                   <br />
-                  {moment(reservation.start_time, 'HHmm').format('HH:mm')}
+                  {moment(reservation.startDatetime, 'HHmm').format('HH:mm')}
                   &nbsp;~&nbsp;
-                  {moment(reservation.end_time, 'HHmm').format('HH:mm')}
+                  {moment(reservation.endDatetime, 'HHmm').format('HH:mm')}
                 </b>
               </Table.Cell>
               <Table.Cell>

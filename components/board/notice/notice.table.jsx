@@ -19,11 +19,11 @@ const NoticeTable = ({ notices }) => {
       <Table.Body>
         {notices.map((notice) => {
           const isActive = moment().isBetween(
-            moment(notice.start_datetime),
-            moment(notice.end_datetime),
+            moment(notice.startDatetime),
+            moment(notice.endDatetime),
           );
-          const duration = moment(notice.end_datetime).diff(
-            moment(notice.start_datetime),
+          const duration = moment(notice.endDatetime).diff(
+            moment(notice.startDatetime),
             'hours',
           );
           return (
@@ -45,12 +45,12 @@ const NoticeTable = ({ notices }) => {
                   <Image href={notice.link}/>
                 </Table.Cell> */}
               <Table.Cell>
-                {moment(notice.start_datetime).format('YYYY-MM-DD HH:mm')} ~{' '}
-                {moment(notice.end_datetime).format('YYYY-MM-DD HH:mm')}
+                {moment(notice.startDatetime).format('YYYY-MM-DD HH:mm')} ~{' '}
+                {moment(notice.endDatetime).format('YYYY-MM-DD HH:mm')}
                 <br />({Number(duration / 24).toFixed(0)}일 {duration % 24}
                 시간)
               </Table.Cell>
-              <Table.Cell>{notice.click_count}</Table.Cell>
+              <Table.Cell>{notice.clickCount}</Table.Cell>
               <Table.Cell>
                 <Link href={`/board/notice/update/${notice.id}`}>
                   <Icon name={'edit'} />
