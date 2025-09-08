@@ -3,7 +3,7 @@ import { Form, Image } from 'semantic-ui-react';
 import { ImageUpload } from '@/utils/file-upload';
 
 const ImageUploadForm = ({ type, uploadApiUri, originalImageUrl }) => {
-  const [image_url, setImageUrl] = useState(originalImageUrl);
+  const [imageUrl, setImageUrl] = useState(originalImageUrl);
   const [isChanged, setIsChanged] = useState(false);
 
   return (
@@ -27,7 +27,7 @@ const ImageUploadForm = ({ type, uploadApiUri, originalImageUrl }) => {
       <div style={{ margin: '10px 0' }}>
         <Image
           src={
-            image_url ??
+            imageUrl ??
             'https://react.semantic-ui.com/images/wireframe/image.png'
           }
           alt={'place_image'}

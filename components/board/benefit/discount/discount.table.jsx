@@ -24,11 +24,11 @@ const DiscountTable = ({ discountList }) => {
             <Table.Cell>{discount.id}</Table.Cell>
             <Table.Cell>{discount.title}</Table.Cell>
             <Table.Cell>{discount.region}</Table.Cell>
-            <Table.Cell>{discount.open_hour}</Table.Cell>
+            <Table.Cell>{discount.openHour}</Table.Cell>
             <Table.Cell>{discount.phone}</Table.Cell>
             <Table.Cell>{discount.content}</Table.Cell>
             <Table.Cell>
-              {moment(discount.created_at).format('YYYY-MM-DD HH:mm')}
+              {moment(discount.createdAt).format('YYYY-MM-DD HH:mm')}
             </Table.Cell>
             <Table.Cell>
               <Link href={`/board/benefit/discount/update/${discount.id}`}>

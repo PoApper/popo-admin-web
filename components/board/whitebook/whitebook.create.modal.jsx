@@ -25,12 +25,12 @@ const WhitebookCreateModal = (props) => {
     const formData = new FormData();
     formData.append('title', title);
     formData.append('content', content);
-    formData.append('show_only_login', showOnlyLogin);
+    formData.append('showOnlyLogin', showOnlyLogin);
 
     if (inputType === 'link' && link) {
       formData.append('link', link);
     } else if (inputType === 'pdf' && pdfFile) {
-      formData.append('pdf_file', pdfFile);
+      formData.append('pdfFile', pdfFile);
     } else {
       alert('링크 또는 PDF 파일을 입력해주세요.');
       return;

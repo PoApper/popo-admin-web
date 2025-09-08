@@ -13,15 +13,13 @@ const AffiliateUpdatePage = ({ affiliateInfo }) => {
 
   const id = affiliateInfo.id;
   const [title, setTitle] = useState(affiliateInfo.title);
-  const [content_short, setContentShort] = useState(
-    affiliateInfo.content_short,
-  );
+  const [contentShort, setContentShort] = useState(affiliateInfo.contentShort);
   const [content, setContent] = useState(affiliateInfo.content);
 
   const handleSubmit = async () => {
     const body = {
       title: title,
-      content_short: content_short,
+      contentShort: contentShort,
       content: content,
     };
 
@@ -51,7 +49,7 @@ const AffiliateUpdatePage = ({ affiliateInfo }) => {
         <Form.TextArea
           required
           label={'짧은 설명'}
-          value={content_short}
+          value={contentShort}
           onChange={(e) => setContentShort(e.target.value)}
         />
 

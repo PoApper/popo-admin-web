@@ -18,10 +18,10 @@ const AssociationUpdatePage = ({ associationInfo }) => {
     associationInfo.representative,
   );
   const [contact, setContact] = useState(associationInfo.contact);
-  const [homepageUrl, setHomepageUrl] = useState(associationInfo.homepage_url);
-  const [facebookUrl, setFacebookUrl] = useState(associationInfo.facebook_url);
+  const [homepageUrl, setHomepageUrl] = useState(associationInfo.homepageUrl);
+  const [facebookUrl, setFacebookUrl] = useState(associationInfo.facebookUrl);
   const [instagramUrl, setInstagramUrl] = useState(
-    associationInfo.instagram_url,
+    associationInfo.instagramUrl,
   );
 
   async function handleSubmit() {
@@ -31,9 +31,9 @@ const AssociationUpdatePage = ({ associationInfo }) => {
       location: location,
       representative: representative,
       contact: contact,
-      homepage_url: homepageUrl,
-      facebook_url: facebookUrl,
-      instagram_url: instagramUrl,
+      homepageUrl: homepageUrl,
+      facebookUrl: facebookUrl,
+      instagramUrl: instagramUrl,
     };
 
     PoPoAxios.put(`/introduce/association/${associationInfo.uuid}`, body)
@@ -108,7 +108,7 @@ const AssociationUpdatePage = ({ associationInfo }) => {
         <ImageUploadForm
           type={'자치단체'}
           uploadApiUri={`introduce/association/image/${associationInfo.uuid}`}
-          originalImageUrl={associationInfo.image_url}
+          originalImageUrl={associationInfo.imageUrl}
         />
 
         <Form.Group>

@@ -52,9 +52,9 @@ const EquipmentTable = ({ equipmentList }) => {
             장비명
           </Table.HeaderCell>
           <Table.HeaderCell
-            sorted={column === 'equip_owner' ? direction : null}
+            sorted={column === 'equipOwner' ? direction : null}
             onClick={() =>
-              dispatch({ type: 'CHANGE_SORT', column: 'equip_owner' })
+              dispatch({ type: 'CHANGE_SORT', column: 'equipOwner' })
             }
           >
             장비 소속
@@ -66,19 +66,19 @@ const EquipmentTable = ({ equipmentList }) => {
             대여비
           </Table.HeaderCell>
           <Table.HeaderCell
-            sorted={column === 'max_minutes' ? direction : null}
+            sorted={column === 'maxMinutes' ? direction : null}
             onClick={() =>
-              dispatch({ type: 'CHANGE_SORT', column: 'max_minutes' })
+              dispatch({ type: 'CHANGE_SORT', column: 'maxMinutes' })
             }
           >
             일일 한도 (분)
           </Table.HeaderCell>
           <Table.HeaderCell
-            sorted={column === 'total_reservation_count' ? direction : null}
+            sorted={column === 'totalReservationCount' ? direction : null}
             onClick={() =>
               dispatch({
                 type: 'CHANGE_SORT',
-                column: 'total_reservation_count',
+                column: 'totalReservationCount',
               })
             }
           >
@@ -92,15 +92,15 @@ const EquipmentTable = ({ equipmentList }) => {
           <Table.Row key={equipment.uuid}>
             <Table.Cell>{idx + 1}</Table.Cell>
             <Table.Cell>{equipment.name}</Table.Cell>
-            <Table.Cell>{ownerNames[equipment.equip_owner]}</Table.Cell>
+            <Table.Cell>{ownerNames[equipment.equipOwner]}</Table.Cell>
             <Table.Cell>{equipment.fee.toLocaleString()}</Table.Cell>
             <Table.Cell>
-              {equipment.max_minutes === 1440
+              {equipment.maxMinutes === 1440
                 ? '제한 없음'
-                : equipment.max_minutes.toLocaleString()}
+                : equipment.maxMinutes.toLocaleString()}
             </Table.Cell>
             <Table.Cell>
-              {equipment.total_reservation_count.toLocaleString()}
+              {equipment.totalReservationCount.toLocaleString()}
             </Table.Cell>
             <Table.Cell>
               <Link href={`/equipment/update/${equipment.uuid}`}>

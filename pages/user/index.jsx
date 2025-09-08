@@ -18,7 +18,7 @@ const UserPage = ({
   const [keyword, setKeyword] = useState('');
   const [page, setPage] = useState(1);
 
-  const [total_count, setTotalCount] = useState(0);
+  const [totalCount, setTotalCount] = useState(0);
   const [users, setUsers] = useState([]);
 
   useEffect(() => {
@@ -75,7 +75,7 @@ const UserPage = ({
           <Pagination
             style={{ margin: '0 auto' }}
             activePage={page}
-            totalPages={Math.ceil(total_count / PAGE_SIZE)}
+            totalPages={Math.ceil(totalCount / PAGE_SIZE)}
             prevItem={null}
             nextItem={null}
             onPageChange={(_, { activePage }) => setPage(activePage)}
