@@ -10,7 +10,7 @@ const WhitebookPage = () => {
   const [whitebooks, setWhitebooks] = useState([]);
 
   useEffect(() => {
-    PoPoAxios.get('/whitebook/with-login?orderBy=click_count')
+    PoPoAxios.get('/whitebook/with-login?orderBy=clickCount')
       .then((res) => setWhitebooks(res.data))
       .catch((err) => {
         alert('생활백서 목록을 불러오는데 실패했습니다.');
@@ -43,7 +43,7 @@ export default WhitebookPage;
 
 //   try {
 //     const res = await PoPoAxios.get(
-//       'whitebook/with-login?orderBy=click_count',
+//       'whitebook/with-login?orderBy=clickCount',
 //       { headers: cookie ? { cookie: cookie.toString() } : null }
 //     );
 //     const whitebookList = res.data;

@@ -6,26 +6,26 @@ import { PoPoAxios } from '@/utils/axios.instance';
 
 const SettingPage = ({ settingKeyValue }) => {
   const [popoCRMEmail, setPOPOCRMEmail] = useState(
-    settingKeyValue.popo_crm_email,
+    settingKeyValue.popoCRMEmail,
   );
-  const [STUEmail, setSTUEmail] = useState(settingKeyValue.stu_email);
+  const [STUEmail, setSTUEmail] = useState(settingKeyValue.stuEmail);
   const [dongyeonBank, setDongyeonBank] = useState(
-    settingKeyValue.dongyeon_bank,
+    settingKeyValue.dongyeonBank,
   );
   const [dongyeonServiceTime, setDongyeonServiceTime] = useState(
-    settingKeyValue.dongyeon_service_time,
+    settingKeyValue.dongyeonServiceTime,
   );
   const [dongyeonContact, setDongyeonContact] = useState(
-    settingKeyValue.dongyeon_contact,
+    settingKeyValue.dongyeonContact,
   );
 
   function handleSubmit() {
     PoPoAxios.post('/setting', {
-      popo_crm_email: popoCRMEmail,
-      stu_email: STUEmail,
-      dongyeon_bank: dongyeonBank,
-      dongyeon_service_time: dongyeonServiceTime,
-      dongyeon_contact: dongyeonContact,
+      popoCRMEmail: popoCRMEmail,
+      stuEmail: STUEmail,
+      dongyeonBank: dongyeonBank,
+      dongyeonServiceTime: dongyeonServiceTime,
+      dongyeonContact: dongyeonContact,
     })
       .then(() => alert('설정값을 저장했습니다!'))
       .catch((err) => {

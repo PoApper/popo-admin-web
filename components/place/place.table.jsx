@@ -67,19 +67,19 @@ const PlaceTable = ({ placeList }) => {
             지역
           </Table.HeaderCell>
           <Table.HeaderCell
-            sorted={column === 'max_minutes' ? direction : null}
+            sorted={column === 'maxMinutes' ? direction : null}
             onClick={() =>
-              dispatch({ type: 'CHANGE_SORT', column: 'max_minutes' })
+              dispatch({ type: 'CHANGE_SORT', column: 'maxMinutes' })
             }
           >
             일일 한도 (분)
           </Table.HeaderCell>
           <Table.HeaderCell
-            sorted={column === 'total_reservation_count' ? direction : null}
+            sorted={column === 'totalReservationCount' ? direction : null}
             onClick={() =>
               dispatch({
                 type: 'CHANGE_SORT',
-                column: 'total_reservation_count',
+                column: 'totalReservationCount',
               })
             }
           >
@@ -96,12 +96,12 @@ const PlaceTable = ({ placeList }) => {
             <Table.Cell>{place.location}</Table.Cell>
             <Table.Cell>{regionNames[place.region]}</Table.Cell>
             <Table.Cell>
-              {place.max_minutes === 1440
+              {place.maxMinutes === 1440
                 ? '제한 없음'
-                : place.max_minutes.toLocaleString()}
+                : place.maxMinutes.toLocaleString()}
             </Table.Cell>
             <Table.Cell>
-              {place.total_reservation_count.toLocaleString()}
+              {place.totalReservationCount.toLocaleString()}
             </Table.Cell>
             <Table.Cell>
               <Link href={`place/update/${place.uuid}`}>

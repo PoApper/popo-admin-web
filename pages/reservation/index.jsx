@@ -30,8 +30,8 @@ const ReservationPage = ({
       const res = await PoPoAxios.get('reservation-place?status=심사중');
       const sortedPlace = res.data.sort(
         (a, b) =>
-          new moment(`${b.date}T${b.start_time}`) -
-          new moment(`${a.date}T${a.start_time}`),
+          new moment(`${b.date}T${b.startTime}`) -
+          new moment(`${a.date}T${a.startTime}`),
       );
       setPlaceReservations(sortedPlace);
     }
@@ -39,8 +39,8 @@ const ReservationPage = ({
       const res = await PoPoAxios.get('reservation-equip?status=심사중');
       const sortedEquip = res.data.sort(
         (a, b) =>
-          new moment(`${b.date}T${b.start_time}`) -
-          new moment(`${a.date}T${a.start_time}`),
+          new moment(`${b.date}T${b.startTime}`) -
+          new moment(`${a.date}T${a.startTime}`),
       );
       setEquipReservations(sortedEquip);
     }

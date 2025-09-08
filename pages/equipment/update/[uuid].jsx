@@ -14,23 +14,23 @@ const EquipmentUpdatePage = ({ equipmentInfo }) => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
   const [name, setName] = useState(equipmentInfo.name);
-  const [equip_owner, setEquipOwner] = useState(equipmentInfo.equip_owner);
+  const [equipOwner, setEquipOwner] = useState(equipmentInfo.equipOwner);
   const [fee, setFee] = useState(equipmentInfo.fee);
   const [description, setDescription] = useState(equipmentInfo.description);
-  const [staff_email, setStaffEmail] = useState(equipmentInfo.staff_email);
-  const [max_minutes, setMaxMinutes] = useState(equipmentInfo.max_minutes);
+  const [staffEmail, setStaffEmail] = useState(equipmentInfo.staffEmail);
+  const [maxMinutes, setMaxMinutes] = useState(equipmentInfo.maxMinutes);
 
   const handleSubmit = async () => {
     const body = {
       name: name,
-      equip_owner: equip_owner,
+      equipOwner: equipOwner,
       fee: fee,
       description: description,
-      staff_email: staff_email,
+      staffEmail: staffEmail,
     };
 
-    if (max_minutes) {
-      body['max_minutes'] = max_minutes;
+    if (maxMinutes) {
+      body['maxMinutes'] = maxMinutes;
     }
 
     PoPoAxios.put(`/equip/${equipmentInfo.uuid}`, body)
@@ -58,7 +58,7 @@ const EquipmentUpdatePage = ({ equipmentInfo }) => {
           <Form.Select
             required
             label={'장비 소속'}
-            value={equip_owner}
+            value={equipOwner}
             options={OwnerOptions}
             onChange={(e, { value }) => setEquipOwner(value)}
           />
@@ -74,7 +74,7 @@ const EquipmentUpdatePage = ({ equipmentInfo }) => {
           placeholder={
             '해당 장비를 예약가능한 최대 시간을 분단위로 입력해주세요 (ex. 60)'
           }
-          value={max_minutes}
+          value={maxMinutes}
           onChange={(e) => setMaxMinutes(e.target.value)}
         />
         <p>최대 예약가능 시간이 넘는 예약이 생성되지 않도록 합니다.</p>
@@ -87,7 +87,7 @@ const EquipmentUpdatePage = ({ equipmentInfo }) => {
         <Form.Input
           label={'담당자 이메일'}
           placeholder="장비 예약을 처리할 담당자의 이메일을 작성해주세요"
-          value={staff_email}
+          value={staffEmail}
           onChange={(e) => setStaffEmail(e.target.value)}
         />
         <p>장비 예약이 생성되면, 담당자 메일로 예약 생성 메일이 갑니다.</p>
@@ -95,7 +95,7 @@ const EquipmentUpdatePage = ({ equipmentInfo }) => {
         <ImageUploadForm
           type={'장비'}
           uploadApiUri={`equip/image/${equipmentInfo.uuid}`}
-          originalImageUrl={equipmentInfo.image_url}
+          originalImageUrl={equipmentInfo.imageUrl}
         />
 
         <Form.Group>

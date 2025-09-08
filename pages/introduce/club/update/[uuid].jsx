@@ -13,30 +13,30 @@ const ClubUpdatePage = ({ clubInfo }) => {
 
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [name, setName] = useState(clubInfo.name);
-  const [short_desc, setShortDesc] = useState(clubInfo.short_desc);
+  const [shortDesc, setShortDesc] = useState(clubInfo.shortDesc);
   const [clubType, setClubType] = useState(clubInfo.clubType);
   const [content, setContent] = useState(clubInfo.content);
   const [location, setLocation] = useState(clubInfo.location);
   const [representative, setRepresentative] = useState(clubInfo.representative);
   const [contact, setContact] = useState(clubInfo.contact);
-  const [homepageUrl, setHomepageUrl] = useState(clubInfo.homepage_url);
-  const [facebookUrl, setFacebookUrl] = useState(clubInfo.facebook_url);
-  const [instagramUrl, setInstagramUrl] = useState(clubInfo.instagram_url);
-  const [youtubeUrl, setYoutubeUrl] = useState(clubInfo.youtube_url);
+  const [homepageUrl, setHomepageUrl] = useState(clubInfo.homepageUrl);
+  const [facebookUrl, setFacebookUrl] = useState(clubInfo.facebookUrl);
+  const [instagramUrl, setInstagramUrl] = useState(clubInfo.instagramUrl);
+  const [youtubeUrl, setYoutubeUrl] = useState(clubInfo.youtubeUrl);
 
   const handleSubmit = async () => {
     const body = {
       name: name,
-      short_desc: short_desc,
+      shortDesc: shortDesc,
       clubType: clubType,
       content: content,
       location: location,
       representative: representative,
       contact: contact,
-      homepage_url: homepageUrl,
-      facebook_url: facebookUrl,
-      instagram_url: instagramUrl,
-      youtube_url: youtubeUrl,
+      homepageUrl: homepageUrl,
+      facebookUrl: facebookUrl,
+      instagramUrl: instagramUrl,
+      youtubeUrl: youtubeUrl,
     };
 
     PoPoAxios.put(`/introduce/club/${clubInfo.uuid}`, body)
@@ -65,7 +65,7 @@ const ClubUpdatePage = ({ clubInfo }) => {
           required
           label={'짧은 설명'}
           placeholder={'예: 개발, 축구, 재즈'}
-          value={short_desc}
+          value={shortDesc}
           onChange={(e) => setShortDesc(e.target.value)}
         />
         <Form.Select
@@ -131,7 +131,7 @@ const ClubUpdatePage = ({ clubInfo }) => {
         <ImageUploadForm
           type={'동아리'}
           uploadApiUri={`/introduce/club/image/${clubInfo.uuid}`}
-          originalImageUrl={clubInfo.image_url}
+          originalImageUrl={clubInfo.imageUrl}
         />
 
         <Form.Group>
