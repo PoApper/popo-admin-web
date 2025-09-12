@@ -52,7 +52,7 @@ const PlaceReservationCreatePage = ({ placeList }) => {
 
   const isPossible = placeInfo
     ? isOnOpeningHours(
-        placeInfo.opening_hours,
+        placeInfo.openingHours,
         date.format('dddd'), // Monday
         startTime.format('HH:mm'),
         endTime.format('HH:mm'),
@@ -75,13 +75,13 @@ const PlaceReservationCreatePage = ({ placeList }) => {
     }
 
     PoPoAxios.post('/reservation-place', {
-      place_id: placeInfo.uuid,
+      placeId: placeInfo.uuid,
       phone: phone,
       title: title,
       description: description,
       date: date.format('YYYYMMDD'), // YYYYMMDD
-      start_time: startTime.format('HHmm'), // HHmm
-      end_time: endTime.format('HHmm'), // HHmm
+      startTime: startTime.format('HHmm'), // HHmm
+      endTime: endTime.format('HHmm'), // HHmm
     })
       .then(() => {
         alert('예약을 생성했습니다!');
@@ -166,7 +166,7 @@ const PlaceReservationCreatePage = ({ placeList }) => {
               <label>사용 가능 시간</label>
               <div style={{ color: 'gray' }}>
                 <OpeningHoursList
-                  openingHours={JSON.parse(placeInfo.opening_hours)}
+                  openingHours={JSON.parse(placeInfo.openingHours)}
                 />
               </div>
             </div>

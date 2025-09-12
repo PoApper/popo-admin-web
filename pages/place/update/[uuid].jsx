@@ -20,21 +20,21 @@ const PlaceUpdatePage = ({ placeInfo }) => {
   const [region, setRegion] = useState(placeInfo.region);
   const [location, setLocation] = useState(placeInfo.location);
   const [description, setDescription] = useState(placeInfo.description);
-  const [staff_email, setStaffEmail] = useState(placeInfo.staff_email);
-  const [max_minutes, setMaxMinutes] = useState(placeInfo.max_minutes);
-  const [max_concurrent_reservation, setMaxConcurrentReservation] = useState(
-    placeInfo.max_concurrent_reservation,
+  const [staffEmail, setStaffEmail] = useState(placeInfo.staffEmail);
+  const [maxMinutes, setMaxMinutes] = useState(placeInfo.maxMinutes);
+  const [maxConcurrentReservation, setMaxConcurrentReservation] = useState(
+    placeInfo.maxConcurrentReservation,
   );
-  const [opening_hours, setOpeningHours] = useState(
-    JSON.parse(placeInfo.opening_hours),
+  const [openingHours, setOpeningHours] = useState(
+    JSON.parse(placeInfo.openingHours),
   );
-  const [enable_auto_accept, setEnableAutoAccept] = useState(
-    placeInfo.enable_auto_accept,
+  const [enableAutoAccept, setEnableAutoAccept] = useState(
+    placeInfo.enableAutoAccept,
   );
 
   const handleSubmit = async () => {
-    for (const day of Object.keys(opening_hours)) {
-      if (!checkValid(opening_hours[day])) {
+    for (const day of Object.keys(openingHours)) {
+      if (!checkValid(openingHours[day])) {
         alert(`사용 가능 시간이 올바르지 않습니다: ${day}`);
         return;
       }
@@ -45,11 +45,11 @@ const PlaceUpdatePage = ({ placeInfo }) => {
       region: region,
       location: location,
       description: description,
-      staff_email: staff_email,
-      max_minutes: max_minutes,
-      max_concurrent_reservation: max_concurrent_reservation,
-      opening_hours: JSON.stringify(opening_hours),
-      enable_auto_accept: enable_auto_accept,
+      staffEmail: staffEmail,
+      maxMinutes: maxMinutes,
+      maxConcurrentReservation: maxConcurrentReservation,
+      openingHours: JSON.stringify(openingHours),
+      enableAutoAccept: enableAutoAccept,
     };
 
     PoPoAxios.put(`/place/${placeInfo.uuid}`, body)
@@ -97,7 +97,7 @@ const PlaceUpdatePage = ({ placeInfo }) => {
           placeholder={
             '해당 장소를 예약가능한 최대 시간을 분단위로 입력해주세요 (ex. 60)'
           }
-          value={max_minutes}
+          value={maxMinutes}
           onChange={(e) => setMaxMinutes(e.target.value)}
         />
         <p>
@@ -110,13 +110,13 @@ const PlaceUpdatePage = ({ placeInfo }) => {
           placeholder={
             '해당 장소를 동시 예약 가능한 최대 개수를 입력해주세요 (ex. 1)'
           }
-          value={max_concurrent_reservation}
+          value={maxConcurrentReservation}
           onChange={(e) => setMaxConcurrentReservation(e.target.value)}
         />
 
         <OpeningHoursEditor
-          currentOpeningHour={JSON.parse(placeInfo.opening_hours)}
-          openingHour={opening_hours}
+          currentOpeningHour={JSON.parse(placeInfo.openingHours)}
+          openingHour={openingHours}
           setOpeningHours={setOpeningHours}
         />
 
@@ -124,7 +124,7 @@ const PlaceUpdatePage = ({ placeInfo }) => {
           required
           toggle
           label={'자동 승인 기능 활성화'}
-          value={enable_auto_accept}
+          value={enableAutoAccept}
           options={[
             { key: 'active', text: '활성', value: 'Active' },
             { key: 'inactive', text: '비활성', value: 'Inactive' },
@@ -142,7 +142,7 @@ const PlaceUpdatePage = ({ placeInfo }) => {
         <Form.Input
           label={'담당자 이메일'}
           placeholder="장소 예약을 처리할 담당자의 이메일을 작성해주세요"
-          value={staff_email}
+          value={staffEmail}
           onChange={(e) => setStaffEmail(e.target.value)}
         />
         <p>장소 예약이 생성되면, 담당자 메일로 예약 생성 메일이 갑니다.</p>
@@ -150,7 +150,7 @@ const PlaceUpdatePage = ({ placeInfo }) => {
         <ImageUploadForm
           type={'장소'}
           uploadApiUri={`place/image/${placeInfo.uuid}`}
-          originalImageUrl={placeInfo.image_url}
+          originalImageUrl={placeInfo.imageUrl}
         />
 
         <Form.Group>

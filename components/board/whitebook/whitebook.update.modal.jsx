@@ -9,7 +9,7 @@ const WhitebookUpdateModal = ({ trigger, whitebook }) => {
 
   const [title, setTitle] = useState(whitebook.title);
   const [content, setContent] = useState(whitebook.content);
-  const [showOnlyLogin, setShowOnlyLogin] = useState(whitebook.show_only_login);
+  const [showOnlyLogin, setShowOnlyLogin] = useState(whitebook.showOnlyLogin);
   const [inputType, setInputType] = useState(whitebook.link ? 'link' : 'pdf');
   const [link, setLink] = useState(whitebook.link || '');
   const [uploadedPDFLink, setUploadedPDFLink] = useState(null);
@@ -39,18 +39,18 @@ const WhitebookUpdateModal = ({ trigger, whitebook }) => {
     const formData = new FormData();
     formData.append('title', title);
     formData.append('content', content);
-    formData.append('show_only_login', showOnlyLogin);
+    formData.append('showOnlyLogin', showOnlyLogin);
 
     if (inputType === 'link' && link) {
       formData.append('link', link);
     } else if (inputType === 'pdf' && pdfFile) {
-      formData.append('pdf_file', pdfFile);
+      formData.append('pdfFile', pdfFile);
     } else {
       // title, content, show_only_login 중 하나라도 변경되었다면 수정 가능
       if (
         title !== whitebook.title ||
-        content !== whitebook.cotent ||
-        showOnlyLogin !== whitebook.show_only_login
+        content !== whitebook.content ||
+        showOnlyLogin !== whitebook.showOnlyLogin
       ) {
         const link = inputType === 'link' ? link : uploadedPDFLink;
         formData.append('link', link);

@@ -8,12 +8,12 @@ import { PoPoAxios } from '@/utils/axios.instance';
 const EquipmentReservationPage = () => {
   const [reservations, setReservations] = useState([]);
   const [page, setPage] = useState(1);
-  const [total_count, setTotalCount] = useState(0);
-  const page_size = 10;
+  const [totalCount, setTotalCount] = useState(0);
+  const PAGE_SIZE = 10;
 
   useEffect(() => {
     try {
-      PoPoAxios.get(`/reservation-equip?take=${page_size}`).then((res) => {
+      PoPoAxios.get(`/reservation-equip?take=${PAGE_SIZE}`).then((res) => {
         setReservations(res.data);
       });
       PoPoAxios.get('/reservation-equip/count').then((res) => {
@@ -28,8 +28,8 @@ const EquipmentReservationPage = () => {
   const handlePageChange = async (e, target) => {
     const activePage = target.activePage;
     const ret = await PoPoAxios.get(
-      `/reservation-equip?take=${page_size}&skip=${
-        page_size * (activePage - 1)
+      `/reservation-equip?take=${PAGE_SIZE}&skip=${
+        PAGE_SIZE * (activePage - 1)
       }`,
     );
     setReservations(ret.data);
@@ -48,13 +48,13 @@ const EquipmentReservationPage = () => {
       <div>
         <EquipmentReservationTable
           reservations={reservations}
-          startIdx={(page - 1) * page_size}
+          startIdx={(page - 1) * PAGE_SIZE}
         />
         <div style={{ display: 'flex' }}>
           <Pagination
             style={{ margin: '0 auto' }}
             activePage={page}
-            totalPages={Math.ceil(total_count / page_size)}
+            totalPages={Math.ceil(totalCount / PAGE_SIZE)}
             prevItem={null}
             nextItem={null}
             onPageChange={handlePageChange}

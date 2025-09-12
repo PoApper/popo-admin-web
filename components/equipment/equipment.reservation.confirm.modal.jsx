@@ -8,13 +8,13 @@ const EquipmentReservationConfirmModal = (props) => {
   const reservation = props.reservation;
 
   const [open, setOpen] = useState(false);
-  const [send_email, setSendEmail] = useState(true);
+  const [sendEmail, setSendEmail] = useState(true);
 
   const handlePatch = async (e, data) => {
     try {
-      const patch_type = data.name; // {accept, reject}
+      const patchType = data.name; // {accept, reject}
       await PoPoAxios.patch(
-        `/reservation-equip/${reservation.uuid}/status/${patch_type}?sendEmail=${send_email}`,
+        `/reservation-equip/${reservation.uuid}/status/${patchType}?sendEmail=${sendEmail}`,
         {},
       );
       setOpen(false);
@@ -70,16 +70,16 @@ const EquipmentReservationConfirmModal = (props) => {
               <b>
                 {moment(reservation.date, 'YYYYMMDD').format('YYYY-MM-DD')}
                 &nbsp;
-                {moment(reservation.start_time, 'HHmm').format('HH:mm')}
+                {moment(reservation.startTime, 'HHmm').format('HH:mm')}
                 &nbsp;~&nbsp;
-                {moment(reservation.end_time, 'HHmm').format('HH:mm')}
+                {moment(reservation.endTime, 'HHmm').format('HH:mm')}
               </b>
             </div>
           </Segment>
           <Segment>
             <h4>생성일</h4>
             <div>
-              {moment(reservation.created_at).format('YYYY-MM-DD HH:mm')}
+              {moment(reservation.createdAt).format('YYYY-MM-DD HH:mm')}
             </div>
           </Segment>
         </Segment.Group>
@@ -87,8 +87,8 @@ const EquipmentReservationConfirmModal = (props) => {
         <Form style={{ marginBottom: '5rem' }}>
           <Form.Checkbox
             label={'승인 메일 보내기'}
-            checked={send_email}
-            onClick={() => setSendEmail(!send_email)}
+            checked={sendEmail}
+            onClick={() => setSendEmail(!sendEmail)}
           />
           <Modal.Actions>
             <Button.Group floated={'left'}>

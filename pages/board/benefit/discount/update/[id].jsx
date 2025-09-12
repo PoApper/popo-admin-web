@@ -14,7 +14,7 @@ const DiscountUpdatePage = ({ discountInfo }) => {
   const id = discountInfo.id;
   const [title, setTitle] = useState(discountInfo.title);
   const [region, setRegion] = useState(discountInfo.region);
-  const [open_hour, setOpenHour] = useState(discountInfo.open_hour);
+  const [openHour, setOpenHour] = useState(discountInfo.openHour);
   const [phone, setPhone] = useState(discountInfo.phone);
   const [content, setContent] = useState(discountInfo.content);
 
@@ -22,7 +22,7 @@ const DiscountUpdatePage = ({ discountInfo }) => {
     const body = {
       title: title,
       region: region,
-      open_hour: open_hour,
+      openHour: openHour,
       phone: phone,
       content: content,
     };
@@ -60,7 +60,7 @@ const DiscountUpdatePage = ({ discountInfo }) => {
         <Form.Input
           required
           label={'영업 시간'}
-          value={open_hour}
+          value={openHour}
           onChange={(e) => setOpenHour(e.target.value)}
         />
 

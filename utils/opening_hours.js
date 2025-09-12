@@ -10,12 +10,12 @@ export const KoreanWeekday = {
 };
 
 export function isOnOpeningHours(
-  opening_hours,
+  openingHours,
   weekday, // Monday
-  start_time, // hh:mm
-  end_time, // hh:mm
+  startTime, // hh:mm
+  endTime, // hh:mm
 ) {
-  const openingHour = JSON.parse(opening_hours);
+  const openingHour = JSON.parse(openingHours);
 
   if (openingHour['Everyday']) {
     weekday = 'Everyday';
@@ -23,11 +23,11 @@ export function isOnOpeningHours(
   const hours = openingHour[weekday].split(',');
 
   for (const hour of hours) {
-    const open_start = hour.split('-')[0];
-    const open_end = hour.split('-')[1];
+    const openStart = hour.split('-')[0];
+    const openEnd = hour.split('-')[1];
 
     // 하나라도 range 내부에 포함된다면 예약 가능
-    const isInside = open_start <= start_time && end_time <= open_end;
+    const isInside = openStart <= startTime && endTime <= openEnd;
     if (isInside) {
       return true;
     }

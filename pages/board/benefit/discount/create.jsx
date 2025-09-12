@@ -10,7 +10,7 @@ const DiscountCreatePage = () => {
 
   const [title, setTitle] = useState('');
   const [region, setRegion] = useState('');
-  const [open_hour, setOpenHour] = useState('');
+  const [openHour, setOpenHour] = useState('');
   const [phone, setPhone] = useState('');
   const [content, setContent] = useState('');
 
@@ -18,7 +18,7 @@ const DiscountCreatePage = () => {
     const body = {
       title: title,
       region: region,
-      open_hour: open_hour,
+      openHour: openHour,
       phone: phone,
       content: content,
     };

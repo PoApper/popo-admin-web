@@ -16,17 +16,17 @@ const PlaceCreatePage = () => {
   const [region, setRegion] = useState('');
   const [location, setLocation] = useState('');
   const [description, setDescription] = useState('');
-  const [staff_email, setStaffEmail] = useState('');
-  const [max_minutes, setMaxMinutes] = useState(24 * 60);
-  const [max_concurrent_reservation, setMaxConcurrentReservation] = useState(1);
-  const [opening_hours, setOpeningHours] = useState({
+  const [staffEmail, setStaffEmail] = useState('');
+  const [maxMinutes, setMaxMinutes] = useState(24 * 60);
+  const [maxConcurrentReservation, setMaxConcurrentReservation] = useState(1);
+  const [openingHours, setOpeningHours] = useState({
     Everyday: '00:00-24:00',
   });
-  const [enable_auto_accept, setEnableAutoAccept] = useState('Inactive');
+  const [enableAutoAccept, setEnableAutoAccept] = useState('Inactive');
 
   const handleSubmit = async () => {
-    for (const day of Object.keys(opening_hours)) {
-      if (!checkValid(opening_hours[day])) {
+    for (const day of Object.keys(openingHours)) {
+      if (!checkValid(openingHours[day])) {
         alert(`사용 가능 시간이 올바르지 않습니다: ${day}`);
         return;
       }
@@ -37,11 +37,11 @@ const PlaceCreatePage = () => {
       region: region,
       location: location,
       description: description,
-      staff_email: staff_email,
-      max_minutes: max_minutes,
-      max_concurrent_reservation: max_concurrent_reservation,
-      opening_hours: JSON.stringify(opening_hours),
-      enable_auto_accept: enable_auto_accept,
+      staffEmail: staffEmail,
+      maxMinutes: maxMinutes,
+      maxConcurrentReservation: maxConcurrentReservation,
+      openingHours: JSON.stringify(openingHours),
+      enableAutoAccept: enableAutoAccept,
     };
 
     PoPoAxios.post('/place', body)
@@ -103,7 +103,7 @@ const PlaceCreatePage = () => {
 
         <OpeningHoursEditor
           currentOpeningHour={{ Everyday: '00:00-24:00' }}
-          openingHour={opening_hours}
+          openingHour={openingHours}
           setOpeningHours={setOpeningHours}
         />
 
@@ -111,7 +111,7 @@ const PlaceCreatePage = () => {
           required
           toggle
           label={'자동 승인 기능 활성화'}
-          value={enable_auto_accept}
+          value={enableAutoAccept}
           options={[
             { key: 'active', text: '활성', value: 'Active' },
             { key: 'inactive', text: '비활성', value: 'Inactive' },

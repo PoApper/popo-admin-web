@@ -10,7 +10,7 @@ const ClubIntroduceCreatePage = () => {
   const router = useRouter();
 
   const [name, setName] = useState('');
-  const [short_desc, setShortDesc] = useState('');
+  const [shortDesc, setShortDesc] = useState('');
   const [clubType, setClubType] = useState('');
   const [content, setContent] = useState('');
   const [location, setLocation] = useState('');
@@ -20,7 +20,7 @@ const ClubIntroduceCreatePage = () => {
   const handleSubmit = async () => {
     const body = {
       name: name,
-      short_desc: short_desc,
+      shortDesc: shortDesc,
       clubType: clubType,
       content: content,
       location: location,
