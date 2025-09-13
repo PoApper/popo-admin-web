@@ -132,7 +132,11 @@ const UserDetailPage = () => {
       });
 
       // 닉네임이 변경되고 닉네임이 존재하는 경우에만 paxi API로 닉네임 업데이트
-      if (nickname !== paxiUserInfo.nickname && nickname && nickname.trim() !== '') {
+      if (
+        nickname !== paxiUserInfo.nickname &&
+        nickname &&
+        nickname.trim() !== ''
+      ) {
         await PaxiAxios.put(`/user/nickname/${userUuid}`, {
           nickname: nickname,
         });
