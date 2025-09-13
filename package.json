@@ -9,7 +9,8 @@
     "format:check": "prettier --c .",
     "format": "prettier --w .",
     "lint": "next lint",
-    "lint:file": "next lint --file"
+    "lint:file": "next lint --file",
+    "pc": "pre-commit run --all-files"
   },
   "dependencies": {
     "@nivo/bar": "^0.88.0",
