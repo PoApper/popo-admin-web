@@ -113,9 +113,12 @@ jobs:
           username: ${{ secrets.POPO_EC2_USERNAME }}
           key: ${{ secrets.POPO_EC2_SSH_KEY }}
           script: |
-            echo "컨테이너/이미지 확인"
+            echo "::group::컨테이너 확인"
             docker ps -a
+            echo "::endgroup::"
+            echo "::group::이미지 확인"
             docker images
+            echo "::endgroup::"
             echo "사용하지 않는 이미지 및 컨테이너 제거"
             docker system prune -af
 
