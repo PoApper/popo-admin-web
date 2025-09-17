@@ -113,7 +113,7 @@ jobs:
           username: ${{ secrets.POPO_EC2_USERNAME }}
           key: ${{ secrets.POPO_EC2_SSH_KEY }}
           script: |
-            docker image prune -af
+            docker system prune -af
 
   deploy_health_check:
     name: Check Application Status
