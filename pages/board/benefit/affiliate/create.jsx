@@ -9,13 +9,13 @@ const AffiliateCreatePage = () => {
   const router = useRouter();
 
   const [title, setTitle] = useState('');
-  const [content_short, setContentShort] = useState('');
+  const [contentShort, setContentShort] = useState('');
   const [content, setContent] = useState('');
 
   const handleSubmit = async () => {
     const body = {
       title: title,
-      content_short: content_short,
+      contentShort: contentShort,
       content: content,
     };
 

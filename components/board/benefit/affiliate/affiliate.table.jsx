@@ -21,10 +21,10 @@ const AffiliateTable = ({ affiliateList }) => {
           <Table.Row key={affiliate.id}>
             <Table.Cell>{affiliate.id}</Table.Cell>
             <Table.Cell>{affiliate.title}</Table.Cell>
-            <Table.Cell>{affiliate.content_short}</Table.Cell>
+            <Table.Cell>{affiliate.contentShort}</Table.Cell>
             <Table.Cell>{affiliate.content}</Table.Cell>
             <Table.Cell>
-              {moment(affiliate.created_at).format('YYYY-MM-DD HH:mm')}
+              {moment(affiliate.createdAt).format('YYYY-MM-DD HH:mm')}
             </Table.Cell>
             <Table.Cell>
               <Link href={`/board/benefit/affiliate/update/${affiliate.id}`}>
