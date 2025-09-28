@@ -1,4 +1,4 @@
-import { Divider, Grid, Image, List, Button } from 'semantic-ui-react';
+import { Divider, Grid, Image, List } from 'semantic-ui-react';
 import LayoutWithAuth from '@/components/layout/layout.auth.with';
 
 const HomePage = () => {
