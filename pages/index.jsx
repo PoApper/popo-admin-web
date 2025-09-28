@@ -1,4 +1,4 @@
-import { Divider, Grid, Image, List } from 'semantic-ui-react';
+import { Divider, Grid, Image, List, Button } from 'semantic-ui-react';
 import LayoutWithAuth from '@/components/layout/layout.auth.with';
 
 const HomePage = () => {
@@ -32,6 +32,25 @@ const HomePage = () => {
           <List as="ul">
             <List.Item as="li">
               생활백서 PDF 업로드 기능 추가 (2025.02.12)
+            </List.Item>
+            <List.Item as="li">
+              POPO 앱 출시! (2025.09.28)
+              <br />
+              <a
+                href="https://play.google.com/store/apps/details?id=com.popomobile"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Google Play
+              </a>
+              {' | '}
+              <a
+                href="https://apps.apple.com/us/app/popo-%ED%8F%AC%EC%8A%A4%ED%85%8C%ED%82%A4%EC%95%88%EC%9D%98-%ED%95%84%EC%88%98-%EC%95%B1/id6743666761"
+                target="_blank"
+                rel="noreferrer"
+              >
+                App Store
+              </a>
             </List.Item>
           </List>
         </Grid.Column>
