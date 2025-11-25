@@ -7,6 +7,9 @@ import { OwnerOptions } from '@/assets/owner.options';
 import ReservationLayout from '@/components/reservation/reservation.layout';
 import ImageUploadForm from '@/components/common/image-upload.form';
 import DeleteConfirmModal from '@/components/common/delete.confirm.modal';
+import OpeningHoursEditor, {
+  checkValid,
+} from '@/components/common/opening_hours.editor';
 
 const EquipmentUpdatePage = ({ equipmentInfo }) => {
   const router = useRouter();
@@ -19,14 +22,25 @@ const EquipmentUpdatePage = ({ equipmentInfo }) => {
   const [description, setDescription] = useState(equipmentInfo.description);
   const [staffEmail, setStaffEmail] = useState(equipmentInfo.staffEmail);
   const [maxMinutes, setMaxMinutes] = useState(equipmentInfo.maxMinutes);
+  const [openingHours, setOpeningHours] = useState(
+    JSON.parse(equipmentInfo.openingHours),
+  );
 
   const handleSubmit = async () => {
+    for (const day of Object.keys(openingHours)) {
+      if (!checkValid(openingHours[day])) {
+        alert(`사용 가능 시간이 올바르지 않습니다: ${day}`);
+        return;
+      }
+    }
+
     const body = {
       name: name,
       equipOwner: equipOwner,
       fee: fee,
       description: description,
       staffEmail: staffEmail,
+      openingHours: JSON.stringify(openingHours),
     };
 
     if (maxMinutes) {
@@ -78,6 +92,13 @@ const EquipmentUpdatePage = ({ equipmentInfo }) => {
           onChange={(e) => setMaxMinutes(e.target.value)}
         />
         <p>최대 예약가능 시간이 넘는 예약이 생성되지 않도록 합니다.</p>
+
+        <OpeningHoursEditor
+          currentOpeningHour={JSON.parse(equipmentInfo.openingHours)}
+          openingHour={openingHours}
+          setOpeningHours={setOpeningHours}
+        />
+
         <Form.TextArea
           required
           label={'설명'}

@@ -5,6 +5,9 @@ import { Form, Message } from 'semantic-ui-react';
 import ReservationLayout from '@/components/reservation/reservation.layout';
 import { PoPoAxios } from '@/utils/axios.instance';
 import { OwnerOptions } from '@/assets/owner.options';
+import OpeningHoursEditor, {
+  checkValid,
+} from '@/components/common/opening_hours.editor';
 
 const EquipmentCreatePage = () => {
   const router = useRouter();
@@ -14,14 +17,23 @@ const EquipmentCreatePage = () => {
   const [description, setDescription] = useState('');
   const [staffEmail, setStaffEmail] = useState('');
   const [maxMinutes, setMaxMinutes] = useState();
+  const [openingHours, setOpeningHours] = useState({ Everyday: '00:00-24:00' });
 
   const handleSubmit = async () => {
+    for (const day of Object.keys(openingHours)) {
+      if (!checkValid(openingHours[day])) {
+        alert(`사용 가능 시간이 올바르지 않습니다: ${day}`);
+        return;
+      }
+    }
+
     const body = {
       name: name,
       equipOwner: equipOwner,
       fee: fee,
       description: description,
       staffEmail: staffEmail,
+      openingHours: JSON.stringify(openingHours),
     };
 
     if (maxMinutes) {
@@ -74,6 +86,12 @@ const EquipmentCreatePage = () => {
           onChange={(e) => setMaxMinutes(e.target.value)}
         />
         <p>최대 예약가능 시간이 넘는 예약이 생성되지 않도록 합니다.</p>
+
+        <OpeningHoursEditor
+          currentOpeningHour={{ Everyday: '00:00-24:00' }}
+          openingHour={openingHours}
+          setOpeningHours={setOpeningHours}
+        />
 
         <Form.TextArea
           required
