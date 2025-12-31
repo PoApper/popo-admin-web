@@ -237,8 +237,14 @@ const PaxiManagementPage = () => {
       // 목록 새로고침
       await fetchRooms();
     } catch (err) {
-      setEditError('방 정보 수정에 실패했습니다.');
+      const errorMessage =
+        err.response?.data?.message ||
+        err.response?.data?.error ||
+        err.message ||
+        '방 정보 수정에 실패했습니다.';
+      setEditError(errorMessage);
       console.error('방 정보 수정 오류:', err);
+      alert(`방 정보 수정 실패: ${errorMessage}`);
     } finally {
       setEditLoading(false);
     }
@@ -379,8 +385,14 @@ const PaxiManagementPage = () => {
       // 목록 새로고침
       await fetchRooms();
     } catch (err) {
-      setDeleteError('방 삭제에 실패했습니다.');
+      const errorMessage =
+        err.response?.data?.message ||
+        err.response?.data?.error ||
+        err.message ||
+        '방 삭제에 실패했습니다.';
+      setDeleteError(errorMessage);
       console.error('방 삭제 오류:', err);
+      alert(`방 삭제 실패: ${errorMessage}`);
     } finally {
       setDeleteLoading(false);
     }

@@ -173,8 +173,14 @@ const PaxiRoomTable = ({ rooms, startIdx = 1, userUuid }) => {
       // 페이지 새로고침으로 업데이트된 데이터 반영
       window.location.reload();
     } catch (err) {
-      setError('방 정보 수정에 실패했습니다.');
+      const errorMessage =
+        err.response?.data?.message ||
+        err.response?.data?.error ||
+        err.message ||
+        '방 정보 수정에 실패했습니다.';
+      setError(errorMessage);
       console.error('방 정보 수정 오류:', err);
+      alert(`방 정보 수정 실패: ${errorMessage}`);
     } finally {
       setIsLoading(false);
     }
