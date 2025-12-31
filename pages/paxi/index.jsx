@@ -205,6 +205,10 @@ const PaxiManagementPage = () => {
   const handleConfirmEdit = async () => {
     if (!selectedRoom) return;
 
+    if (!window.confirm('정말로 방 정보를 변경하시겠습니까?')) {
+      return;
+    }
+
     setEditLoading(true);
     setEditError('');
 
@@ -352,6 +356,14 @@ const PaxiManagementPage = () => {
   // 삭제 확인
   const handleConfirmDelete = async () => {
     if (!selectedRoom) return;
+
+    if (
+      !window.confirm(
+        '정말로 이 방을 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.',
+      )
+    ) {
+      return;
+    }
 
     setDeleteLoading(true);
     setDeleteError('');

@@ -143,6 +143,10 @@ const PaxiRoomTable = ({ rooms, startIdx = 1, userUuid }) => {
   };
 
   const handleConfirmEdit = async () => {
+    if (!window.confirm('정말로 방 정보를 변경하시겠습니까?')) {
+      return;
+    }
+
     setIsLoading(true);
     setError('');
 
