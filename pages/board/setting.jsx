@@ -26,6 +26,12 @@ const SettingPage = ({ settingKeyValue }) => {
   const [dongyeonContact, setDongyeonContact] = useState(
     settingKeyValue.dongyeonContact,
   );
+  const [dongyeonKakaoLink, setDongyeonKakaoLink] = useState(
+    settingKeyValue.dongyeonKakaoLink,
+  );
+  const [dongyeonKakaoTitle, setDongyeonKakaoTitle] = useState(
+    settingKeyValue.dongyeonKakaoTitle,
+  );
 
   function handleSubmit() {
     PoPoAxios.post('/setting', {
@@ -38,6 +44,8 @@ const SettingPage = ({ settingKeyValue }) => {
       dongyeonBank: dongyeonBank,
       dongyeonServiceTime: dongyeonServiceTime,
       dongyeonContact: dongyeonContact,
+      dongyeonKakaoLink: dongyeonKakaoLink,
+      dongyeonKakaoTitle: dongyeonKakaoTitle,
     })
       .then(() => alert('설정값을 저장했습니다!'))
       .catch((err) => {
@@ -107,6 +115,18 @@ const SettingPage = ({ settingKeyValue }) => {
           label={'동아리 연합회 문의 번호'}
           value={dongyeonContact}
           onChange={(e) => setDongyeonContact(e.target.value)}
+        />
+        <Form.Input
+          label={'동아리 연합회 카카오톡 채널 링크'}
+          placeholder={'예: http://pf.kakao.com/_qASbn/chat'}
+          value={dongyeonKakaoLink}
+          onChange={(e) => setDongyeonKakaoLink(e.target.value)}
+        />
+        <Form.Input
+          label={'동아리 연합회 카카오톡 채널 제목'}
+          placeholder={'예: 동아리연합회 2026'}
+          value={dongyeonKakaoTitle}
+          onChange={(e) => setDongyeonKakaoTitle(e.target.value)}
         />
 
         <Form.Button primary type={'submit'} onClick={handleSubmit}>
