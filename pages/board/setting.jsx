@@ -9,6 +9,14 @@ const SettingPage = ({ settingKeyValue }) => {
     settingKeyValue.popoCRMEmail,
   );
   const [STUEmail, setSTUEmail] = useState(settingKeyValue.stuEmail);
+  const [STUPresidentName, setSTUPresidentName] = useState(
+    settingKeyValue.stuPresidentName,
+  );
+  const [STUPresidentContact, setSTUPresidentContact] = useState(
+    settingKeyValue.stuPresidentContact,
+  );
+  const [STUTel, setSTUTel] = useState(settingKeyValue.stuTel);
+  const [STUFax, setSTUFax] = useState(settingKeyValue.stuFax);
   const [dongyeonBank, setDongyeonBank] = useState(
     settingKeyValue.dongyeonBank,
   );
@@ -23,6 +31,10 @@ const SettingPage = ({ settingKeyValue }) => {
     PoPoAxios.post('/setting', {
       popoCRMEmail: popoCRMEmail,
       stuEmail: STUEmail,
+      stuPresidentName: STUPresidentName,
+      stuPresidentContact: STUPresidentContact,
+      stuTel: STUTel,
+      stuFax: STUFax,
       dongyeonBank: dongyeonBank,
       dongyeonServiceTime: dongyeonServiceTime,
       dongyeonContact: dongyeonContact,
@@ -43,16 +55,44 @@ const SettingPage = ({ settingKeyValue }) => {
       </p>
 
       <Form>
+        <h4>POPO 설정</h4>
         <Form.Input
           label={'POPO 문의 이메일'}
           value={popoCRMEmail}
           onChange={(e) => setPOPOCRMEmail(e.target.value)}
         />
+
+        <h4>총학생회 설정</h4>
         <Form.Input
-          label={'학생회 이메일'}
+          label={'총학생회 이메일'}
           value={STUEmail}
           onChange={(e) => setSTUEmail(e.target.value)}
         />
+        <Form.Input
+          label={'총학생회장 이름'}
+          value={STUPresidentName}
+          onChange={(e) => setSTUPresidentName(e.target.value)}
+        />
+        <Form.Input
+          label={'총학생회장 연락처'}
+          placeholder={'예: +82-10-xxxx-xxxx'}
+          value={STUPresidentContact}
+          onChange={(e) => setSTUPresidentContact(e.target.value)}
+        />
+        <Form.Input
+          label={'총학생회 전화번호'}
+          placeholder={'예: +82-54-279-2621'}
+          value={STUTel}
+          onChange={(e) => setSTUTel(e.target.value)}
+        />
+        <Form.Input
+          label={'총학생회 팩스'}
+          placeholder={'예: +82-54-279-2626'}
+          value={STUFax}
+          onChange={(e) => setSTUFax(e.target.value)}
+        />
+
+        <h4>동아리 연합회 설정</h4>
         <Form.Input
           label={'동아리 연합회 계좌 (장비 예약비)'}
           value={dongyeonBank}
