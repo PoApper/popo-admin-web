@@ -9,6 +9,14 @@ const SettingPage = ({ settingKeyValue }) => {
     settingKeyValue.popoCRMEmail,
   );
   const [STUEmail, setSTUEmail] = useState(settingKeyValue.stuEmail);
+  const [STUPresidentName, setSTUPresidentName] = useState(
+    settingKeyValue.stuPresidentName,
+  );
+  const [STUPresidentContact, setSTUPresidentContact] = useState(
+    settingKeyValue.stuPresidentContact,
+  );
+  const [STUTel, setSTUTel] = useState(settingKeyValue.stuTel);
+  const [STUFax, setSTUFax] = useState(settingKeyValue.stuFax);
   const [dongyeonBank, setDongyeonBank] = useState(
     settingKeyValue.dongyeonBank,
   );
@@ -18,14 +26,26 @@ const SettingPage = ({ settingKeyValue }) => {
   const [dongyeonContact, setDongyeonContact] = useState(
     settingKeyValue.dongyeonContact,
   );
+  const [dongyeonKakaoLink, setDongyeonKakaoLink] = useState(
+    settingKeyValue.dongyeonKakaoLink,
+  );
+  const [dongyeonKakaoTitle, setDongyeonKakaoTitle] = useState(
+    settingKeyValue.dongyeonKakaoTitle,
+  );
 
   function handleSubmit() {
     PoPoAxios.post('/setting', {
       popoCRMEmail: popoCRMEmail,
       stuEmail: STUEmail,
+      stuPresidentName: STUPresidentName,
+      stuPresidentContact: STUPresidentContact,
+      stuTel: STUTel,
+      stuFax: STUFax,
       dongyeonBank: dongyeonBank,
       dongyeonServiceTime: dongyeonServiceTime,
       dongyeonContact: dongyeonContact,
+      dongyeonKakaoLink: dongyeonKakaoLink,
+      dongyeonKakaoTitle: dongyeonKakaoTitle,
     })
       .then(() => alert('설정값을 저장했습니다!'))
       .catch((err) => {
@@ -43,16 +63,44 @@ const SettingPage = ({ settingKeyValue }) => {
       </p>
 
       <Form>
+        <h4>POPO 설정</h4>
         <Form.Input
           label={'POPO 문의 이메일'}
           value={popoCRMEmail}
           onChange={(e) => setPOPOCRMEmail(e.target.value)}
         />
+
+        <h4>총학생회 설정</h4>
         <Form.Input
-          label={'학생회 이메일'}
+          label={'총학생회 이메일'}
           value={STUEmail}
           onChange={(e) => setSTUEmail(e.target.value)}
         />
+        <Form.Input
+          label={'총학생회장 이름'}
+          value={STUPresidentName}
+          onChange={(e) => setSTUPresidentName(e.target.value)}
+        />
+        <Form.Input
+          label={'총학생회장 연락처'}
+          placeholder={'예: +82-10-xxxx-xxxx'}
+          value={STUPresidentContact}
+          onChange={(e) => setSTUPresidentContact(e.target.value)}
+        />
+        <Form.Input
+          label={'총학생회 전화번호'}
+          placeholder={'예: +82-54-279-2621'}
+          value={STUTel}
+          onChange={(e) => setSTUTel(e.target.value)}
+        />
+        <Form.Input
+          label={'총학생회 팩스'}
+          placeholder={'예: +82-54-279-2626'}
+          value={STUFax}
+          onChange={(e) => setSTUFax(e.target.value)}
+        />
+
+        <h4>동아리 연합회 설정</h4>
         <Form.Input
           label={'동아리 연합회 계좌 (장비 예약비)'}
           value={dongyeonBank}
@@ -67,6 +115,18 @@ const SettingPage = ({ settingKeyValue }) => {
           label={'동아리 연합회 문의 번호'}
           value={dongyeonContact}
           onChange={(e) => setDongyeonContact(e.target.value)}
+        />
+        <Form.Input
+          label={'동아리 연합회 카카오톡 채널 링크'}
+          placeholder={'예: http://pf.kakao.com/_qASbn/chat'}
+          value={dongyeonKakaoLink}
+          onChange={(e) => setDongyeonKakaoLink(e.target.value)}
+        />
+        <Form.Input
+          label={'동아리 연합회 카카오톡 채널 제목'}
+          placeholder={'예: 동아리연합회 2026'}
+          value={dongyeonKakaoTitle}
+          onChange={(e) => setDongyeonKakaoTitle(e.target.value)}
         />
 
         <Form.Button primary type={'submit'} onClick={handleSubmit}>
