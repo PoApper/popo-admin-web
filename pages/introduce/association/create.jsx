@@ -4,19 +4,27 @@ import { Form, Message } from 'semantic-ui-react';
 
 import { PoPoAxios } from '@/utils/axios.instance';
 import IntroduceLayout from '@/components/introduce/introduce.layout';
+import { AssociationTypeOptions } from '@/assets/association.type.options';
 
 const AssociationIntroduceCreatePage = () => {
   const router = useRouter();
 
   const [name, setName] = useState('');
+  const [associationType, setAssociationType] = useState('');
   const [content, setContent] = useState('');
   const [location, setLocation] = useState('');
   const [representative, setRepresentative] = useState('');
   const [contact, setContact] = useState('');
 
   async function handleSubmit() {
+    if (!associationType) {
+      alert('자치단체 분류를 선택해주세요.');
+      return;
+    }
+
     const body = {
       name: name,
+      associationType: associationType,
       content: content,
       location: location,
       representative: representative,
@@ -43,6 +51,13 @@ const AssociationIntroduceCreatePage = () => {
           required
           label={'자치단체 이름'}
           onChange={(e) => setName(e.target.value)}
+        />
+        <Form.Select
+          required
+          label={'자치단체 분류'}
+          options={AssociationTypeOptions}
+          placeholder={'자치단체 분류를 선택하세요.'}
+          onChange={(e, { value }) => setAssociationType(value)}
         />
         <Form.TextArea
           required
