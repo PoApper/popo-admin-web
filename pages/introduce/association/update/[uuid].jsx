@@ -6,12 +6,19 @@ import { PoPoAxios } from '@/utils/axios.instance';
 import IntroduceLayout from '@/components/introduce/introduce.layout';
 import DeleteConfirmModal from '@/components/common/delete.confirm.modal';
 import ImageUploadForm from '@/components/common/image-upload.form';
+import {
+  AssociationTypeOptions,
+  getAssociationTypeValue,
+} from '@/assets/association.type.options';
 
 const AssociationUpdatePage = ({ associationInfo }) => {
   const router = useRouter();
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
   const [name, setName] = useState(associationInfo.name);
+  const [associationType, setAssociationType] = useState(
+    getAssociationTypeValue(associationInfo.associationType),
+  );
   const [content, setContent] = useState(associationInfo.content);
   const [location, setLocation] = useState(associationInfo.location);
   const [representative, setRepresentative] = useState(
@@ -25,8 +32,14 @@ const AssociationUpdatePage = ({ associationInfo }) => {
   );
 
   async function handleSubmit() {
+    if (!associationType) {
+      alert('자치단체 분류를 선택해주세요.');
+      return;
+    }
+
     const body = {
       name: name,
+      associationType: associationType,
       content: content,
       location: location,
       representative: representative,
@@ -59,6 +72,14 @@ const AssociationUpdatePage = ({ associationInfo }) => {
             onChange={(e) => setName(e.target.value)}
           />
         </Form.Group>
+        <Form.Select
+          required
+          label={'자치단체 분류'}
+          options={AssociationTypeOptions}
+          placeholder={'자치단체 분류를 선택하세요.'}
+          value={associationType}
+          onChange={(e, { value }) => setAssociationType(value)}
+        />
         <Form.TextArea
           required
           label={'소개글'}
