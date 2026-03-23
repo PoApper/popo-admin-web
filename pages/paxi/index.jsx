@@ -738,9 +738,9 @@ const PaxiManagementPage = () => {
           )}
         </Modal.Content>
         <Modal.Actions>
-          <Button negative onClick={handleDeleteClick}>
+          {/*<Button negative onClick={handleDeleteClick}>
             방 삭제
-          </Button>
+          </Button>*/}
           <Button primary onClick={handleEditClick}>
             수정하기
           </Button>
