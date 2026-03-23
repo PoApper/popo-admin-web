@@ -355,9 +355,9 @@ const PaxiManagementPage = () => {
   };
 
   // 삭제 모달 열기
-  const handleDeleteClick = () => {
-    setDeleteModalOpen(true);
-  };
+  // const handleDeleteClick = () => {
+  // setDeleteModalOpen(true);
+  // };
 
   // 삭제 확인
   const handleConfirmDelete = async () => {
