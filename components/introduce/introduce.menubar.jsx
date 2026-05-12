@@ -12,6 +12,9 @@ export default class IntroduceMenubar extends Component {
         <Link href={'/introduce/club'} passHref>
           <Menu.Item>동아리 소개글</Menu.Item>
         </Link>
+        <Link href={'/introduce/student_association'} passHref>
+          <Menu.Item>학생단체 소개글</Menu.Item>
+        </Link>
       </Menu>
     );
   }
