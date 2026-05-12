@@ -8,6 +8,7 @@ import { OwnerOptions } from '@/assets/owner.options';
 import OpeningHoursEditor, {
   checkValid,
 } from '@/components/common/opening_hours.editor';
+import { normalizeReservationRequiredDays } from '@/utils/reservation-required-days';
 
 const EquipmentCreatePage = () => {
   const router = useRouter();
@@ -17,6 +18,7 @@ const EquipmentCreatePage = () => {
   const [description, setDescription] = useState('');
   const [staffEmail, setStaffEmail] = useState('');
   const [maxMinutes, setMaxMinutes] = useState();
+  const [reservationRequiredDays, setReservationRequiredDays] = useState(0);
   const [openingHours, setOpeningHours] = useState({ Everyday: '00:00-24:00' });
 
   const handleSubmit = async () => {
@@ -33,6 +35,8 @@ const EquipmentCreatePage = () => {
       fee: fee,
       description: description,
       staffEmail: staffEmail,
+      reservationRequiredDays:
+        normalizeReservationRequiredDays(reservationRequiredDays),
       openingHours: JSON.stringify(openingHours),
     };
 
@@ -86,6 +90,16 @@ const EquipmentCreatePage = () => {
           onChange={(e) => setMaxMinutes(e.target.value)}
         />
         <p>최대 예약가능 시간이 넘는 예약이 생성되지 않도록 합니다.</p>
+
+        <Form.Input
+          type={'number'}
+          min={0}
+          label={'n일 전 예약 필수'}
+          placeholder={'제한이 없으면 0을 입력해주세요 (ex. 3)'}
+          value={reservationRequiredDays}
+          onChange={(e) => setReservationRequiredDays(e.target.value)}
+        />
+        <p>입력한 일수 전부터 예약할 수 있습니다. 0이면 제한이 없습니다.</p>
 
         <OpeningHoursEditor
           currentOpeningHour={{ Everyday: '00:00-24:00' }}

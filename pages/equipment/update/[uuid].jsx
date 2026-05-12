@@ -10,6 +10,7 @@ import DeleteConfirmModal from '@/components/common/delete.confirm.modal';
 import OpeningHoursEditor, {
   checkValid,
 } from '@/components/common/opening_hours.editor';
+import { normalizeReservationRequiredDays } from '@/utils/reservation-required-days';
 
 const EquipmentUpdatePage = ({ equipmentInfo }) => {
   const router = useRouter();
@@ -22,6 +23,9 @@ const EquipmentUpdatePage = ({ equipmentInfo }) => {
   const [description, setDescription] = useState(equipmentInfo.description);
   const [staffEmail, setStaffEmail] = useState(equipmentInfo.staffEmail);
   const [maxMinutes, setMaxMinutes] = useState(equipmentInfo.maxMinutes);
+  const [reservationRequiredDays, setReservationRequiredDays] = useState(
+    equipmentInfo.reservationRequiredDays ?? 0,
+  );
   const [openingHours, setOpeningHours] = useState(
     JSON.parse(equipmentInfo.openingHours),
   );
@@ -40,6 +44,8 @@ const EquipmentUpdatePage = ({ equipmentInfo }) => {
       fee: fee,
       description: description,
       staffEmail: staffEmail,
+      reservationRequiredDays:
+        normalizeReservationRequiredDays(reservationRequiredDays),
       openingHours: JSON.stringify(openingHours),
     };
 
@@ -92,6 +98,16 @@ const EquipmentUpdatePage = ({ equipmentInfo }) => {
           onChange={(e) => setMaxMinutes(e.target.value)}
         />
         <p>최대 예약가능 시간이 넘는 예약이 생성되지 않도록 합니다.</p>
+
+        <Form.Input
+          type={'number'}
+          min={0}
+          label={'n일 전 예약 필수'}
+          placeholder={'제한이 없으면 0을 입력해주세요 (ex. 3)'}
+          value={reservationRequiredDays}
+          onChange={(e) => setReservationRequiredDays(e.target.value)}
+        />
+        <p>입력한 일수 전부터 예약할 수 있습니다. 0이면 제한이 없습니다.</p>
 
         <OpeningHoursEditor
           currentOpeningHour={JSON.parse(equipmentInfo.openingHours)}
