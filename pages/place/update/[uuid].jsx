@@ -52,8 +52,9 @@ const PlaceUpdatePage = ({ placeInfo }) => {
       staffEmail: staffEmail,
       maxMinutes: maxMinutes,
       maxConcurrentReservation: maxConcurrentReservation,
-      reservationRequiredDays:
-        normalizeReservationRequiredDays(reservationRequiredDays),
+      reservationRequiredDays: normalizeReservationRequiredDays(
+        reservationRequiredDays,
+      ),
       openingHours: JSON.stringify(openingHours),
       enableAutoAccept: enableAutoAccept,
     };

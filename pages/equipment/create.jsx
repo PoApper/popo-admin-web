@@ -35,8 +35,9 @@ const EquipmentCreatePage = () => {
       fee: fee,
       description: description,
       staffEmail: staffEmail,
-      reservationRequiredDays:
-        normalizeReservationRequiredDays(reservationRequiredDays),
+      reservationRequiredDays: normalizeReservationRequiredDays(
+        reservationRequiredDays,
+      ),
       openingHours: JSON.stringify(openingHours),
     };
 
