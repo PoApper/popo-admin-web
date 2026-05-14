@@ -74,6 +74,17 @@ const EquipmentTable = ({ equipmentList }) => {
             일일 한도 (분)
           </Table.HeaderCell>
           <Table.HeaderCell
+            sorted={column === 'reservationRequiredDays' ? direction : null}
+            onClick={() =>
+              dispatch({
+                type: 'CHANGE_SORT',
+                column: 'reservationRequiredDays',
+              })
+            }
+          >
+            사전 예약
+          </Table.HeaderCell>
+          <Table.HeaderCell
             sorted={column === 'totalReservationCount' ? direction : null}
             onClick={() =>
               dispatch({
@@ -98,6 +109,11 @@ const EquipmentTable = ({ equipmentList }) => {
               {equipment.maxMinutes === 1440
                 ? '제한 없음'
                 : equipment.maxMinutes.toLocaleString()}
+            </Table.Cell>
+            <Table.Cell>
+              {equipment.reservationRequiredDays > 0
+                ? `${equipment.reservationRequiredDays}일 전`
+                : '제한 없음'}
             </Table.Cell>
             <Table.Cell>
               {equipment.totalReservationCount.toLocaleString()}

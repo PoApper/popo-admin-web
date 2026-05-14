@@ -75,6 +75,17 @@ const PlaceTable = ({ placeList }) => {
             일일 한도 (분)
           </Table.HeaderCell>
           <Table.HeaderCell
+            sorted={column === 'reservationRequiredDays' ? direction : null}
+            onClick={() =>
+              dispatch({
+                type: 'CHANGE_SORT',
+                column: 'reservationRequiredDays',
+              })
+            }
+          >
+            사전 예약
+          </Table.HeaderCell>
+          <Table.HeaderCell
             sorted={column === 'totalReservationCount' ? direction : null}
             onClick={() =>
               dispatch({
@@ -99,6 +110,11 @@ const PlaceTable = ({ placeList }) => {
               {place.maxMinutes === 1440
                 ? '제한 없음'
                 : place.maxMinutes.toLocaleString()}
+            </Table.Cell>
+            <Table.Cell>
+              {place.reservationRequiredDays > 0
+                ? `${place.reservationRequiredDays}일 전`
+                : '제한 없음'}
             </Table.Cell>
             <Table.Cell>
               {place.totalReservationCount.toLocaleString()}

@@ -10,6 +10,7 @@ import { PoPoAxios } from '@/utils/axios.instance';
 import { RegionOptions } from '@/assets/region.options';
 import ImageUploadForm from '@/components/common/image-upload.form';
 import DeleteConfirmModal from '@/components/common/delete.confirm.modal';
+import { normalizeReservationRequiredDays } from '@/utils/reservation-required-days';
 
 const PlaceUpdatePage = ({ placeInfo }) => {
   const router = useRouter();
@@ -24,6 +25,9 @@ const PlaceUpdatePage = ({ placeInfo }) => {
   const [maxMinutes, setMaxMinutes] = useState(placeInfo.maxMinutes);
   const [maxConcurrentReservation, setMaxConcurrentReservation] = useState(
     placeInfo.maxConcurrentReservation,
+  );
+  const [reservationRequiredDays, setReservationRequiredDays] = useState(
+    placeInfo.reservationRequiredDays ?? 0,
   );
   const [openingHours, setOpeningHours] = useState(
     JSON.parse(placeInfo.openingHours),
@@ -48,6 +52,9 @@ const PlaceUpdatePage = ({ placeInfo }) => {
       staffEmail: staffEmail,
       maxMinutes: maxMinutes,
       maxConcurrentReservation: maxConcurrentReservation,
+      reservationRequiredDays: normalizeReservationRequiredDays(
+        reservationRequiredDays,
+      ),
       openingHours: JSON.stringify(openingHours),
       enableAutoAccept: enableAutoAccept,
     };
@@ -113,6 +120,16 @@ const PlaceUpdatePage = ({ placeInfo }) => {
           value={maxConcurrentReservation}
           onChange={(e) => setMaxConcurrentReservation(e.target.value)}
         />
+
+        <Form.Input
+          type={'number'}
+          min={0}
+          label={'n일 전 예약 필수'}
+          placeholder={'제한이 없으면 0을 입력해주세요 (ex. 3)'}
+          value={reservationRequiredDays}
+          onChange={(e) => setReservationRequiredDays(e.target.value)}
+        />
+        <p>입력한 일수 전부터 예약할 수 있습니다. 0이면 제한이 없습니다.</p>
 
         <OpeningHoursEditor
           currentOpeningHour={JSON.parse(placeInfo.openingHours)}
