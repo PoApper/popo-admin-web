@@ -5,9 +5,6 @@ import {
   Table,
   Modal,
   Form,
-  Input,
-  TextArea,
-  Select,
   Header,
   Segment,
   Tab,
@@ -15,6 +12,18 @@ import {
   Message,
 } from 'semantic-ui-react';
 import Navbar from '../../components/navbar/navbar';
+import { PoPoAxios } from '../../utils/axios.instance';
+
+// 쓰기 요청은 관리자/자치단체 권한이 필요하다. PoPoAxios 는 withCredentials 로
+// 인증 쿠키를 함께 보내므로, 생 fetch 를 쓰면 401 이 난다.
+const errorMessageOf = (err) => {
+  const status = err?.response?.status;
+  if (status === 401) return '로그인이 필요합니다. 다시 로그인해주세요.';
+  if (status === 403) return '권한이 없습니다. 관리자 계정으로 로그인해주세요.';
+  return (
+    err?.response?.data?.message ?? err?.message ?? '알 수 없는 오류입니다.'
+  );
+};
 
 const categoryOptions = [
   { key: 'global', text: '글로벌/해외', value: '글로벌/해외' },
@@ -29,48 +38,21 @@ const fileTypeOptions = [
   { key: 'hwpx', text: 'HWPX', value: 'hwpx' },
 ];
 
-const INITIAL_ACTIVITIES = [
-  {
-    uuid: 'act-01',
-    title: '세계문화탐방대',
-    period: '매년 하계/동계 방학 중 (연 2회)',
-    target: '학부 재학생 (직전 학기 평점 3.0 이상)',
-    applicationMethod: '지원서 및 탐방 계획서 작성 후 포털 접수 -> 서류 심사 -> 면접 전형',
-    description: '학생들이 직접 탐방 주제와 국가를 선정하고 문화, 사회, 학문 분야의 연구 과제를 직접 체험하고 분석하는 글로벌 도전 프로그램입니다.',
-    category: '글로벌/해외',
-  },
-  {
-    uuid: 'act-02',
-    title: '노벨 위크 탐방단',
-    period: '매년 10월 ~ 11월 중 모집',
-    target: '이공계열 및 인문사회계열 학부 2~4학년',
-    applicationMethod: '노벨상 관련 에세이 제출 -> 심사 -> 학과장 추천 및 면접',
-    description: '스웨덴 스톡홀름에서 열리는 노벨상 시상식 주간에 현지를 방문하여 노벨 재단 강연 참석, 스웨덴 명문대 학생들과의 학술 교류 등을 진행하는 최고 권위의 학술 탐방 프로그램입니다.',
-    category: '학술/연구',
-  },
-];
-
-const INITIAL_REPORTS = [
-  {
-    uuid: 'rep-01',
-    activityId: 'act-01',
-    title: '유럽 친환경 도시 설계 및 탄소중립 교통 시스템 탐방 보고서',
-    period: '2025학년도 하계',
-    grade: '3학년',
-    major: '도시공학과',
-    author: '민*우',
-    wordsToJuniors: '현지 전문가 인터뷰나 기관 방문 메일을 최소 한 달 전부터 꼼꼼히 보내두는 게 좋습니다.',
-    aiSummary: '독일 프라이부르크와 네덜란드 암스테르담의 친환경 대중교통 인프라 탐방 결과 보고서.',
-    fileName: '2025_하계_세계문화탐방대_유럽교통보고서.pdf',
-    fileType: 'pdf',
-  },
-];
-
 export default function AdminExtracurricularPage() {
-  const [activities, setActivities] = useState(INITIAL_ACTIVITIES);
-  const [reports, setReports] = useState(INITIAL_REPORTS);
+  const [activities, setActivities] = useState([]);
+  const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
+  const [isError, setIsError] = useState(false);
+
+  const notify = (text) => {
+    setIsError(false);
+    setMessage(text);
+  };
+  const notifyError = (text) => {
+    setIsError(true);
+    setMessage(text);
+  };
 
   // Activity Modal State
   const [isActModalOpen, setIsActModalOpen] = useState(false);
@@ -100,8 +82,6 @@ export default function AdminExtracurricularPage() {
     fileType: 'pdf',
   });
 
-  const apiUrl = process.env.NEXT_PUBLIC_API || 'https://api.popo-dev.poapper.club';
-
   useEffect(() => {
     fetchData();
   }, []);
@@ -109,23 +89,14 @@ export default function AdminExtracurricularPage() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const actRes = await fetch(`${apiUrl}/activity`);
-      if (actRes.ok) {
-        const actData = await actRes.json();
-        if (Array.isArray(actData) && actData.length > 0) {
-          setActivities(actData);
-        }
-      }
-
-      const repRes = await fetch(`${apiUrl}/activity-report`);
-      if (repRes.ok) {
-        const repData = await repRes.json();
-        if (Array.isArray(repData) && repData.length > 0) {
-          setReports(repData);
-        }
-      }
+      const [actRes, repRes] = await Promise.all([
+        PoPoAxios.get('/activity'),
+        PoPoAxios.get('/activity-report'),
+      ]);
+      setActivities(Array.isArray(actRes.data) ? actRes.data : []);
+      setReports(Array.isArray(repRes.data) ? repRes.data : []);
     } catch (err) {
-      console.log('Failed fetching admin data from API, using state fallback:', err);
+      notifyError(`목록을 불러오지 못했습니다. ${errorMessageOf(err)}`);
     } finally {
       setLoading(false);
     }
@@ -155,63 +126,46 @@ export default function AdminExtracurricularPage() {
       return;
     }
 
+    // uuid 는 서버가 발급한다. 클라이언트에서 만들어 보내지 않는다.
+    const { uuid } = actForm;
+    const payload = {
+      title: actForm.title,
+      period: actForm.period,
+      target: actForm.target,
+      applicationMethod: actForm.applicationMethod,
+      description: actForm.description,
+      category: actForm.category,
+    };
+
     try {
-      if (actForm.uuid) {
-        // Update
-        const res = await fetch(`${apiUrl}/activity/${actForm.uuid}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(actForm),
-        });
-        if (res.ok) {
-          setMessage('비교과활동 정보가 수정되었습니다.');
-        }
-        setActivities((prev) =>
-          prev.map((a) => (a.uuid === actForm.uuid ? { ...a, ...actForm } : a))
-        );
+      if (uuid) {
+        await PoPoAxios.patch(`/activity/${uuid}`, payload);
+        notify('비교과활동 정보가 수정되었습니다.');
       } else {
-        // Create
-        const newUuid = `act-${Date.now()}`;
-        const newAct = { ...actForm, uuid: newUuid };
-        const res = await fetch(`${apiUrl}/activity`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(newAct),
-        });
-        if (res.ok) {
-          const created = await res.json();
-          setActivities((prev) => [created, ...prev]);
-        } else {
-          setActivities((prev) => [newAct, ...prev]);
-        }
-        setMessage('신규 비교과활동이 등록되었습니다.');
+        await PoPoAxios.post('/activity', payload);
+        notify('신규 비교과활동이 등록되었습니다.');
       }
-    } catch (err) {
-      console.log('API call fallback during save:', err);
-      const newUuid = actForm.uuid || `act-${Date.now()}`;
-      setActivities((prev) => {
-        const exists = prev.some((a) => a.uuid === newUuid);
-        if (exists) {
-          return prev.map((a) => (a.uuid === newUuid ? { ...a, ...actForm } : a));
-        }
-        return [{ ...actForm, uuid: newUuid }, ...prev];
-      });
-      setMessage('저장되었습니다 (로컬 상태 반영).');
-    } finally {
       setIsActModalOpen(false);
+      await fetchData();
+    } catch (err) {
+      notifyError(`저장하지 못했습니다. ${errorMessageOf(err)}`);
     }
   };
 
   const handleDeleteActivity = async (uuid) => {
-    if (!confirm('정말 이 비교과활동을 삭제하시겠습니까? 연결된 보고서도 함께 삭제될 수 있습니다.'))
+    if (
+      !confirm(
+        '정말 이 비교과활동을 삭제하시겠습니까? 연결된 보고서도 함께 삭제될 수 있습니다.',
+      )
+    )
       return;
     try {
-      await fetch(`${apiUrl}/activity/${uuid}`, { method: 'DELETE' });
-    } catch (e) {
-      console.log('API delete fallback:', e);
+      await PoPoAxios.delete(`/activity/${uuid}`);
+      notify('비교과활동이 삭제되었습니다.');
+      await fetchData();
+    } catch (err) {
+      notifyError(`삭제하지 못했습니다. ${errorMessageOf(err)}`);
     }
-    setActivities((prev) => prev.filter((a) => a.uuid !== uuid));
-    setMessage('비교과활동이 삭제되었습니다.');
   };
 
   // Report Handlers
@@ -242,60 +196,44 @@ export default function AdminExtracurricularPage() {
       return;
     }
 
+    const { uuid } = repForm;
+    const payload = {
+      activityId: repForm.activityId,
+      title: repForm.title,
+      period: repForm.period,
+      grade: repForm.grade,
+      major: repForm.major,
+      author: repForm.author,
+      wordsToJuniors: repForm.wordsToJuniors,
+      aiSummary: repForm.aiSummary,
+      fileName: repForm.fileName,
+      fileType: repForm.fileType,
+    };
+
     try {
-      if (repForm.uuid) {
-        // Update
-        await fetch(`${apiUrl}/activity-report/${repForm.uuid}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(repForm),
-        });
-        setReports((prev) =>
-          prev.map((r) => (r.uuid === repForm.uuid ? { ...r, ...repForm } : r))
-        );
-        setMessage('보고서 수기가 수정되었습니다.');
+      if (uuid) {
+        await PoPoAxios.patch(`/activity-report/${uuid}`, payload);
+        notify('보고서 수기가 수정되었습니다.');
       } else {
-        // Create
-        const newUuid = `rep-${Date.now()}`;
-        const newRep = { ...repForm, uuid: newUuid };
-        const res = await fetch(`${apiUrl}/activity-report`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(newRep),
-        });
-        if (res.ok) {
-          const created = await res.json();
-          setReports((prev) => [created, ...prev]);
-        } else {
-          setReports((prev) => [newRep, ...prev]);
-        }
-        setMessage('신규 보고서 수기가 등록되었습니다.');
+        await PoPoAxios.post('/activity-report', payload);
+        notify('신규 보고서 수기가 등록되었습니다.');
       }
-    } catch (err) {
-      console.log('API report save fallback:', err);
-      const newUuid = repForm.uuid || `rep-${Date.now()}`;
-      setReports((prev) => {
-        const exists = prev.some((r) => r.uuid === newUuid);
-        if (exists) {
-          return prev.map((r) => (r.uuid === newUuid ? { ...r, ...repForm } : r));
-        }
-        return [{ ...repForm, uuid: newUuid }, ...prev];
-      });
-      setMessage('저장되었습니다 (로컬 상태 반영).');
-    } finally {
       setIsRepModalOpen(false);
+      await fetchData();
+    } catch (err) {
+      notifyError(`저장하지 못했습니다. ${errorMessageOf(err)}`);
     }
   };
 
   const handleDeleteReport = async (uuid) => {
     if (!confirm('이 보고서 수기를 삭제하시겠습니까?')) return;
     try {
-      await fetch(`${apiUrl}/activity-report/${uuid}`, { method: 'DELETE' });
-    } catch (e) {
-      console.log('API delete report fallback:', e);
+      await PoPoAxios.delete(`/activity-report/${uuid}`);
+      notify('보고서 수기가 삭제되었습니다.');
+      await fetchData();
+    } catch (err) {
+      notifyError(`삭제하지 못했습니다. ${errorMessageOf(err)}`);
     }
-    setReports((prev) => prev.filter((r) => r.uuid !== uuid));
-    setMessage('보고서 수기가 삭제되었습니다.');
   };
 
   const panes = [
@@ -303,9 +241,20 @@ export default function AdminExtracurricularPage() {
       menuItem: '비교과활동 카테고리 관리',
       render: () => (
         <Tab.Pane>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              marginBottom: 16,
+            }}
+          >
             <Header as="h3">등록된 비교과활동 ({activities.length}개)</Header>
-            <Button color="blue" icon labelPosition="left" onClick={() => handleOpenActModal()}>
+            <Button
+              color="blue"
+              icon
+              labelPosition="left"
+              onClick={() => handleOpenActModal()}
+            >
               <Icon name="add" />
               신규 비교과활동 추가
             </Button>
@@ -326,7 +275,9 @@ export default function AdminExtracurricularPage() {
               {activities.map((act) => (
                 <Table.Row key={act.uuid}>
                   <Table.Cell>{act.category}</Table.Cell>
-                  <Table.Cell style={{ fontWeight: 'bold' }}>{act.title}</Table.Cell>
+                  <Table.Cell style={{ fontWeight: 'bold' }}>
+                    {act.title}
+                  </Table.Cell>
                   <Table.Cell>{act.period}</Table.Cell>
                   <Table.Cell>{act.target}</Table.Cell>
                   <Table.Cell>
@@ -353,9 +304,20 @@ export default function AdminExtracurricularPage() {
       menuItem: '활동 보고서 / 수기 관리',
       render: () => (
         <Tab.Pane>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              marginBottom: 16,
+            }}
+          >
             <Header as="h3">등록된 보고서 및 수기 ({reports.length}개)</Header>
-            <Button color="green" icon labelPosition="left" onClick={() => handleOpenRepModal()}>
+            <Button
+              color="green"
+              icon
+              labelPosition="left"
+              onClick={() => handleOpenRepModal()}
+            >
               <Icon name="upload" />
               신규 보고서 수기 업로드
             </Button>
@@ -376,11 +338,17 @@ export default function AdminExtracurricularPage() {
 
             <Table.Body>
               {reports.map((rep) => {
-                const linkedAct = activities.find((a) => a.uuid === rep.activityId);
+                const linkedAct = activities.find(
+                  (a) => a.uuid === rep.activityId,
+                );
                 return (
                   <Table.Row key={rep.uuid}>
-                    <Table.Cell>{linkedAct ? linkedAct.title : '미지정'}</Table.Cell>
-                    <Table.Cell style={{ fontWeight: 'bold' }}>{rep.title}</Table.Cell>
+                    <Table.Cell>
+                      {linkedAct ? linkedAct.title : '미지정'}
+                    </Table.Cell>
+                    <Table.Cell style={{ fontWeight: 'bold' }}>
+                      {rep.title}
+                    </Table.Cell>
                     <Table.Cell>{rep.period}</Table.Cell>
                     <Table.Cell>
                       {rep.major} ({rep.grade})
@@ -420,7 +388,8 @@ export default function AdminExtracurricularPage() {
             <Header.Content>
               비교과활동 백과사전 관리
               <Header.Subheader>
-                학지팀 및 총학생회 제공 비교과 프로그램 카테고리 및 학생 수기 보고서를 관리합니다.
+                학지팀 및 총학생회 제공 비교과 프로그램 카테고리 및 학생 수기
+                보고서를 관리합니다.
               </Header.Subheader>
             </Header.Content>
           </Header>
@@ -428,16 +397,23 @@ export default function AdminExtracurricularPage() {
           {message && (
             <Message
               onDismiss={() => setMessage(null)}
-              header="안내"
+              header={isError ? '오류' : '안내'}
               content={message}
-              positive
+              positive={!isError}
+              negative={isError}
             />
           )}
 
-          <Tab panes={panes} />
+          <Segment basic loading={loading} style={{ padding: 0 }}>
+            <Tab panes={panes} />
+          </Segment>
 
           {/* Activity Modal */}
-          <Modal open={isActModalOpen} onClose={() => setIsActModalOpen(false)} size="small">
+          <Modal
+            open={isActModalOpen}
+            onClose={() => setIsActModalOpen(false)}
+            size="small"
+          >
             <Modal.Header>
               {actForm.uuid ? '비교과활동 정보 수정' : '신규 비교과활동 추가'}
             </Modal.Header>
@@ -448,13 +424,17 @@ export default function AdminExtracurricularPage() {
                     label="활동명"
                     placeholder="예: 세계문화탐방대"
                     value={actForm.title}
-                    onChange={(e) => setActForm({ ...actForm, title: e.target.value })}
+                    onChange={(e) =>
+                      setActForm({ ...actForm, title: e.target.value })
+                    }
                   />
                   <Form.Select
                     label="카테고리"
                     options={categoryOptions}
                     value={actForm.category}
-                    onChange={(e, { value }) => setActForm({ ...actForm, category: value })}
+                    onChange={(e, { value }) =>
+                      setActForm({ ...actForm, category: value })
+                    }
                   />
                 </Form.Group>
 
@@ -463,13 +443,17 @@ export default function AdminExtracurricularPage() {
                     label="모집 / 시행 시기"
                     placeholder="예: 매년 하계/동계 방학 중"
                     value={actForm.period}
-                    onChange={(e) => setActForm({ ...actForm, period: e.target.value })}
+                    onChange={(e) =>
+                      setActForm({ ...actForm, period: e.target.value })
+                    }
                   />
                   <Form.Input
                     label="지원 대상"
                     placeholder="예: 학부 재학생 (평점 3.0 이상)"
                     value={actForm.target}
-                    onChange={(e) => setActForm({ ...actForm, target: e.target.value })}
+                    onChange={(e) =>
+                      setActForm({ ...actForm, target: e.target.value })
+                    }
                   />
                 </Form.Group>
 
@@ -477,14 +461,21 @@ export default function AdminExtracurricularPage() {
                   label="신청 및 선발 절차"
                   placeholder="지원서 제출 -> 서류 평가 -> 면접 전형..."
                   value={actForm.applicationMethod}
-                  onChange={(e) => setActForm({ ...actForm, applicationMethod: e.target.value })}
+                  onChange={(e) =>
+                    setActForm({
+                      ...actForm,
+                      applicationMethod: e.target.value,
+                    })
+                  }
                 />
 
                 <Form.TextArea
                   label="활동 상세 설명"
                   placeholder="프로그램 개요 및 특징 작성..."
                   value={actForm.description}
-                  onChange={(e) => setActForm({ ...actForm, description: e.target.value })}
+                  onChange={(e) =>
+                    setActForm({ ...actForm, description: e.target.value })
+                  }
                 />
               </Form>
             </Modal.Content>
@@ -497,7 +488,11 @@ export default function AdminExtracurricularPage() {
           </Modal>
 
           {/* Report Modal */}
-          <Modal open={isRepModalOpen} onClose={() => setIsRepModalOpen(false)} size="large">
+          <Modal
+            open={isRepModalOpen}
+            onClose={() => setIsRepModalOpen(false)}
+            size="large"
+          >
             <Modal.Header>
               {repForm.uuid ? '보고서 수기 수정' : '신규 보고서 수기 등록'}
             </Modal.Header>
@@ -506,15 +501,23 @@ export default function AdminExtracurricularPage() {
                 <Form.Group widths="equal">
                   <Form.Select
                     label="연관 비교과활동"
-                    options={activities.map((a) => ({ key: a.uuid, text: a.title, value: a.uuid }))}
+                    options={activities.map((a) => ({
+                      key: a.uuid,
+                      text: a.title,
+                      value: a.uuid,
+                    }))}
                     value={repForm.activityId}
-                    onChange={(e, { value }) => setRepForm({ ...repForm, activityId: value })}
+                    onChange={(e, { value }) =>
+                      setRepForm({ ...repForm, activityId: value })
+                    }
                   />
                   <Form.Input
                     label="수기/보고서 제목"
                     placeholder="예: 2025 유럽 탄소중립 교통 탐방 보고서"
                     value={repForm.title}
-                    onChange={(e) => setRepForm({ ...repForm, title: e.target.value })}
+                    onChange={(e) =>
+                      setRepForm({ ...repForm, title: e.target.value })
+                    }
                   />
                 </Form.Group>
 
@@ -523,25 +526,33 @@ export default function AdminExtracurricularPage() {
                     label="수행 시기"
                     placeholder="예: 2025학년도 하계"
                     value={repForm.period}
-                    onChange={(e) => setRepForm({ ...repForm, period: e.target.value })}
+                    onChange={(e) =>
+                      setRepForm({ ...repForm, period: e.target.value })
+                    }
                   />
                   <Form.Input
                     label="전공"
                     placeholder="예: 컴퓨터공학과"
                     value={repForm.major}
-                    onChange={(e) => setRepForm({ ...repForm, major: e.target.value })}
+                    onChange={(e) =>
+                      setRepForm({ ...repForm, major: e.target.value })
+                    }
                   />
                   <Form.Input
                     label="학년"
                     placeholder="예: 3학년"
                     value={repForm.grade}
-                    onChange={(e) => setRepForm({ ...repForm, grade: e.target.value })}
+                    onChange={(e) =>
+                      setRepForm({ ...repForm, grade: e.target.value })
+                    }
                   />
                   <Form.Input
                     label="작성자 (익명)"
                     placeholder="예: 김*훈"
                     value={repForm.author}
-                    onChange={(e) => setRepForm({ ...repForm, author: e.target.value })}
+                    onChange={(e) =>
+                      setRepForm({ ...repForm, author: e.target.value })
+                    }
                   />
                 </Form.Group>
 
@@ -550,13 +561,17 @@ export default function AdminExtracurricularPage() {
                     label="첨부 파일명"
                     placeholder="예: 2025_세계문화탐방대_보고서.pdf"
                     value={repForm.fileName}
-                    onChange={(e) => setRepForm({ ...repForm, fileName: e.target.value })}
+                    onChange={(e) =>
+                      setRepForm({ ...repForm, fileName: e.target.value })
+                    }
                   />
                   <Form.Select
                     label="파일 확장자"
                     options={fileTypeOptions}
                     value={repForm.fileType}
-                    onChange={(e, { value }) => setRepForm({ ...repForm, fileType: value })}
+                    onChange={(e, { value }) =>
+                      setRepForm({ ...repForm, fileType: value })
+                    }
                   />
                 </Form.Group>
 
@@ -564,14 +579,18 @@ export default function AdminExtracurricularPage() {
                   label="후배에게 한마디 (지원 및 준비 노하우)"
                   placeholder="후배들을 위한 실질적인 서류/면접 준비 조언..."
                   value={repForm.wordsToJuniors}
-                  onChange={(e) => setRepForm({ ...repForm, wordsToJuniors: e.target.value })}
+                  onChange={(e) =>
+                    setRepForm({ ...repForm, wordsToJuniors: e.target.value })
+                  }
                 />
 
                 <Form.TextArea
                   label="AI 보고서 요약"
                   placeholder="보고서의 핵심 요약 내용..."
                   value={repForm.aiSummary}
-                  onChange={(e) => setRepForm({ ...repForm, aiSummary: e.target.value })}
+                  onChange={(e) =>
+                    setRepForm({ ...repForm, aiSummary: e.target.value })
+                  }
                 />
               </Form>
             </Modal.Content>

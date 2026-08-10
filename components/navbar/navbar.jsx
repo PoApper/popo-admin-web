@@ -101,7 +101,11 @@ const MobileNav = () => {
                   </Link>
                 </Dropdown.Item>
                 <Dropdown.Item>
-                  <Link href={'/extracurricular'} passHref style={{ color: 'black' }}>
+                  <Link
+                    href={'/extracurricular'}
+                    passHref
+                    style={{ color: 'black' }}
+                  >
                     비교과활동 관리
                   </Link>
                 </Dropdown.Item>
