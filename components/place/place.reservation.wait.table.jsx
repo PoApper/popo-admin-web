@@ -1,12 +1,21 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { Checkbox, Table, Button, Label, Popup } from 'semantic-ui-react';
 import moment from 'moment';
 import PlaceReservationConfirmModal from './place.reservation.confirm.modal';
-import { PoPoAxios } from '@/utils/axios.instance';
 import { getReservationConflicts } from '@/utils/reservation-overlap';
+import { isReservationOutdated } from '@/utils/reservation-period';
+import { useBulkAccept } from '@/utils/use-bulk-accept';
 
-const PlaceReservationWaitTable = ({ reservations }) => {
-  const [selectedUuidList, setSelectedUuidList] = useState([]);
+const PlaceReservationWaitTable = ({ reservations, startIdx = 0 }) => {
+  const {
+    selectedUuidList,
+    isAllSelected,
+    isSubmitting,
+    toggle,
+    toggleAllInPage,
+    select,
+    submit,
+  } = useBulkAccept('reservation-place', reservations);
 
   const { conflictUuidSet, conflictPartnersByUuid } = useMemo(
     () => getReservationConflicts(reservations),
@@ -25,65 +34,12 @@ const PlaceReservationWaitTable = ({ reservations }) => {
     conflictUuidSet.has(uuid),
   ).length;
 
-  function buildBulkAcceptResultMessage(result) {
-    const { acceptedCount, skippedCount, skippedList } = result;
-
-    const lines = [
-      `승인 ${acceptedCount}건, 건너뜀 ${skippedCount}건 처리했습니다.`,
-    ];
-
-    if (skippedCount) {
-      lines.push('');
-      lines.push('[건너뛴 예약]');
-      skippedList.forEach((skipped) => {
-        const date = moment(skipped.date, 'YYYYMMDD').format('YYYY-MM-DD');
-        const startTime = moment(skipped.startTime, 'HHmm').format('HH:mm');
-        const endTime = moment(skipped.endTime, 'HHmm').format('HH:mm');
-        lines.push(
-          `- ${skipped.title} (${date} ${startTime}~${endTime}): ${skipped.reason}`,
-        );
-      });
-    }
-
-    return lines.join('\n');
-  }
-
-  function acceptAllInProgressPlaceReservations() {
-    if (selectedUuidList.length === 0) {
-      alert('일괄 승인할 예약을 먼저 선택해주세요.');
-      return;
-    }
-
-    PoPoAxios.patch('/reservation-place/all/status/accept', {
-      uuidList: selectedUuidList,
-    })
-      .then((res) => {
-        alert(buildBulkAcceptResultMessage(res.data));
-        window.location.reload();
-      })
-      .catch((err) => {
-        const errMsg = err.response?.data?.message ?? err.message;
-        alert(`전체 예약 승인에 실패했습니다.\n${errMsg}`);
-      });
-  }
-
   function selectNonConflictReservations() {
     if (nonConflictUuidList.length === 0) {
-      alert('중복되지 않은 대기 예약이 없습니다.');
+      alert('이 페이지에는 중복되지 않은 대기 예약이 없습니다.');
       return;
     }
-    setSelectedUuidList(nonConflictUuidList);
-  }
-
-  function handleCheck(newUuid) {
-    const currentList = selectedUuidList;
-    const isTargetSelected = currentList.includes(newUuid);
-
-    const newList = isTargetSelected
-      ? currentList.filter((uuid) => uuid !== newUuid)
-      : currentList.concat(newUuid);
-
-    setSelectedUuidList(newList);
+    select(nonConflictUuidList);
   }
 
   const bulkActionPanel = (
@@ -95,18 +51,21 @@ const PlaceReservationWaitTable = ({ reservations }) => {
       }}
     >
       <p style={{ fontWeight: 400 }}>
-        일괄 예약 승인은 예약 생성 순으로 처리 됩니다.
+        일괄 승인은 <b>현재 페이지에서 체크한 예약</b>만 대상으로, 예약 생성
+        순으로 처리됩니다.
         <br />
-        승인할 수 없는 예약(중복 등)은 <b>건너뛰고</b> 나머지 예약을 계속 처리한
-        뒤, 건너뛴 목록을 알려줍니다.
+        승인할 수 없는 예약(중복 등)은 <b>건너뛰고</b> 나머지를 계속 처리한 뒤,
+        건너뛴 목록을 알려줍니다.
         <br />
         일괄 예약 승인 때는 승인 메일을 보내지 않습니다.
-        <br />
         {conflictUuidSet.size > 0 && (
-          <span style={{ color: 'red' }}>
-            시간이 겹치는 대기 예약 {conflictUuidSet.size}건이 있습니다.
-            &quot;중복&quot; 표시를 확인해주세요.
-          </span>
+          <>
+            <br />
+            <span style={{ color: 'red' }}>
+              이 페이지에 시간이 겹치는 예약 {conflictUuidSet.size}건이
+              있습니다. &quot;중복&quot; 표시를 확인해주세요.
+            </span>
+          </>
         )}
       </p>
       <div>
@@ -121,7 +80,9 @@ const PlaceReservationWaitTable = ({ reservations }) => {
           positive
           size="small"
           floated="right"
-          onClick={acceptAllInProgressPlaceReservations}
+          loading={isSubmitting}
+          disabled={isSubmitting}
+          onClick={submit}
         >
           예약 일괄 승인 ({selectedUuidList.length}건
           {selectedConflictCount
@@ -145,7 +106,17 @@ const PlaceReservationWaitTable = ({ reservations }) => {
           <Table.HeaderCell width={2}>사용자</Table.HeaderCell>
           <Table.HeaderCell>예약 제목</Table.HeaderCell>
           <Table.HeaderCell width={4}>예약 기간</Table.HeaderCell>
-          <Table.HeaderCell width={1} />
+          <Table.HeaderCell width={1}>
+            <Checkbox
+              checked={isAllSelected}
+              indeterminate={
+                selectedUuidList.length > 0 &&
+                selectedUuidList.length < reservations.length
+              }
+              onChange={toggleAllInPage}
+              title="이 페이지 전체 선택"
+            />
+          </Table.HeaderCell>
         </Table.Row>
       </Table.Header>
       <Table.Body>
@@ -159,8 +130,9 @@ const PlaceReservationWaitTable = ({ reservations }) => {
             'YYYYMMDD HHmm',
           );
 
-          const isOutdated = moment() > endDatetime;
-          const isNow = startDatetime <= moment() && moment() <= endDatetime;
+          const isOutdated = isReservationOutdated(reservation);
+          const isNow =
+            !isOutdated && startDatetime <= moment() && moment() <= endDatetime;
           const isConflict = conflictUuidSet.has(reservation.uuid);
           const conflictPartners =
             conflictPartnersByUuid.get(reservation.uuid) ?? [];
@@ -172,7 +144,7 @@ const PlaceReservationWaitTable = ({ reservations }) => {
               positive={isNow}
               warning={!isOutdated && !isNow && isConflict}
             >
-              <Table.Cell>{idx + 1}</Table.Cell>
+              <Table.Cell>{startIdx + idx + 1}</Table.Cell>
               <Table.Cell>{reservation.place.name}</Table.Cell>
               <Table.Cell>{reservation.booker.name}</Table.Cell>
               <PlaceReservationConfirmModal
@@ -223,7 +195,7 @@ const PlaceReservationWaitTable = ({ reservations }) => {
               <Table.Cell>
                 <Checkbox
                   checked={selectedUuidList.includes(reservation.uuid)}
-                  onChange={() => handleCheck(reservation.uuid)}
+                  onChange={() => toggle(reservation.uuid)}
                 />
               </Table.Cell>
             </Table.Row>
