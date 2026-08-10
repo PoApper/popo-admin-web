@@ -101,6 +101,11 @@ const MobileNav = () => {
                   </Link>
                 </Dropdown.Item>
                 <Dropdown.Item>
+                  <Link href={'/extracurricular'} passHref style={{ color: 'black' }}>
+                    비교과활동 관리
+                  </Link>
+                </Dropdown.Item>
+                <Dropdown.Item>
                   <Link
                     href={'/statistics'}
                     passHref
@@ -166,6 +171,11 @@ const DesktopNav = () => {
         <Menu.Item>
           <Link href={'/paxi'} passHref style={{ color: 'black' }}>
             카풀 관리
+          </Link>
+        </Menu.Item>
+        <Menu.Item>
+          <Link href={'/extracurricular'} passHref style={{ color: 'black' }}>
+            비교과활동 관리
           </Link>
         </Menu.Item>
         <Menu.Item>
