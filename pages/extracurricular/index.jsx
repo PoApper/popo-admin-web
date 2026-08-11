@@ -25,12 +25,15 @@ const errorMessageOf = (err) => {
   );
 };
 
-const categoryOptions = [
-  { key: 'global', text: '글로벌/해외', value: '글로벌/해외' },
-  { key: 'academic', text: '학술/연구', value: '학술/연구' },
-  { key: 'volunteer', text: '봉사/사회공헌', value: '봉사/사회공헌' },
-  { key: 'startup', text: '창업/취업', value: '창업/취업' },
-];
+// 카테고리는 하드코딩하지 않고 등록된 활동에서 뽑는다.
+// 신규 카테고리는 드롭다운에 직접 입력해서 추가할 수 있다(allowAdditions).
+const toCategoryOptions = (activities, extra) => {
+  const set = new Set(activities.map((a) => a.category).filter(Boolean));
+  if (extra) set.add(extra);
+  return Array.from(set)
+    .sort((a, b) => a.localeCompare(b, 'ko'))
+    .map((c) => ({ key: c, text: c, value: c }));
+};
 
 const fileTypeOptions = [
   { key: 'pdf', text: 'PDF', value: 'pdf' },
@@ -63,7 +66,7 @@ export default function AdminExtracurricularPage() {
     target: '',
     applicationMethod: '',
     description: '',
-    category: '글로벌/해외',
+    category: '',
   });
 
   // Report Modal State
@@ -114,7 +117,7 @@ export default function AdminExtracurricularPage() {
         target: '',
         applicationMethod: '',
         description: '',
-        category: '글로벌/해외',
+        category: '',
       });
     }
     setIsActModalOpen(true);
@@ -430,11 +433,18 @@ export default function AdminExtracurricularPage() {
                   />
                   <Form.Select
                     label="카테고리"
-                    options={categoryOptions}
+                    options={toCategoryOptions(activities, actForm.category)}
                     value={actForm.category}
+                    search
+                    allowAdditions
+                    additionLabel="새 카테고리 추가: "
+                    onAddItem={(e, { value }) =>
+                      setActForm({ ...actForm, category: value })
+                    }
                     onChange={(e, { value }) =>
                       setActForm({ ...actForm, category: value })
                     }
+                    placeholder="카테고리 선택 또는 새로 입력"
                   />
                 </Form.Group>
 
