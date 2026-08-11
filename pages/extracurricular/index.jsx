@@ -11,7 +11,7 @@ import {
   Icon,
   Message,
 } from 'semantic-ui-react';
-import Navbar from '../../components/navbar/navbar';
+import LayoutWithAuth from '@/components/layout/layout.auth.with';
 import { PoPoAxios } from '../../utils/axios.instance';
 
 // 쓰기 요청은 관리자/자치단체 권한이 필요하다. PoPoAxios 는 withCredentials 로
@@ -230,8 +230,18 @@ export default function AdminExtracurricularPage() {
   };
 
   const handleSaveReport = async () => {
-    if (!repForm.title || !repForm.activityId) {
-      alert('보고서 제목과 활동 선택은 필수 항목입니다.');
+    if (!repForm.title) {
+      alert('보고서 제목은 필수 항목입니다.');
+      return;
+    }
+
+    if (!repForm.activityId) {
+      alert('활동 선택은 필수 항목입니다.');
+      return;
+    }
+
+    if (!repForm.period) {
+      alert('수행 시기는 필수 항목입니다.');
       return;
     }
 
@@ -376,9 +386,11 @@ export default function AdminExtracurricularPage() {
                 <Table.HeaderCell>보고서 제목</Table.HeaderCell>
                 <Table.HeaderCell>수행 시기</Table.HeaderCell>
                 <Table.HeaderCell>전공 / 학년</Table.HeaderCell>
-                <Table.HeaderCell>작성자</Table.HeaderCell>
+                <Table.HeaderCell style={{ width: 60 }}>
+                  작성자
+                </Table.HeaderCell>
                 <Table.HeaderCell>파일명</Table.HeaderCell>
-                <Table.HeaderCell style={{ width: 120 }}>관리</Table.HeaderCell>
+                <Table.HeaderCell style={{ width: 100 }}>관리</Table.HeaderCell>
               </Table.Row>
             </Table.Header>
 
@@ -425,10 +437,9 @@ export default function AdminExtracurricularPage() {
   ];
 
   return (
-    <>
-      <Navbar />
+    <LayoutWithAuth>
       <Container>
-        <Segment basic style={{ marginTop: 80 }}>
+        <Segment basic>
           <Header as="h2">
             <Icon name="book" />
             <Header.Content>
@@ -561,7 +572,7 @@ export default function AdminExtracurricularPage() {
                     }
                   />
                   <Form.Input
-                    label="수기/보고서 제목"
+                    label="수기/보고서 제목*"
                     placeholder="예: 2025 유럽 탄소중립 교통 탐방 보고서"
                     value={repForm.title}
                     onChange={(e) =>
@@ -580,7 +591,7 @@ export default function AdminExtracurricularPage() {
                     }
                   />
                   <Form.Input
-                    label="전공"
+                    label="전공 (선택)"
                     placeholder="예: 컴퓨터공학과"
                     value={repForm.major}
                     onChange={(e) =>
@@ -588,7 +599,7 @@ export default function AdminExtracurricularPage() {
                     }
                   />
                   <Form.Input
-                    label="학년"
+                    label="학년 (선택)"
                     placeholder="예: 3학년"
                     value={repForm.grade}
                     onChange={(e) =>
@@ -596,7 +607,7 @@ export default function AdminExtracurricularPage() {
                     }
                   />
                   <Form.Input
-                    label="작성자 (익명)"
+                    label="작성자 (선택)"
                     placeholder="예: 김*훈"
                     value={repForm.author}
                     onChange={(e) =>
@@ -668,7 +679,7 @@ export default function AdminExtracurricularPage() {
           </Modal>
         </Segment>
       </Container>
-    </>
+    </LayoutWithAuth>
   );
 }
 
