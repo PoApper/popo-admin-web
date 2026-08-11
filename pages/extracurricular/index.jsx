@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import {
   Button,
@@ -35,11 +35,13 @@ const toCategoryOptions = (activities, extra) => {
     .map((c) => ({ key: c, text: c, value: c }));
 };
 
-const fileTypeOptions = [
-  { key: 'pdf', text: 'PDF', value: 'pdf' },
-  { key: 'docx', text: 'DOCX', value: 'docx' },
-  { key: 'hwpx', text: 'HWPX', value: 'hwpx' },
-];
+const ACCEPTED_EXTENSIONS = ['pdf', 'docx', 'doc', 'hwpx', 'hwp'];
+
+/** "2025_보고서.docx" -> "2025_보고서" */
+const baseNameOf = (fileName) => {
+  const idx = fileName.lastIndexOf('.');
+  return idx === -1 ? fileName : fileName.slice(0, idx);
+};
 
 export default function AdminExtracurricularPage() {
   const [activities, setActivities] = useState([]);
@@ -79,11 +81,36 @@ export default function AdminExtracurricularPage() {
     grade: '3학년',
     major: '',
     author: '',
-    wordsToJuniors: '',
-    aiSummary: '',
+    memo: '',
     fileName: '',
-    fileType: 'pdf',
   });
+  // 업로드 대기 중인 실제 File 객체. 수정 시 비어 있으면 기존 파일을 유지한다.
+  const [pickedFile, setPickedFile] = useState(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const fileInputRef = useRef(null);
+
+  /** 파일을 고르면 제목을 확장자 뺀 파일명으로 자동 채운다. */
+  const applyPickedFile = (file) => {
+    if (!file) return;
+    setPickedFile(file);
+    setRepForm((prev) => ({
+      ...prev,
+      fileName: file.name,
+      title: prev.title || baseNameOf(file.name),
+    }));
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+    applyPickedFile(e.dataTransfer.files?.[0]);
+  };
+
+  const closeRepModal = () => {
+    setIsRepModalOpen(false);
+    setPickedFile(null);
+    setIsDragging(false);
+  };
 
   useEffect(() => {
     fetchData();
@@ -173,21 +200,30 @@ export default function AdminExtracurricularPage() {
 
   // Report Handlers
   const handleOpenRepModal = (rep = null) => {
+    setPickedFile(null);
     if (rep) {
-      setRepForm(rep);
+      setRepForm({
+        uuid: rep.uuid,
+        activityId: rep.activityId ?? '',
+        title: rep.title ?? '',
+        period: rep.period ?? '',
+        grade: rep.grade ?? '',
+        major: rep.major ?? '',
+        author: rep.author ?? '',
+        memo: rep.memo ?? '',
+        fileName: rep.fileName ?? '',
+      });
     } else {
       setRepForm({
         uuid: '',
         activityId: activities[0]?.uuid || '',
         title: '',
-        period: '2025학년도 하계',
-        grade: '3학년',
+        period: '',
+        grade: '',
         major: '',
         author: '',
-        wordsToJuniors: '',
-        aiSummary: '',
+        memo: '',
         fileName: '',
-        fileType: 'pdf',
       });
     }
     setIsRepModalOpen(true);
@@ -200,18 +236,25 @@ export default function AdminExtracurricularPage() {
     }
 
     const { uuid } = repForm;
-    const payload = {
-      activityId: repForm.activityId,
-      title: repForm.title,
-      period: repForm.period,
-      grade: repForm.grade,
-      major: repForm.major,
-      author: repForm.author,
-      wordsToJuniors: repForm.wordsToJuniors,
-      aiSummary: repForm.aiSummary,
-      fileName: repForm.fileName,
-      fileType: repForm.fileType,
-    };
+    if (!uuid && !pickedFile) {
+      alert('원본 문서를 첨부해주세요.');
+      return;
+    }
+
+    // 파일과 함께 보내야 하므로 multipart/form-data 로 전송한다.
+    const payload = new FormData();
+    for (const key of [
+      'activityId',
+      'title',
+      'period',
+      'grade',
+      'major',
+      'author',
+      'memo',
+    ]) {
+      payload.append(key, repForm[key] ?? '');
+    }
+    if (pickedFile) payload.append('file', pickedFile);
 
     try {
       if (uuid) {
@@ -221,7 +264,7 @@ export default function AdminExtracurricularPage() {
         await PoPoAxios.post('/activity-report', payload);
         notify('신규 보고서 수기가 등록되었습니다.');
       }
-      setIsRepModalOpen(false);
+      closeRepModal();
       await fetchData();
     } catch (err) {
       notifyError(`저장하지 못했습니다. ${errorMessageOf(err)}`);
@@ -498,11 +541,7 @@ export default function AdminExtracurricularPage() {
           </Modal>
 
           {/* Report Modal */}
-          <Modal
-            open={isRepModalOpen}
-            onClose={() => setIsRepModalOpen(false)}
-            size="large"
-          >
+          <Modal open={isRepModalOpen} onClose={closeRepModal} size="large">
             <Modal.Header>
               {repForm.uuid ? '보고서 수기 수정' : '신규 보고서 수기 등록'}
             </Modal.Header>
@@ -566,46 +605,62 @@ export default function AdminExtracurricularPage() {
                   />
                 </Form.Group>
 
-                <Form.Group widths="equal">
-                  <Form.Input
-                    label="첨부 파일명"
-                    placeholder="예: 2025_세계문화탐방대_보고서.pdf"
-                    value={repForm.fileName}
-                    onChange={(e) =>
-                      setRepForm({ ...repForm, fileName: e.target.value })
-                    }
+                <Form.Field>
+                  <label>원본 문서</label>
+                  <DropZone
+                    dragging={isDragging}
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      setIsDragging(true);
+                    }}
+                    onDragLeave={() => setIsDragging(false)}
+                    onDrop={handleDrop}
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    <Icon name="cloud upload" size="big" />
+                    {pickedFile ? (
+                      <>
+                        <strong>{pickedFile.name}</strong>
+                        <small>
+                          {(pickedFile.size / 1024 / 1024).toFixed(2)} MB · 다시
+                          끌어다 놓으면 교체됩니다
+                        </small>
+                      </>
+                    ) : repForm.fileName ? (
+                      <>
+                        <strong>{repForm.fileName}</strong>
+                        <small>
+                          이미 등록된 파일입니다. 교체하려면 새 파일을 올리세요
+                        </small>
+                      </>
+                    ) : (
+                      <>
+                        <strong>여기로 파일을 끌어다 놓으세요</strong>
+                        <small>또는 클릭해서 찾아보기 (PDF, DOCX, HWPX)</small>
+                      </>
+                    )}
+                  </DropZone>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept={ACCEPTED_EXTENSIONS.map((e) => `.${e}`).join(',')}
+                    hidden
+                    onChange={(e) => applyPickedFile(e.target.files?.[0])}
                   />
-                  <Form.Select
-                    label="파일 확장자"
-                    options={fileTypeOptions}
-                    value={repForm.fileType}
-                    onChange={(e, { value }) =>
-                      setRepForm({ ...repForm, fileType: value })
-                    }
-                  />
-                </Form.Group>
+                </Form.Field>
 
                 <Form.TextArea
-                  label="후배에게 한마디 (지원 및 준비 노하우)"
-                  placeholder="후배들을 위한 실질적인 서류/면접 준비 조언..."
-                  value={repForm.wordsToJuniors}
+                  label="메모"
+                  placeholder="관리자 메모 (선택)"
+                  value={repForm.memo}
                   onChange={(e) =>
-                    setRepForm({ ...repForm, wordsToJuniors: e.target.value })
-                  }
-                />
-
-                <Form.TextArea
-                  label="AI 보고서 요약"
-                  placeholder="보고서의 핵심 요약 내용..."
-                  value={repForm.aiSummary}
-                  onChange={(e) =>
-                    setRepForm({ ...repForm, aiSummary: e.target.value })
+                    setRepForm({ ...repForm, memo: e.target.value })
                   }
                 />
               </Form>
             </Modal.Content>
             <Modal.Actions>
-              <Button onClick={() => setIsRepModalOpen(false)}>취소</Button>
+              <Button onClick={closeRepModal}>취소</Button>
               <Button positive onClick={handleSaveReport}>
                 저장
               </Button>
@@ -621,4 +676,35 @@ const Container = styled.div`
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
+`;
+
+const DropZone = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 28px 16px;
+  border: 2px dashed ${(props) => (props.dragging ? '#2185d0' : '#c8cbcf')};
+  border-radius: 8px;
+  background-color: ${(props) => (props.dragging ? '#f0f7ff' : '#fafafa')};
+  color: #5b6169;
+  text-align: center;
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease;
+
+  &:hover {
+    border-color: #2185d0;
+  }
+
+  strong {
+    color: #1b1c1d;
+    word-break: break-all;
+  }
+
+  small {
+    color: #767b82;
+  }
 `;
