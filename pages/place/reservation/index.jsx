@@ -3,37 +3,14 @@ import { Button, Pagination } from 'semantic-ui-react';
 
 import ReservationLayout from '@/components/reservation/reservation.layout';
 import PlaceReservationTable from '@/components/place/place.reservation.table';
-import PlaceReservationFilter from '@/components/place/place.reservation.filter';
+import ReservationFilter from '@/components/reservation/reservation.filter';
 import { PoPoAxios } from '@/utils/axios.instance';
+import {
+  EMPTY_PLACE_FILTER,
+  buildQueryParams,
+} from '@/utils/reservation-filter';
 
 const PAGE_SIZE = 10;
-
-const EMPTY_FILTER = {
-  placeId: '',
-  status: '',
-  startDate: '',
-  endDate: '',
-  title: '',
-  order: 'createdAt_DESC',
-};
-
-/**
- * 화면의 필터 상태를 백엔드 쿼리 파라미터로 변환한다.
- * 날짜 input 은 'YYYY-MM-DD' 를 주지만 백엔드는 'YYYYMMDD' 를 기대한다.
- */
-function buildQueryParams(filter) {
-  const [orderBy, orderDirection] = filter.order.split('_');
-
-  const params = { orderBy, orderDirection };
-
-  if (filter.placeId) params.placeId = filter.placeId;
-  if (filter.status) params.status = filter.status;
-  if (filter.title) params.title = filter.title;
-  if (filter.startDate) params.startDate = filter.startDate.replaceAll('-', '');
-  if (filter.endDate) params.endDate = filter.endDate.replaceAll('-', '');
-
-  return params;
-}
 
 const PlaceReservationPage = () => {
   const [reservations, setReservations] = useState([]);
@@ -42,8 +19,8 @@ const PlaceReservationPage = () => {
   const [totalCount, setTotalCount] = useState(0);
 
   // 입력 중인 필터와 실제로 조회에 적용된 필터를 분리해, 검색 버튼을 누를 때만 조회한다.
-  const [filter, setFilter] = useState(EMPTY_FILTER);
-  const [appliedFilter, setAppliedFilter] = useState(EMPTY_FILTER);
+  const [filter, setFilter] = useState(EMPTY_PLACE_FILTER);
+  const [appliedFilter, setAppliedFilter] = useState(EMPTY_PLACE_FILTER);
 
   const fetchReservations = useCallback(async (targetFilter, targetPage) => {
     const params = buildQueryParams(targetFilter);
@@ -85,8 +62,8 @@ const PlaceReservationPage = () => {
 
   const handleReset = () => {
     setPage(1);
-    setFilter(EMPTY_FILTER);
-    setAppliedFilter(EMPTY_FILTER);
+    setFilter(EMPTY_PLACE_FILTER);
+    setAppliedFilter(EMPTY_PLACE_FILTER);
   };
 
   const handlePageChange = (e, target) => {
@@ -108,12 +85,20 @@ const PlaceReservationPage = () => {
         </Button>
       </p>
 
-      <PlaceReservationFilter
+      <ReservationFilter
         filter={filter}
-        places={places}
         onChange={setFilter}
         onSubmit={handleSearch}
         onReset={handleReset}
+        resource={{
+          name: 'placeId',
+          label: '장소',
+          options: places.map((place) => ({
+            key: place.uuid,
+            value: place.uuid,
+            text: place.name,
+          })),
+        }}
       />
 
       <div>

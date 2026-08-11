@@ -1,111 +1,96 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Dropdown, Pagination, Tab } from 'semantic-ui-react';
+import { Tab } from 'semantic-ui-react';
 
 import { PoPoAxios } from '@/utils/axios.instance';
 import ReservationLayout from '@/components/reservation/reservation.layout';
+import ReservationFilter from '@/components/reservation/reservation.filter';
 import PlaceReservationWaitTable from '@/components/place/place.reservation.wait.table';
 import EquipmentReservationWaitTable from '@/components/equipment/equipment.reservation.wait.table';
+import { OwnerOptions } from '@/assets/owner.options';
+import { PERIOD } from '@/utils/reservation-period';
 import {
-  PERIOD,
-  PERIOD_OPTIONS,
-  buildPeriodQuery,
-} from '@/utils/reservation-period';
+  buildQueryParams,
+  emptyWaitingFilter,
+} from '@/utils/reservation-filter';
 
-const PAGE_SIZE = 20;
 const WAITING_STATUS = '심사중';
+const WAITING_FILTER_FIELDS = ['resource', 'period', 'order', 'title'];
 
 /**
- * 심사중 예약 한 종류(장소 또는 장비)를 기간 필터 + 페이지네이션으로 조회하는 훅.
+ * 심사중 예약 한 종류(장소 또는 장비)를 필터 조건으로 한 번에 조회한다.
  *
- * 예전에는 심사중인 모든 예약을 한 번에 받아왔는데, 운영 환경에서 수천 건이 쌓이면서
- * 페이지가 매우 느려졌다. 이제 서버 페이지네이션을 쓰고 기본적으로 다가오는 예약만 본다.
+ * 페이지를 나누면 일괄 승인/거절 대상이 현재 페이지로 쪼개져 오히려 불편해서,
+ * 목록은 한 번에 전부 보여준다. 대신 기본 기간을 "다가오는 예약"으로 두어
+ * 이미 끝난 예약 수천 건을 통째로 불러오지 않게 한다.
  */
-function useWaitingReservations(resource) {
+function useWaitingReservations(resource, resourceName) {
   const [reservations, setReservations] = useState([]);
-  const [totalCount, setTotalCount] = useState(0);
-  const [page, setPage] = useState(1);
-  const [period, setPeriod] = useState(PERIOD.upcoming);
   const [isLoading, setIsLoading] = useState(true);
 
-  const fetchReservations = useCallback(async () => {
-    setIsLoading(true);
-    const params = {
-      status: WAITING_STATUS,
-      // 승인 여부를 판단할 때는 예약이 임박한 순서가 중요하다.
-      orderBy: 'date',
-      orderDirection: 'ASC',
-      ...buildPeriodQuery(period),
-    };
+  // 입력 중인 필터와 실제 조회에 적용된 필터를 분리해, 검색 버튼을 누를 때만 조회한다.
+  const [filter, setFilter] = useState(() => emptyWaitingFilter(resourceName));
+  const [appliedFilter, setAppliedFilter] = useState(() =>
+    emptyWaitingFilter(resourceName),
+  );
 
-    try {
-      const [listRes, countRes] = await Promise.all([
-        PoPoAxios.get(`/${resource}`, {
-          params: { ...params, take: PAGE_SIZE, skip: PAGE_SIZE * (page - 1) },
-        }),
-        PoPoAxios.get(`/${resource}/count`, { params: params }),
-      ]);
-      setReservations(listRes.data);
-      setTotalCount(countRes.data);
-    } catch (err) {
-      console.log(err);
-      alert('예약 대기 목록을 불러오는데 실패했습니다.');
-    } finally {
-      setIsLoading(false);
-    }
-  }, [resource, period, page]);
+  const fetchReservations = useCallback(
+    async (targetFilter) => {
+      setIsLoading(true);
+      try {
+        const res = await PoPoAxios.get(`/${resource}`, {
+          params: { ...buildQueryParams(targetFilter), status: WAITING_STATUS },
+        });
+        setReservations(res.data);
+      } catch (err) {
+        console.log(err);
+        alert('예약 대기 목록을 불러오는데 실패했습니다.');
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [resource],
+  );
 
   useEffect(() => {
-    fetchReservations();
-  }, [fetchReservations]);
-
-  const changePeriod = (newPeriod) => {
-    setPage(1);
-    setPeriod(newPeriod);
-  };
+    fetchReservations(appliedFilter);
+  }, [fetchReservations, appliedFilter]);
 
   return {
     reservations,
-    totalCount,
-    page,
-    setPage,
-    period,
-    changePeriod,
     isLoading,
+    filter,
+    setFilter,
+    search: () => setAppliedFilter(filter),
+    reset: () => {
+      const empty = emptyWaitingFilter(resourceName);
+      setFilter(empty);
+      setAppliedFilter(empty);
+    },
+    appliedPeriod: appliedFilter.period,
   };
 }
 
-const WaitingReservationPane = ({ label, state, children }) => {
-  const { totalCount, page, setPage, period, changePeriod, isLoading } = state;
-  const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
+const WaitingReservationPane = ({ label, state, resource, children }) => {
+  const { reservations, isLoading, filter, setFilter, search, reset } = state;
 
   return (
     <div style={{ marginTop: 12 }}>
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.75rem',
-          marginBottom: '0.75rem',
-          flexWrap: 'wrap',
-        }}
-      >
-        <span>기간</span>
-        <Dropdown
-          selection
-          compact
-          options={PERIOD_OPTIONS}
-          value={period}
-          onChange={(e, target) => changePeriod(target.value)}
-        />
-        <span>
-          {isLoading
-            ? '로딩중...'
-            : `${label} ${Number(totalCount).toLocaleString()}건 대기중`}
-          {!isLoading && totalCount > 0 && ` (${page}/${totalPages} 페이지)`}
-        </span>
-      </div>
+      <ReservationFilter
+        filter={filter}
+        onChange={setFilter}
+        onSubmit={search}
+        onReset={reset}
+        resource={resource}
+        fields={WAITING_FILTER_FIELDS}
+      />
 
-      {period === PERIOD.upcoming && (
+      <p>
+        {isLoading
+          ? '로딩중...'
+          : `${label} ${Number(reservations.length).toLocaleString()}건 대기중`}
+      </p>
+
+      {state.appliedPeriod === PERIOD.upcoming && (
         <p style={{ color: 'gray' }}>
           이미 종료된 예약은 기본적으로 숨겨져 있습니다. 확인이 필요하면 기간을
           &quot;지난 예약&quot;으로 바꿔주세요.
@@ -113,19 +98,6 @@ const WaitingReservationPane = ({ label, state, children }) => {
       )}
 
       {isLoading ? <p>로딩 중...</p> : children}
-
-      {totalPages > 1 && (
-        <div style={{ display: 'flex' }}>
-          <Pagination
-            style={{ margin: '0 auto' }}
-            activePage={page}
-            totalPages={totalPages}
-            prevItem={null}
-            nextItem={null}
-            onPageChange={(e, target) => setPage(target.activePage)}
-          />
-        </div>
-      )}
     </div>
   );
 };
@@ -138,8 +110,31 @@ const ReservationPage = ({
   todayEquipReservationCnt,
   thisWeekEquipReservationCnt,
 }) => {
-  const placeState = useWaitingReservations('reservation-place');
-  const equipState = useWaitingReservations('reservation-equip');
+  const [places, setPlaces] = useState([]);
+  const placeState = useWaitingReservations('reservation-place', 'placeId');
+  const equipState = useWaitingReservations('reservation-equip', 'owner');
+
+  useEffect(() => {
+    PoPoAxios.get('/place')
+      .then((res) => setPlaces(res.data))
+      .catch((err) => console.log(err));
+  }, []);
+
+  const placeResource = {
+    name: 'placeId',
+    label: '장소',
+    options: places.map((place) => ({
+      key: place.uuid,
+      value: place.uuid,
+      text: place.name,
+    })),
+  };
+
+  const equipResource = {
+    name: 'owner',
+    label: '소유 기관',
+    options: OwnerOptions,
+  };
 
   return (
     <ReservationLayout>
@@ -184,11 +179,14 @@ const ReservationPage = ({
           {
             menuItem: '장소 예약',
             render: () => (
-              <WaitingReservationPane label="장소 예약" state={placeState}>
+              <WaitingReservationPane
+                label="장소 예약"
+                state={placeState}
+                resource={placeResource}
+              >
                 {placeState.reservations.length ? (
                   <PlaceReservationWaitTable
                     reservations={placeState.reservations}
-                    startIdx={(placeState.page - 1) * PAGE_SIZE}
                   />
                 ) : (
                   <p>조건에 맞는 대기 중인 장소 예약이 없습니다 🎈</p>
@@ -199,11 +197,14 @@ const ReservationPage = ({
           {
             menuItem: '장비 예약',
             render: () => (
-              <WaitingReservationPane label="장비 예약" state={equipState}>
+              <WaitingReservationPane
+                label="장비 예약"
+                state={equipState}
+                resource={equipResource}
+              >
                 {equipState.reservations.length ? (
                   <EquipmentReservationWaitTable
                     reservations={equipState.reservations}
-                    startIdx={(equipState.page - 1) * PAGE_SIZE}
                   />
                 ) : (
                   <p>조건에 맞는 대기 중인 장비 예약이 없습니다 🎈</p>

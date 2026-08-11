@@ -11,10 +11,12 @@ const PlaceReservationWaitTable = ({ reservations, startIdx = 0 }) => {
     selectedUuidList,
     isAllSelected,
     isSubmitting,
+    submittingAction,
     toggle,
     toggleAllInPage,
     select,
     submit,
+    reject,
   } = useBulkAccept('reservation-place', reservations);
 
   const { conflictUuidSet, conflictPartnersByUuid } = useMemo(
@@ -51,13 +53,15 @@ const PlaceReservationWaitTable = ({ reservations, startIdx = 0 }) => {
       }}
     >
       <p style={{ fontWeight: 400 }}>
-        일괄 승인은 <b>현재 페이지에서 체크한 예약</b>만 대상으로, 예약 생성
-        순으로 처리됩니다.
+        일괄 승인/거절은 <b>체크한 예약</b>만 대상으로, 예약 생성 순으로
+        처리됩니다.
         <br />
         승인할 수 없는 예약(중복 등)은 <b>건너뛰고</b> 나머지를 계속 처리한 뒤,
         건너뛴 목록을 알려줍니다.
         <br />
-        일괄 예약 승인 때는 승인 메일을 보내지 않습니다.
+        거절은 중복 검사 없이 선택한 건을 그대로 처리합니다.
+        <br />
+        일괄 승인/거절 때는 안내 메일을 보내지 않습니다.
         {conflictUuidSet.size > 0 && (
           <>
             <br />
@@ -80,7 +84,7 @@ const PlaceReservationWaitTable = ({ reservations, startIdx = 0 }) => {
           positive
           size="small"
           floated="right"
-          loading={isSubmitting}
+          loading={submittingAction === 'accept'}
           disabled={isSubmitting}
           onClick={submit}
         >
@@ -89,6 +93,16 @@ const PlaceReservationWaitTable = ({ reservations, startIdx = 0 }) => {
             ? `, 중복 ${selectedConflictCount}건 포함`
             : ''}
           )
+        </Button>
+        <Button
+          negative
+          size="small"
+          floated="right"
+          loading={submittingAction === 'reject'}
+          disabled={isSubmitting}
+          onClick={reject}
+        >
+          예약 일괄 거절 ({selectedUuidList.length}건)
         </Button>
       </div>
     </div>
