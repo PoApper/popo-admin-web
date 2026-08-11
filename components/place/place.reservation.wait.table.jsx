@@ -6,7 +6,11 @@ import { getReservationConflicts } from '@/utils/reservation-overlap';
 import { isReservationOutdated } from '@/utils/reservation-period';
 import { useBulkAccept } from '@/utils/use-bulk-accept';
 
-const PlaceReservationWaitTable = ({ reservations, startIdx = 0 }) => {
+const PlaceReservationWaitTable = ({
+  reservations,
+  startIdx = 0,
+  onProcessed,
+}) => {
   const {
     selectedUuidList,
     isAllSelected,
@@ -17,7 +21,7 @@ const PlaceReservationWaitTable = ({ reservations, startIdx = 0 }) => {
     select,
     submit,
     reject,
-  } = useBulkAccept('reservation-place', reservations);
+  } = useBulkAccept('reservation-place', reservations, onProcessed);
 
   const { conflictUuidSet, conflictPartnersByUuid } = useMemo(
     () => getReservationConflicts(reservations),
@@ -112,14 +116,15 @@ const PlaceReservationWaitTable = ({ reservations, startIdx = 0 }) => {
     <Table celled selectable textAlign={'center'}>
       <Table.Header>
         <Table.Row>
-          <Table.HeaderCell colSpan={6}>{bulkActionPanel}</Table.HeaderCell>
+          <Table.HeaderCell colSpan={7}>{bulkActionPanel}</Table.HeaderCell>
         </Table.Row>
         <Table.Row>
           <Table.HeaderCell width={1}>idx.</Table.HeaderCell>
           <Table.HeaderCell width={3}>장소명</Table.HeaderCell>
           <Table.HeaderCell width={2}>사용자</Table.HeaderCell>
           <Table.HeaderCell>예약 제목</Table.HeaderCell>
-          <Table.HeaderCell width={4}>예약 기간</Table.HeaderCell>
+          <Table.HeaderCell width={3}>예약 기간</Table.HeaderCell>
+          <Table.HeaderCell width={2}>예약 생성일</Table.HeaderCell>
           <Table.HeaderCell width={1}>
             <Checkbox
               checked={isAllSelected}
@@ -188,23 +193,58 @@ const PlaceReservationWaitTable = ({ reservations, startIdx = 0 }) => {
                       </Label>
                     }
                     content={
-                      conflictPartners.length
-                        ? `겹치는 예약: ${conflictPartners
-                            .map(
-                              (partner) =>
-                                `${partner.title} (${moment(
-                                  partner.startTime,
-                                  'HHmm',
-                                ).format('HH:mm')}~${moment(
-                                  partner.endTime,
-                                  'HHmm',
-                                ).format('HH:mm')})`,
+                      conflictPartners.length ? (
+                        <div style={{ textAlign: 'left' }}>
+                          <div style={{ marginBottom: 6 }}>
+                            겹치는 예약 (신청이 빠른 순)
+                          </div>
+                          {[reservation, ...conflictPartners]
+                            .slice()
+                            .sort((a, b) =>
+                              moment(a.createdAt).diff(moment(b.createdAt)),
                             )
-                            .join(', ')}`
-                        : '같은 장소·시간대에 동시 예약 허용 개수를 초과하는 예약이 있습니다.'
+                            .map((candidate, order) => (
+                              <div key={candidate.uuid}>
+                                {order === 0 ? '① ' : `${order + 1}. `}
+                                {candidate.uuid === reservation.uuid
+                                  ? '(이 예약) '
+                                  : ''}
+                                {candidate.title} ·{' '}
+                                {moment(candidate.startTime, 'HHmm').format(
+                                  'HH:mm',
+                                )}
+                                ~
+                                {moment(candidate.endTime, 'HHmm').format(
+                                  'HH:mm',
+                                )}{' '}
+                                · 신청{' '}
+                                {moment(candidate.createdAt).format(
+                                  'YYYY-MM-DD HH:mm',
+                                )}
+                                {order === 0 && (
+                                  <b style={{ color: 'green' }}> ← 선순위</b>
+                                )}
+                              </div>
+                            ))}
+                          <div style={{ marginTop: 6, color: 'gray' }}>
+                            일괄 승인은 신청이 빠른 건부터 처리하므로, ① 이
+                            승인되고 나머지는 건너뜁니다.
+                          </div>
+                        </div>
+                      ) : (
+                        '같은 장소·시간대에 동시 예약 허용 개수를 초과하는 예약이 있습니다.'
+                      )
                     }
+                    wide="very"
                   />
                 )}
+              </Table.Cell>
+              <Table.Cell>
+                {moment(reservation.createdAt).format('YYYY-MM-DD')}
+                <br />
+                <span style={{ color: 'gray' }}>
+                  {moment(reservation.createdAt).format('HH:mm')}
+                </span>
               </Table.Cell>
               <Table.Cell>
                 <Checkbox
@@ -219,7 +259,7 @@ const PlaceReservationWaitTable = ({ reservations, startIdx = 0 }) => {
 
       <Table.Footer fullWidth>
         <Table.Row>
-          <Table.HeaderCell colSpan={6}>{bulkActionPanel}</Table.HeaderCell>
+          <Table.HeaderCell colSpan={7}>{bulkActionPanel}</Table.HeaderCell>
         </Table.Row>
       </Table.Footer>
     </Table>

@@ -60,6 +60,8 @@ function useWaitingReservations(resource, resourceName) {
     isLoading,
     filter,
     setFilter,
+    // 일괄 처리 후 목록만 다시 부른다. 페이지 전체를 새로고침하지 않는다.
+    refetch: () => fetchReservations(appliedFilter),
     search: () => setAppliedFilter(filter),
     reset: () => {
       const empty = emptyWaitingFilter(resourceName);
@@ -166,8 +168,10 @@ const ReservationPage = ({
         </li>
       </ul>
       <p>
-        <b>심사중</b>인 예약이 예약일이 임박한 순서로 표시됩니다. 예약 제목을
-        누르면 상세 예약 정보를 확인할 수 있습니다.
+        <b>심사중</b>인 예약이 <b>신청이 빠른 순서</b>로 표시됩니다. 승인은 신청
+        순으로 처리하는 것이 원칙이라 기본 정렬을 예약 생성일로 두었고, 필요하면
+        정렬을 바꿀 수 있습니다. 예약 제목을 누르면 상세 정보를 확인할 수
+        있습니다.
       </p>
       <p>
         예약 종료 시간이 현재 시간을 지났다면{' '}
@@ -187,6 +191,7 @@ const ReservationPage = ({
                 {placeState.reservations.length ? (
                   <PlaceReservationWaitTable
                     reservations={placeState.reservations}
+                    onProcessed={placeState.refetch}
                   />
                 ) : (
                   <p>조건에 맞는 대기 중인 장소 예약이 없습니다 🎈</p>
@@ -205,6 +210,7 @@ const ReservationPage = ({
                 {equipState.reservations.length ? (
                   <EquipmentReservationWaitTable
                     reservations={equipState.reservations}
+                    onProcessed={equipState.refetch}
                   />
                 ) : (
                   <p>조건에 맞는 대기 중인 장비 예약이 없습니다 🎈</p>

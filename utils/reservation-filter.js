@@ -9,12 +9,17 @@ export const EMPTY_PLACE_FILTER = {
   order: 'createdAt_DESC',
 };
 
-/** 대기 목록은 항상 심사중이고, 예약일이 임박한 순서가 중요하다. */
+/**
+ * 대기 목록은 항상 심사중만 본다.
+ *
+ * 정렬 기본값은 생성일 오래된순이다. 예약 승인은 '먼저 신청한 사람이 먼저'가 원칙인데,
+ * 예약일 순으로 늘어놓으면 같은 날짜끼리 묶여서 신청 순서와 무관하게 처리하게 된다.
+ */
 export const emptyWaitingFilter = (resourceName) => ({
   [resourceName]: '',
   period: PERIOD.upcoming,
   title: '',
-  order: 'date_ASC',
+  order: 'createdAt_ASC',
 });
 
 /**

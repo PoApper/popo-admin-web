@@ -43,8 +43,9 @@ function buildResultMessage(action, result) {
  *
  * @param resource 'reservation-place' 또는 'reservation-equip'
  * @param reservations 현재 보이는 예약 목록
+ * @param onProcessed 처리 후 호출. 목록만 다시 불러오게 해서 전체 새로고침을 피한다.
  */
-export function useBulkAccept(resource, reservations) {
+export function useBulkAccept(resource, reservations, onProcessed) {
   const [selectedUuidList, setSelectedUuidList] = useState([]);
   // 어떤 동작이 진행 중인지('accept' | 'reject' | null). 버튼별 로딩 표시에 쓴다.
   const [submittingAction, setSubmittingAction] = useState(null);
@@ -97,7 +98,10 @@ export function useBulkAccept(resource, reservations) {
         uuidList: selectedUuidList,
       });
       alert(buildResultMessage(action, res.data));
-      window.location.reload();
+      // 예전에는 window.location.reload() 를 했는데, 이 페이지는 통계까지
+      // getServerSideProps 로 다시 받아오기 때문에 매번 눈에 띄게 느렸다.
+      // 상태 변경으로 통계가 달라지지 않으므로 목록만 다시 부른다.
+      await onProcessed?.();
     } catch (err) {
       const errMsg = err.response?.data?.message ?? err.message;
       alert(`전체 예약 ${label}에 실패했습니다.\n${errMsg}`);

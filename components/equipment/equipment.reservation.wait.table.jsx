@@ -5,7 +5,11 @@ import EquipmentReservationConfirmModal from './equipment.reservation.confirm.mo
 import { isReservationOutdated } from '@/utils/reservation-period';
 import { useBulkAccept } from '@/utils/use-bulk-accept';
 
-const EquipmentReservationWaitTable = ({ reservations, startIdx = 0 }) => {
+const EquipmentReservationWaitTable = ({
+  reservations,
+  startIdx = 0,
+  onProcessed,
+}) => {
   const {
     selectedUuidList,
     isAllSelected,
@@ -15,7 +19,7 @@ const EquipmentReservationWaitTable = ({ reservations, startIdx = 0 }) => {
     toggleAllInPage,
     submit,
     reject,
-  } = useBulkAccept('reservation-equip', reservations);
+  } = useBulkAccept('reservation-equip', reservations, onProcessed);
 
   const bulkActionPanel = (
     <div
@@ -65,14 +69,15 @@ const EquipmentReservationWaitTable = ({ reservations, startIdx = 0 }) => {
     <Table celled selectable textAlign={'center'}>
       <Table.Header>
         <Table.Row>
-          <Table.HeaderCell colSpan={7}>{bulkActionPanel}</Table.HeaderCell>
+          <Table.HeaderCell colSpan={8}>{bulkActionPanel}</Table.HeaderCell>
         </Table.Row>
         <Table.Row>
           <Table.HeaderCell width={1}>idx.</Table.HeaderCell>
           <Table.HeaderCell width={3}>장비 목록</Table.HeaderCell>
           <Table.HeaderCell width={2}>사용자</Table.HeaderCell>
           <Table.HeaderCell>예약 제목</Table.HeaderCell>
-          <Table.HeaderCell width={4}>예약 기간</Table.HeaderCell>
+          <Table.HeaderCell width={3}>예약 기간</Table.HeaderCell>
+          <Table.HeaderCell width={2}>예약 생성일</Table.HeaderCell>
           <Table.HeaderCell width={2}>상태</Table.HeaderCell>
           <Table.HeaderCell width={1}>
             <Checkbox
@@ -137,6 +142,13 @@ const EquipmentReservationWaitTable = ({ reservations, startIdx = 0 }) => {
                   {moment(reservation.endTime, 'HHmm').format('HH:mm')}
                 </b>
               </Table.Cell>
+              <Table.Cell>
+                {moment(reservation.createdAt).format('YYYY-MM-DD')}
+                <br />
+                <span style={{ color: 'gray' }}>
+                  {moment(reservation.createdAt).format('HH:mm')}
+                </span>
+              </Table.Cell>
               <Table.Cell>{reservation.status}</Table.Cell>
               <Table.Cell>
                 <Checkbox
@@ -151,7 +163,7 @@ const EquipmentReservationWaitTable = ({ reservations, startIdx = 0 }) => {
 
       <Table.Footer fullWidth>
         <Table.Row>
-          <Table.HeaderCell colSpan={7}>{bulkActionPanel}</Table.HeaderCell>
+          <Table.HeaderCell colSpan={8}>{bulkActionPanel}</Table.HeaderCell>
         </Table.Row>
       </Table.Footer>
     </Table>
