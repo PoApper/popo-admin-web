@@ -298,16 +298,6 @@ const PlaceReservationBulkCreatePage = ({ placeList }) => {
     <ReservationLayout>
       <h1>일괄 장소 예약 생성 (관리자)</h1>
 
-      <Message info>
-        <Message.Header>일괄 예약 생성 안내</Message.Header>
-        <p>
-          여러 개의 장소 행과 여러 개의 날짜/시간 행을 등록하면, (장소 목록) ×
-          (일시 목록) 조합으로 예약을 일괄 생성합니다.
-          <br />행 추가 버튼 클릭 시 <b>직전 행의 설정 정보가 자동으로 복사</b>
-          됩니다.
-        </p>
-      </Message>
-
       <Form loading={isSubmitting}>
         {/* 공통 기본 정보 */}
         <Segment>
@@ -416,19 +406,6 @@ const PlaceReservationBulkCreatePage = ({ placeList }) => {
                         }
                         placeholder="장소 선택"
                       />
-                      {isDup && (
-                        <div
-                          style={{
-                            color: '#db2828',
-                            fontWeight: 'bold',
-                            fontSize: '0.85rem',
-                            marginTop: 4,
-                          }}
-                        >
-                          ⚠️ 중복 선택된 장소입니다. 다른 장소를 선택하거나 행을
-                          삭제해 주세요.
-                        </div>
-                      )}
                     </Table.Cell>
                     <Table.Cell textAlign="center">
                       <Button
@@ -584,18 +561,6 @@ const PlaceReservationBulkCreatePage = ({ placeList }) => {
                       style={{ fontWeight: 'bold', fontSize: '15px' }}
                     >
                       {hourDiff(row.startTime, row.endTime)}시간
-                      {isOverlap && (
-                        <div
-                          style={{
-                            color: '#db2828',
-                            fontWeight: 'bold',
-                            fontSize: '0.8rem',
-                            marginTop: 4,
-                          }}
-                        >
-                          ⚠️ 시간 겹침 에러
-                        </div>
-                      )}
                     </Table.Cell>
                     <Table.Cell textAlign="center">
                       <Button
@@ -647,22 +612,21 @@ const PlaceReservationBulkCreatePage = ({ placeList }) => {
         )}
 
         {/* 요약 및 제출 */}
-        <Message
-          positive={totalCombinations > 0 && !hasValidationError}
-          warning={totalCombinations === 0}
-          negative={hasValidationError}
-        >
-          <Message.Header>
-            {hasValidationError
-              ? '입력오류가 있어 예약을 생성할 수 없습니다.'
-              : `총 ${totalCombinations}개의 예약을 일괄 생성합니다.`}
-          </Message.Header>
-          <p>
-            선택된 장소 {validPlaceRows.length}개 × 설정된 일시{' '}
-            {timeRows.length}개 = 총 {totalCombinations}건의 장소 예약이
-            등록됩니다.
-          </p>
-        </Message>
+        {!hasValidationError && (
+          <Message
+            positive={totalCombinations > 0}
+            warning={totalCombinations === 0}
+          >
+            <Message.Header>
+              총 {totalCombinations}개의 예약을 일괄 생성합니다.
+            </Message.Header>
+            <p>
+              선택된 장소 {validPlaceRows.length}개 × 설정된 일시{' '}
+              {timeRows.length}개 = 총 {totalCombinations}건의 장소 예약이
+              등록됩니다.
+            </p>
+          </Message>
+        )}
 
         <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
           <Button
