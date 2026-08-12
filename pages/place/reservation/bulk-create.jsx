@@ -474,33 +474,28 @@ const PlaceReservationBulkCreatePage = ({ placeList }) => {
                       <DatePicker
                         onKeyDown={(e) => e.preventDefault()}
                         dateFormat={'yyyy-MM-dd'}
-                        minDate={now.toDate()}
                         selected={row.date.toDate()}
                         onChange={(d) => {
-                          const targetDate = moment(d).format('YYYY-MM-DD');
-                          const nowDate = now.format('YYYY-MM-DD');
-                          if (targetDate === nowDate) {
-                            handleUpdateTimeRow(row.id, 'date', now);
-                            handleUpdateTimeRow(row.id, 'startTime', now);
-                            handleUpdateTimeRow(
-                              row.id,
-                              'endTime',
-                              nowNext30Min,
-                            );
-                          } else {
-                            const newDate = moment(targetDate + 'T00:00');
-                            handleUpdateTimeRow(row.id, 'date', newDate);
-                            handleUpdateTimeRow(
-                              row.id,
-                              'startTime',
-                              moment(targetDate + 'T00:00'),
-                            );
-                            handleUpdateTimeRow(
-                              row.id,
-                              'endTime',
-                              moment(targetDate + 'T00:30'),
-                            );
-                          }
+                          if (!d) return;
+                          const targetDateStr = moment(d).format('YYYY-MM-DD');
+                          const startHHmm = row.startTime.format('HH:mm');
+                          const endHHmm = row.endTime.format('HH:mm');
+
+                          const newDate = moment(`${targetDateStr}T00:00`);
+                          const newStartTime = moment(
+                            `${targetDateStr}T${startHHmm}`,
+                          );
+                          const newEndTime = moment(
+                            `${targetDateStr}T${endHHmm}`,
+                          );
+
+                          handleUpdateTimeRow(row.id, 'date', newDate);
+                          handleUpdateTimeRow(
+                            row.id,
+                            'startTime',
+                            newStartTime,
+                          );
+                          handleUpdateTimeRow(row.id, 'endTime', newEndTime);
                         }}
                       />
                     </Table.Cell>
@@ -512,7 +507,9 @@ const PlaceReservationBulkCreatePage = ({ placeList }) => {
                         onKeyDown={(e) => e.preventDefault()}
                         dateFormat={'hh:mm aa'}
                         selected={row.startTime.toDate()}
-                        minTime={row.date.toDate()}
+                        minTime={moment(
+                          row.date.format('YYYY-MM-DD') + 'T00:00',
+                        ).toDate()}
                         maxTime={moment(
                           row.date.format('YYYY-MM-DD') + 'T23:59',
                         ).toDate()}
@@ -539,18 +536,12 @@ const PlaceReservationBulkCreatePage = ({ placeList }) => {
                         onKeyDown={(e) => e.preventDefault()}
                         dateFormat={'hh:mm aa'}
                         selected={row.endTime.toDate()}
-                        minTime={moment(row.startTime)
-                          .add(30, 'minute')
-                          .toDate()}
-                        maxTime={
-                          row.endTime.format('HHmm') === '0000'
-                            ? moment(
-                                row.date.format('YYYY-MM-DD') + 'T00:00',
-                              ).toDate()
-                            : moment(
-                                row.date.format('YYYY-MM-DD') + 'T23:59',
-                              ).toDate()
-                        }
+                        minTime={moment(
+                          row.date.format('YYYY-MM-DD') + 'T00:00',
+                        ).toDate()}
+                        maxTime={moment(
+                          row.date.format('YYYY-MM-DD') + 'T23:59',
+                        ).toDate()}
                         onChange={(et) => {
                           handleUpdateTimeRow(row.id, 'endTime', moment(et));
                         }}
