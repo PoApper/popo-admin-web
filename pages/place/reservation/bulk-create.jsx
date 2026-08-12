@@ -144,93 +144,93 @@ const PlaceReservationBulkCreatePage = ({ placeList }) => {
     );
   };
 
+  // --------------------------------------------------------------------------
+  // 유효성 / 중복 검사 (실시간 UI 바인딩)
+  // --------------------------------------------------------------------------
+
+  // 1) 장소 중복 체크: 선택된 장소(uuid)가 다른 행에도 존재하는지 확인
+  const isPlaceRowDuplicate = (row) => {
+    if (!row.placeInfo) return false;
+    return placeRows.some(
+      (r) => r.id !== row.id && r.placeInfo?.uuid === row.placeInfo.uuid,
+    );
+  };
+
+  const hasDuplicatePlace = placeRows.some((r) => isPlaceRowDuplicate(r));
+
+  // 2) 일시 겹침 체크: 동일 날짜에서 다른 행과 시간대가 겹치는지 확인
+  const isTimeRowOverlapping = (row) => {
+    return timeRows.some((r) => {
+      if (r.id === row.id) return false;
+      if (r.date.format('YYYY-MM-DD') !== row.date.format('YYYY-MM-DD'))
+        return false;
+
+      const s1 = parseInt(row.startTime.format('HHmm'), 10);
+      const e1 = parseInt(row.endTime.format('HHmm'), 10);
+      const s2 = parseInt(r.startTime.format('HHmm'), 10);
+      const e2 = parseInt(r.endTime.format('HHmm'), 10);
+
+      return s1 < e2 && s2 < e1;
+    });
+  };
+
+  const hasOverlappingTime = timeRows.some((r) => isTimeRowOverlapping(r));
+
+  // 3) 장소별 하루 최대 예약 시간(maxMinutes) 초과 체크
   const validPlaceRows = placeRows.filter((r) => r.placeInfo !== null);
   const totalCombinations = validPlaceRows.length * timeRows.length;
 
-  // 클라이언트 사전 유효성 검사
-  const validateFormBeforeSubmit = () => {
+  let hasMaxMinutesExceeded = false;
+  for (const pRow of validPlaceRows) {
+    const place = pRow.placeInfo;
+    if (!place.maxMinutes) continue;
+
+    const dateMap = {};
+    for (const tRow of timeRows) {
+      const dStr = tRow.date.format('YYYY-MM-DD');
+      const duration = calculateDurationMinutes(
+        tRow.startTime.format('HHmm'),
+        tRow.endTime.format('HHmm'),
+      );
+      dateMap[dStr] = (dateMap[dStr] || 0) + duration;
+    }
+
+    for (const sumMins of Object.values(dateMap)) {
+      if (sumMins > place.maxMinutes) {
+        hasMaxMinutesExceeded = true;
+        break;
+      }
+    }
+  }
+
+  const hasValidationError =
+    hasDuplicatePlace || hasOverlappingTime || hasMaxMinutesExceeded;
+
+  const handleSubmit = async () => {
     if (!phone.trim()) {
       alert('전화번호를 입력해 주세요.');
-      return false;
+      return;
     }
     if (!title.trim() || title.length === 1) {
       alert('올바른 예약 제목을 입력해 주세요.');
-      return false;
+      return;
     }
     if (!description.trim() || description.length === 1) {
       alert('올바른 예약 설명을 입력해 주세요.');
-      return false;
+      return;
     }
     if (validPlaceRows.length === 0) {
       alert('최소 1개 이상의 장소를 선택해 주세요.');
-      return false;
+      return;
     }
     if (timeRows.length === 0) {
       alert('최소 1개 이상의 일시를 설정해 주세요.');
-      return false;
+      return;
     }
-
-    // 1. 장소 중복 체크
-    const placeUuids = validPlaceRows.map((r) => r.placeInfo.uuid);
-    const uniquePlaceUuids = new Set(placeUuids);
-    if (uniquePlaceUuids.size < placeUuids.length) {
-      alert(
-        '장소 목록에 중복으로 선택된 장소가 있습니다. 중복 항목을 제거해 주세요.',
-      );
-      return false;
+    if (hasValidationError) {
+      alert('빨간색으로 표시된 중복 및 시간 겹침 에러 항목을 수정해 주세요.');
+      return;
     }
-
-    // 2. 제출 일시 목록 내 동일 날짜 시간 겹침 체크
-    for (let i = 0; i < timeRows.length; i++) {
-      for (let j = i + 1; j < timeRows.length; j++) {
-        const row1 = timeRows[i];
-        const row2 = timeRows[j];
-        if (row1.date.format('YYYY-MM-DD') === row2.date.format('YYYY-MM-DD')) {
-          const s1 = parseInt(row1.startTime.format('HHmm'), 10);
-          const e1 = parseInt(row1.endTime.format('HHmm'), 10);
-          const s2 = parseInt(row2.startTime.format('HHmm'), 10);
-          const e2 = parseInt(row2.endTime.format('HHmm'), 10);
-
-          if (s1 < e2 && s2 < e1) {
-            alert(
-              `일시 목록 [${i + 1}번 행]과 [${j + 1}번 행]의 시간이 서로 겹칩니다 (${row1.date.format('YYYY-MM-DD')}).`,
-            );
-            return false;
-          }
-        }
-      }
-    }
-
-    // 3. 장소별 하루 최대 예약 가능 시간(maxMinutes) 초과 체크
-    for (const pRow of validPlaceRows) {
-      const place = pRow.placeInfo;
-      if (!place.maxMinutes) continue;
-
-      const dateMap = {};
-      for (const tRow of timeRows) {
-        const dStr = tRow.date.format('YYYY-MM-DD');
-        const duration = calculateDurationMinutes(
-          tRow.startTime.format('HHmm'),
-          tRow.endTime.format('HHmm'),
-        );
-        dateMap[dStr] = (dateMap[dStr] || 0) + duration;
-      }
-
-      for (const [dStr, sumMins] of Object.entries(dateMap)) {
-        if (sumMins > place.maxMinutes) {
-          alert(
-            `장소 "${place.name}"의 하루 최대 예약 가능 시간(${place.maxMinutes}분)을 초과했습니다. (${dStr} 선택된 총 시간: ${sumMins}분)`,
-          );
-          return false;
-        }
-      }
-    }
-
-    return true;
-  };
-
-  const handleSubmit = async () => {
-    if (!validateFormBeforeSubmit()) return;
 
     const confirmMsg = `총 ${totalCombinations}건 (장소 ${validPlaceRows.length}개 × 일시 ${timeRows.length}개)의 일괄 예약을 생성하시겠습니까?`;
     if (!confirm(confirmMsg)) return;
@@ -389,8 +389,10 @@ const PlaceReservationBulkCreatePage = ({ placeList }) => {
                   text: p.name,
                 }));
 
+                const isDup = isPlaceRowDuplicate(row);
+
                 return (
-                  <Table.Row key={row.id}>
+                  <Table.Row key={row.id} negative={isDup}>
                     <Table.Cell>{idx + 1}</Table.Cell>
                     <Table.Cell>
                       <Form.Select
@@ -406,6 +408,7 @@ const PlaceReservationBulkCreatePage = ({ placeList }) => {
                     <Table.Cell>
                       <Form.Select
                         required
+                        error={isDup}
                         options={placeOptions}
                         value={row.placeInfo}
                         onChange={(e, { value }) =>
@@ -413,6 +416,19 @@ const PlaceReservationBulkCreatePage = ({ placeList }) => {
                         }
                         placeholder="장소 선택"
                       />
+                      {isDup && (
+                        <div
+                          style={{
+                            color: '#db2828',
+                            fontWeight: 'bold',
+                            fontSize: '0.85rem',
+                            marginTop: 4,
+                          }}
+                        >
+                          ⚠️ 중복 선택된 장소입니다. 다른 장소를 선택하거나 행을
+                          삭제해 주세요.
+                        </div>
+                      )}
                     </Table.Cell>
                     <Table.Cell textAlign="center">
                       <Button
@@ -471,116 +487,175 @@ const PlaceReservationBulkCreatePage = ({ placeList }) => {
               </Table.Row>
             </Table.Header>
             <Table.Body>
-              {timeRows.map((row, idx) => (
-                <Table.Row key={row.id}>
-                  <Table.Cell>{idx + 1}</Table.Cell>
-                  <Table.Cell>
-                    <DatePicker
-                      onKeyDown={(e) => e.preventDefault()}
-                      dateFormat={'yyyy-MM-dd'}
-                      minDate={now.toDate()}
-                      selected={row.date.toDate()}
-                      onChange={(d) => {
-                        const targetDate = moment(d).format('YYYY-MM-DD');
-                        const nowDate = now.format('YYYY-MM-DD');
-                        if (targetDate === nowDate) {
-                          handleUpdateTimeRow(row.id, 'date', now);
-                          handleUpdateTimeRow(row.id, 'startTime', now);
-                          handleUpdateTimeRow(row.id, 'endTime', nowNext30Min);
-                        } else {
-                          const newDate = moment(targetDate + 'T00:00');
-                          handleUpdateTimeRow(row.id, 'date', newDate);
+              {timeRows.map((row, idx) => {
+                const isOverlap = isTimeRowOverlapping(row);
+
+                return (
+                  <Table.Row key={row.id} negative={isOverlap}>
+                    <Table.Cell>{idx + 1}</Table.Cell>
+                    <Table.Cell>
+                      <DatePicker
+                        onKeyDown={(e) => e.preventDefault()}
+                        dateFormat={'yyyy-MM-dd'}
+                        minDate={now.toDate()}
+                        selected={row.date.toDate()}
+                        onChange={(d) => {
+                          const targetDate = moment(d).format('YYYY-MM-DD');
+                          const nowDate = now.format('YYYY-MM-DD');
+                          if (targetDate === nowDate) {
+                            handleUpdateTimeRow(row.id, 'date', now);
+                            handleUpdateTimeRow(row.id, 'startTime', now);
+                            handleUpdateTimeRow(
+                              row.id,
+                              'endTime',
+                              nowNext30Min,
+                            );
+                          } else {
+                            const newDate = moment(targetDate + 'T00:00');
+                            handleUpdateTimeRow(row.id, 'date', newDate);
+                            handleUpdateTimeRow(
+                              row.id,
+                              'startTime',
+                              moment(targetDate + 'T00:00'),
+                            );
+                            handleUpdateTimeRow(
+                              row.id,
+                              'endTime',
+                              moment(targetDate + 'T00:30'),
+                            );
+                          }
+                        }}
+                      />
+                    </Table.Cell>
+                    <Table.Cell>
+                      <DatePicker
+                        showTimeSelect
+                        showTimeSelectOnly
+                        timeIntervals={30}
+                        onKeyDown={(e) => e.preventDefault()}
+                        dateFormat={'hh:mm aa'}
+                        selected={row.startTime.toDate()}
+                        minTime={row.date.toDate()}
+                        maxTime={moment(
+                          row.date.format('YYYY-MM-DD') + 'T23:59',
+                        ).toDate()}
+                        onChange={(st) => {
+                          const newStartTime = moment(st);
+                          const newEndTime = moment(newStartTime).add(
+                            30,
+                            'minute',
+                          );
                           handleUpdateTimeRow(
                             row.id,
                             'startTime',
-                            moment(targetDate + 'T00:00'),
+                            newStartTime,
                           );
-                          handleUpdateTimeRow(
-                            row.id,
-                            'endTime',
-                            moment(targetDate + 'T00:30'),
-                          );
+                          handleUpdateTimeRow(row.id, 'endTime', newEndTime);
+                        }}
+                      />
+                    </Table.Cell>
+                    <Table.Cell>
+                      <DatePicker
+                        showTimeSelect
+                        showTimeSelectOnly
+                        timeIntervals={30}
+                        onKeyDown={(e) => e.preventDefault()}
+                        dateFormat={'hh:mm aa'}
+                        selected={row.endTime.toDate()}
+                        minTime={moment(row.startTime)
+                          .add(30, 'minute')
+                          .toDate()}
+                        maxTime={
+                          row.endTime.format('HHmm') === '0000'
+                            ? moment(
+                                row.date.format('YYYY-MM-DD') + 'T00:00',
+                              ).toDate()
+                            : moment(
+                                row.date.format('YYYY-MM-DD') + 'T23:59',
+                              ).toDate()
                         }
-                      }}
-                    />
-                  </Table.Cell>
-                  <Table.Cell>
-                    <DatePicker
-                      showTimeSelect
-                      showTimeSelectOnly
-                      timeIntervals={30}
-                      onKeyDown={(e) => e.preventDefault()}
-                      dateFormat={'hh:mm aa'}
-                      selected={row.startTime.toDate()}
-                      minTime={row.date.toDate()}
-                      maxTime={moment(
-                        row.date.format('YYYY-MM-DD') + 'T23:59',
-                      ).toDate()}
-                      onChange={(st) => {
-                        const newStartTime = moment(st);
-                        const newEndTime = moment(newStartTime).add(
-                          30,
-                          'minute',
-                        );
-                        handleUpdateTimeRow(row.id, 'startTime', newStartTime);
-                        handleUpdateTimeRow(row.id, 'endTime', newEndTime);
-                      }}
-                    />
-                  </Table.Cell>
-                  <Table.Cell>
-                    <DatePicker
-                      showTimeSelect
-                      showTimeSelectOnly
-                      timeIntervals={30}
-                      onKeyDown={(e) => e.preventDefault()}
-                      dateFormat={'hh:mm aa'}
-                      selected={row.endTime.toDate()}
-                      minTime={moment(row.startTime).add(30, 'minute').toDate()}
-                      maxTime={
-                        row.endTime.format('HHmm') === '0000'
-                          ? moment(
-                              row.date.format('YYYY-MM-DD') + 'T00:00',
-                            ).toDate()
-                          : moment(
-                              row.date.format('YYYY-MM-DD') + 'T23:59',
-                            ).toDate()
-                      }
-                      onChange={(et) => {
-                        handleUpdateTimeRow(row.id, 'endTime', moment(et));
-                      }}
-                    />
-                  </Table.Cell>
-                  <Table.Cell
-                    textAlign="center"
-                    style={{ fontWeight: 'bold', fontSize: '15px' }}
-                  >
-                    {hourDiff(row.startTime, row.endTime)}시간
-                  </Table.Cell>
-                  <Table.Cell textAlign="center">
-                    <Button
-                      type="button"
-                      icon="trash"
-                      color="red"
-                      size="tiny"
-                      disabled={timeRows.length <= 1}
-                      onClick={() => handleRemoveTimeRow(row.id)}
-                    />
-                  </Table.Cell>
-                </Table.Row>
-              ))}
+                        onChange={(et) => {
+                          handleUpdateTimeRow(row.id, 'endTime', moment(et));
+                        }}
+                      />
+                    </Table.Cell>
+                    <Table.Cell
+                      textAlign="center"
+                      style={{ fontWeight: 'bold', fontSize: '15px' }}
+                    >
+                      {hourDiff(row.startTime, row.endTime)}시간
+                      {isOverlap && (
+                        <div
+                          style={{
+                            color: '#db2828',
+                            fontWeight: 'bold',
+                            fontSize: '0.8rem',
+                            marginTop: 4,
+                          }}
+                        >
+                          ⚠️ 시간 겹침 에러
+                        </div>
+                      )}
+                    </Table.Cell>
+                    <Table.Cell textAlign="center">
+                      <Button
+                        type="button"
+                        icon="trash"
+                        color="red"
+                        size="tiny"
+                        disabled={timeRows.length <= 1}
+                        onClick={() => handleRemoveTimeRow(row.id)}
+                      />
+                    </Table.Cell>
+                  </Table.Row>
+                );
+              })}
             </Table.Body>
           </Table>
         </Segment>
 
         <Divider style={{ margin: '24px 0' }} />
 
+        {/* 유효성 오류 메시지 배너 */}
+        {hasDuplicatePlace && (
+          <Message negative style={{ marginBottom: 16 }}>
+            <Message.Header>⚠️ 중복 선택된 장소가 있습니다.</Message.Header>
+            <p>
+              장소 목록 중 빨간색으로 표시된 행을 확인 후 중복된 장소를
+              수정하거나 삭제해 주세요.
+            </p>
+          </Message>
+        )}
+
+        {hasOverlappingTime && (
+          <Message negative style={{ marginBottom: 16 }}>
+            <Message.Header>⚠️ 예약 시간 겹침 에러가 있습니다.</Message.Header>
+            <p>
+              일시 목록 중 빨간색으로 표시된 행을 확인 후 시간을 수정해 주세요.
+            </p>
+          </Message>
+        )}
+
+        {hasMaxMinutesExceeded && (
+          <Message negative style={{ marginBottom: 16 }}>
+            <Message.Header>⚠️ 하루 최대 예약 시간 초과</Message.Header>
+            <p>
+              장소의 하루 최대 예약 허용 시간(`maxMinutes`)을 초과하는 예약 일시
+              조합이 포함되어 있습니다.
+            </p>
+          </Message>
+        )}
+
         {/* 요약 및 제출 */}
         <Message
-          positive={totalCombinations > 0}
+          positive={totalCombinations > 0 && !hasValidationError}
           warning={totalCombinations === 0}
+          negative={hasValidationError}
         >
           <Message.Header>
-            총 {totalCombinations}개의 예약을 일괄 생성합니다.
+            {hasValidationError
+              ? '입력오류가 있어 예약을 생성할 수 없습니다.'
+              : `총 ${totalCombinations}개의 예약을 일괄 생성합니다.`}
           </Message.Header>
           <p>
             선택된 장소 {validPlaceRows.length}개 × 설정된 일시{' '}
@@ -602,7 +677,9 @@ const PlaceReservationBulkCreatePage = ({ placeList }) => {
             primary
             size="large"
             loading={isSubmitting}
-            disabled={isSubmitting || totalCombinations === 0}
+            disabled={
+              isSubmitting || totalCombinations === 0 || hasValidationError
+            }
             onClick={handleSubmit}
           >
             <Icon name="check" /> 일괄 예약 생성 ({totalCombinations}건)
