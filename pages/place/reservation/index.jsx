@@ -79,9 +79,12 @@ const PlaceReservationPage = () => {
         예약 내용을 수정하는 건 <b>불가능</b>합니다. 예약 승인/거절/삭제만
         가능합니다.
       </p>
-      <p>
+      <p style={{ display: 'flex', gap: 8 }}>
         <Button href={'/place/reservation/create'}>
           장소 예약 생성 (관리자)
+        </Button>
+        <Button color="teal" href={'/place/reservation/bulk-create'}>
+          일괄 장소 예약 (관리자)
         </Button>
       </p>
 
