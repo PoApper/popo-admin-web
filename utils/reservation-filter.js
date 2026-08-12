@@ -9,6 +9,15 @@ export const EMPTY_PLACE_FILTER = {
   order: 'createdAt_DESC',
 };
 
+export const EMPTY_EQUIP_FILTER = {
+  owner: '',
+  status: '',
+  startDate: '',
+  endDate: '',
+  title: '',
+  order: 'createdAt_DESC',
+};
+
 /**
  * 대기 목록은 항상 심사중만 본다.
  *
