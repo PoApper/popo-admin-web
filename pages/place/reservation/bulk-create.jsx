@@ -367,6 +367,9 @@ const PlaceReservationBulkCreatePage = ({ placeList }) => {
                 <Table.HeaderCell>날짜</Table.HeaderCell>
                 <Table.HeaderCell>시작 시간</Table.HeaderCell>
                 <Table.HeaderCell>종료 시간</Table.HeaderCell>
+                <Table.HeaderCell style={{ width: 120 }}>
+                  예약 시간
+                </Table.HeaderCell>
                 <Table.HeaderCell style={{ width: 60 }}>삭제</Table.HeaderCell>
               </Table.Row>
             </Table.Header>
@@ -449,9 +452,12 @@ const PlaceReservationBulkCreatePage = ({ placeList }) => {
                         handleUpdateTimeRow(row.id, 'endTime', moment(et));
                       }}
                     />
-                    <small style={{ color: '#666', marginLeft: 8 }}>
-                      ({hourDiff(row.startTime, row.endTime)}시간)
-                    </small>
+                  </Table.Cell>
+                  <Table.Cell
+                    textAlign="center"
+                    style={{ fontWeight: 'bold', fontSize: '15px' }}
+                  >
+                    {hourDiff(row.startTime, row.endTime)}시간
                   </Table.Cell>
                   <Table.Cell textAlign="center">
                     <Button
