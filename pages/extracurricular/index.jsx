@@ -10,6 +10,7 @@ import {
   Tab,
   Icon,
   Message,
+  Progress,
 } from 'semantic-ui-react';
 import LayoutWithAuth from '@/components/layout/layout.auth.with';
 import { PoPoAxios } from '../../utils/axios.instance';
@@ -88,6 +89,158 @@ export default function AdminExtracurricularPage() {
   const [pickedFile, setPickedFile] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef(null);
+
+  // Bulk Report Modal State
+  const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
+  const [bulkActivityId, setBulkActivityId] = useState('');
+  const [bulkPeriod, setBulkPeriod] = useState('');
+  const [stagedFiles, setStagedFiles] = useState([]);
+  const [isBulkUploading, setIsBulkUploading] = useState(false);
+  const [bulkProgress, setBulkProgress] = useState({ current: 0, total: 0 });
+  const [isBulkDragging, setIsBulkDragging] = useState(false);
+  const bulkFileInputRef = useRef(null);
+
+  const handleOpenBulkModal = () => {
+    setBulkActivityId(activities[0]?.uuid || '');
+    setBulkPeriod('');
+    setStagedFiles([]);
+    setIsBulkUploading(false);
+    setBulkProgress({ current: 0, total: 0 });
+    setIsBulkDragging(false);
+    setIsBulkModalOpen(true);
+  };
+
+  const closeBulkModal = () => {
+    if (isBulkUploading) return;
+    setIsBulkModalOpen(false);
+    setStagedFiles([]);
+    setIsBulkDragging(false);
+  };
+
+  const applyBulkFiles = (files) => {
+    if (!files || files.length === 0) return;
+    const fileArray = Array.from(files);
+    const validFiles = fileArray.filter((file) => {
+      const ext = file.name.split('.').pop()?.toLowerCase();
+      return ACCEPTED_EXTENSIONS.includes(ext);
+    });
+
+    if (validFiles.length < fileArray.length) {
+      alert(
+        `일부 파일은 지원하지 않는 확장자입니다. (${ACCEPTED_EXTENSIONS.join(
+          ', ',
+        )}만 허용)`,
+      );
+    }
+
+    const newItems = validFiles.map((file) => ({
+      id: `${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+      file,
+      title: baseNameOf(file.name),
+      author: '',
+      major: '',
+      grade: '',
+      memo: '',
+      status: 'pending',
+      errorMsg: '',
+    }));
+
+    setStagedFiles((prev) => [...prev, ...newItems]);
+  };
+
+  const handleBulkDrop = (e) => {
+    e.preventDefault();
+    setIsBulkDragging(false);
+    applyBulkFiles(e.dataTransfer.files);
+  };
+
+  const handleRemoveStagedFile = (id) => {
+    setStagedFiles((prev) => prev.filter((item) => item.id !== id));
+  };
+
+  const handleUpdateStagedFileTitle = (id, title) => {
+    setStagedFiles((prev) =>
+      prev.map((item) => (item.id === id ? { ...item, title } : item)),
+    );
+  };
+
+  const handleBulkSave = async () => {
+    if (!bulkActivityId) {
+      alert('연관 비교과활동을 선택해 주세요.');
+      return;
+    }
+    if (!bulkPeriod) {
+      alert('수행 시기를 입력해 주세요.');
+      return;
+    }
+    if (stagedFiles.length === 0) {
+      alert('업로드할 파일을 1개 이상 추가해 주세요.');
+      return;
+    }
+
+    const emptyTitleItem = stagedFiles.find((item) => !item.title.trim());
+    if (emptyTitleItem) {
+      alert(`[${emptyTitleItem.file.name}]의 보고서 제목을 입력해 주세요.`);
+      return;
+    }
+
+    setIsBulkUploading(true);
+    setBulkProgress({ current: 0, total: stagedFiles.length });
+
+    let successCount = 0;
+    let failCount = 0;
+
+    for (let i = 0; i < stagedFiles.length; i++) {
+      const item = stagedFiles[i];
+
+      setStagedFiles((prev) =>
+        prev.map((f) => (f.id === item.id ? { ...f, status: 'uploading' } : f)),
+      );
+
+      const payload = new FormData();
+      payload.append('activityId', bulkActivityId);
+      payload.append('period', bulkPeriod);
+      payload.append('title', item.title);
+      payload.append('grade', item.grade || '');
+      payload.append('major', item.major || '');
+      payload.append('author', item.author || '');
+      payload.append('memo', item.memo || '');
+      payload.append('file', item.file);
+
+      try {
+        await PoPoAxios.post('/activity-report', payload);
+        successCount++;
+        setStagedFiles((prev) =>
+          prev.map((f) => (f.id === item.id ? { ...f, status: 'success' } : f)),
+        );
+      } catch (err) {
+        failCount++;
+        const msg = errorMessageOf(err);
+        setStagedFiles((prev) =>
+          prev.map((f) =>
+            f.id === item.id ? { ...f, status: 'error', errorMsg: msg } : f,
+          ),
+        );
+      }
+
+      setBulkProgress({ current: i + 1, total: stagedFiles.length });
+    }
+
+    setIsBulkUploading(false);
+
+    if (failCount === 0) {
+      notify(
+        `총 ${successCount}개의 활동 보고서가 성공적으로 일괄 업로드되었습니다.`,
+      );
+      closeBulkModal();
+      await fetchData();
+    } else {
+      notifyError(
+        `일괄 업로드 완료: 성공 ${successCount}건, 실패 ${failCount}건. 실패한 항목을 확인해 주세요.`,
+      );
+      await fetchData();
+    }
+  };
 
   /** 파일을 고르면 제목을 확장자 뺀 파일명으로 자동 채운다. */
   const applyPickedFile = (file) => {
@@ -364,19 +517,33 @@ export default function AdminExtracurricularPage() {
             style={{
               display: 'flex',
               justifyContent: 'space-between',
+              alignItems: 'center',
               marginBottom: 16,
             }}
           >
-            <Header as="h3">등록된 보고서 및 수기 ({reports.length}개)</Header>
-            <Button
-              color="green"
-              icon
-              labelPosition="left"
-              onClick={() => handleOpenRepModal()}
-            >
-              <Icon name="upload" />
-              신규 보고서 수기 업로드
-            </Button>
+            <Header as="h3" style={{ margin: 0 }}>
+              등록된 보고서 및 수기 ({reports.length}개)
+            </Header>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <Button
+                color="teal"
+                icon
+                labelPosition="left"
+                onClick={handleOpenBulkModal}
+              >
+                <Icon name="file archive" />
+                일괄 보고서 업로드
+              </Button>
+              <Button
+                color="green"
+                icon
+                labelPosition="left"
+                onClick={() => handleOpenRepModal()}
+              >
+                <Icon name="upload" />
+                신규 보고서 수기 업로드
+              </Button>
+            </div>
           </div>
 
           <Table celled striped>
@@ -384,7 +551,7 @@ export default function AdminExtracurricularPage() {
               <Table.Row>
                 <Table.HeaderCell>연관 활동</Table.HeaderCell>
                 <Table.HeaderCell>보고서 제목</Table.HeaderCell>
-                <Table.HeaderCell>수행 시기</Table.HeaderCell>
+                <Table.HeaderCell>수행 시기*</Table.HeaderCell>
                 <Table.HeaderCell>전공 / 학년</Table.HeaderCell>
                 <Table.HeaderCell style={{ width: 60 }}>
                   작성자
@@ -674,6 +841,230 @@ export default function AdminExtracurricularPage() {
               <Button onClick={closeRepModal}>취소</Button>
               <Button positive onClick={handleSaveReport}>
                 저장
+              </Button>
+            </Modal.Actions>
+          </Modal>
+
+          {/* Bulk Report Modal */}
+          <Modal open={isBulkModalOpen} onClose={closeBulkModal} size="large">
+            <Modal.Header>
+              <Icon name="file archive" /> 활동 보고서 일괄 업로드
+            </Modal.Header>
+            <Modal.Content scrolling>
+              <Message info style={{ marginBottom: 16 }}>
+                <Message.Header>일괄 업로드 안내</Message.Header>
+                <p>
+                  동일한 활동 및 수행 시기에 해당하는 보고서 문서 파일들을
+                  한꺼번에 올릴 수 있습니다.
+                  <br />각 파일의 기본 제목은 파일명(확장자 제외)으로 자동
+                  입력되며, 필요 시 목록에서 직접 수정 가능합니다.
+                </p>
+              </Message>
+
+              <Form>
+                <Form.Group widths="equal">
+                  <Form.Select
+                    label="연관 비교과활동 (필수)"
+                    options={activities.map((a) => ({
+                      key: a.uuid,
+                      text: a.title,
+                      value: a.uuid,
+                    }))}
+                    value={bulkActivityId}
+                    onChange={(e, { value }) => setBulkActivityId(value)}
+                    placeholder="활동 선택"
+                    disabled={isBulkUploading}
+                  />
+                  <Form.Input
+                    label="수행 시기 (필수)"
+                    placeholder="예: 2025학년도 하계"
+                    value={bulkPeriod}
+                    onChange={(e) => setBulkPeriod(e.target.value)}
+                    disabled={isBulkUploading}
+                  />
+                </Form.Group>
+
+                <Form.Field>
+                  <label>원본 문서들 (다중 선택 및 파일 드롭 가능)</label>
+                  <DropZone
+                    dragging={isBulkDragging}
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      setIsBulkDragging(true);
+                    }}
+                    onDragLeave={() => setIsBulkDragging(false)}
+                    onDrop={handleBulkDrop}
+                    onClick={() => {
+                      if (!isBulkUploading) bulkFileInputRef.current?.click();
+                    }}
+                  >
+                    <Icon name="cloud upload" size="big" />
+                    <strong>
+                      여기로 파일들을 끌어다 놓으세요 (다중 선택 가능)
+                    </strong>
+                    <small>또는 클릭해서 찾아보기 (PDF, DOCX, HWPX 등)</small>
+                  </DropZone>
+
+                  <input
+                    ref={bulkFileInputRef}
+                    type="file"
+                    multiple
+                    accept={ACCEPTED_EXTENSIONS.map((e) => `.${e}`).join(',')}
+                    hidden
+                    onChange={(e) => {
+                      applyBulkFiles(e.target.files);
+                      e.target.value = '';
+                    }}
+                  />
+                </Form.Field>
+
+                {isBulkUploading && (
+                  <Segment style={{ marginTop: 16 }}>
+                    <Header as="h5">업로드 진행 중...</Header>
+                    <Progress
+                      percent={
+                        bulkProgress.total > 0
+                          ? Math.round(
+                              (bulkProgress.current / bulkProgress.total) * 100,
+                            )
+                          : 0
+                      }
+                      progress
+                      indicating
+                    />
+                  </Segment>
+                )}
+
+                {stagedFiles.length > 0 && (
+                  <Segment style={{ marginTop: 16 }}>
+                    <Header as="h4">
+                      업로드 대상 파일 목록 ({stagedFiles.length}개)
+                    </Header>
+                    <Table celled compact striped>
+                      <Table.Header>
+                        <Table.Row>
+                          <Table.HeaderCell style={{ width: 40 }}>
+                            #
+                          </Table.HeaderCell>
+                          <Table.HeaderCell style={{ width: '30%' }}>
+                            파일명 / 크기
+                          </Table.HeaderCell>
+                          <Table.HeaderCell>
+                            보고서 제목 (수정 가능)*
+                          </Table.HeaderCell>
+                          <Table.HeaderCell style={{ width: 80 }}>
+                            상태
+                          </Table.HeaderCell>
+                          <Table.HeaderCell style={{ width: 60 }}>
+                            삭제
+                          </Table.HeaderCell>
+                        </Table.Row>
+                      </Table.Header>
+                      <Table.Body>
+                        {stagedFiles.map((item, idx) => (
+                          <Table.Row
+                            key={item.id}
+                            negative={item.status === 'error'}
+                            positive={item.status === 'success'}
+                          >
+                            <Table.Cell>{idx + 1}</Table.Cell>
+                            <Table.Cell>
+                              <div
+                                style={{
+                                  wordBreak: 'break-all',
+                                  fontWeight: 'bold',
+                                }}
+                              >
+                                {item.file.name}
+                              </div>
+                              <small style={{ color: '#666' }}>
+                                {(item.file.size / 1024 / 1024).toFixed(2)} MB
+                              </small>
+                            </Table.Cell>
+                            <Table.Cell>
+                              <Form.Input
+                                value={item.title}
+                                disabled={isBulkUploading}
+                                onChange={(e) =>
+                                  handleUpdateStagedFileTitle(
+                                    item.id,
+                                    e.target.value,
+                                  )
+                                }
+                                placeholder="보고서 제목"
+                                error={!item.title.trim()}
+                              />
+                              {item.errorMsg && (
+                                <div
+                                  style={{
+                                    color: '#db2828',
+                                    fontSize: '0.85rem',
+                                    marginTop: 4,
+                                  }}
+                                >
+                                  {item.errorMsg}
+                                </div>
+                              )}
+                            </Table.Cell>
+                            <Table.Cell textAlign="center">
+                              {item.status === 'pending' && (
+                                <Icon
+                                  name="clock outline"
+                                  color="grey"
+                                  title="대기 중"
+                                />
+                              )}
+                              {item.status === 'uploading' && (
+                                <Icon
+                                  name="spinner"
+                                  loading
+                                  color="blue"
+                                  title="업로드 중"
+                                />
+                              )}
+                              {item.status === 'success' && (
+                                <Icon
+                                  name="check circle"
+                                  color="green"
+                                  title="완료"
+                                />
+                              )}
+                              {item.status === 'error' && (
+                                <Icon
+                                  name="warning sign"
+                                  color="red"
+                                  title="실패"
+                                />
+                              )}
+                            </Table.Cell>
+                            <Table.Cell textAlign="center">
+                              <Button
+                                icon="trash"
+                                color="red"
+                                size="tiny"
+                                disabled={isBulkUploading}
+                                onClick={() => handleRemoveStagedFile(item.id)}
+                              />
+                            </Table.Cell>
+                          </Table.Row>
+                        ))}
+                      </Table.Body>
+                    </Table>
+                  </Segment>
+                )}
+              </Form>
+            </Modal.Content>
+            <Modal.Actions>
+              <Button onClick={closeBulkModal} disabled={isBulkUploading}>
+                취소
+              </Button>
+              <Button
+                color="teal"
+                loading={isBulkUploading}
+                disabled={isBulkUploading || stagedFiles.length === 0}
+                onClick={handleBulkSave}
+              >
+                <Icon name="upload" /> 일괄 업로드 시작 ({stagedFiles.length}개)
               </Button>
             </Modal.Actions>
           </Modal>
