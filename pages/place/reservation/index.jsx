@@ -83,7 +83,7 @@ const PlaceReservationPage = () => {
         <Button href={'/place/reservation/create'}>
           장소 예약 생성 (관리자)
         </Button>
-        <Button color="teal" href={'/place/reservation/bulk-create'}>
+        <Button primary href={'/place/reservation/bulk-create'}>
           일괄 장소 예약 (관리자)
         </Button>
       </p>

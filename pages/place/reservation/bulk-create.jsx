@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import moment from 'moment';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 import {
   Button,
   Divider,
@@ -16,16 +18,6 @@ import ReservationLayout from '@/components/reservation/reservation.layout';
 import { PoPoAxios } from '@/utils/axios.instance';
 import { RegionOptions } from '@/assets/region.options';
 import { hourDiff, roundUpByDuration } from '@/utils/time-date';
-import ReservationDatetimePicker from '@/components/reservation/reservation.datetime.picker';
-import OpeningHoursList from '@/components/reservation/opening_hours.list';
-
-const RegionKorNameMapping = {
-  STUDENT_HALL: '학생 회관',
-  JIGOK_CENTER: '지곡 회관',
-  OTHERS: '기타',
-  COMMUNITY_CENTER: '커뮤니티 센터',
-  RESIDENTIAL_COLLEGE: 'RC',
-};
 
 const createId = () =>
   `${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
@@ -213,9 +205,9 @@ const PlaceReservationBulkCreatePage = ({ placeList }) => {
         <Message.Header>일괄 예약 생성 안내</Message.Header>
         <p>
           여러 개의 장소 행과 여러 개의 날짜/시간 행을 등록하면, (장소 목록) ×
-          (일시 목록)의 데카르트 조합으로 예약을 일괄 생성합니다.
-          <br />행 추가 버튼 클릭 시{' '}
-          <b>윗행(직전 행)의 설정 정보가 자동으로 복사</b>됩니다.
+          (일시 목록) 조합으로 예약을 일괄 생성합니다.
+          <br />행 추가 버튼 클릭 시 <b>직전 행의 설정 정보가 자동으로 복사</b>
+          됩니다.
         </p>
       </Message>
 
@@ -269,24 +261,23 @@ const PlaceReservationBulkCreatePage = ({ placeList }) => {
             </Header>
             <Button
               type="button"
-              color="blue"
+              primary
               size="small"
               icon
               labelPosition="left"
               onClick={handleAddPlaceRow}
             >
               <Icon name="plus" />
-              장소 행 추가 (윗행 복사)
+              추가
             </Button>
           </div>
 
-          <Table celled striped compact>
+          <Table celled striped compact style={{ margin: 0 }}>
             <Table.Header>
               <Table.Row>
                 <Table.HeaderCell style={{ width: 40 }}>#</Table.HeaderCell>
-                <Table.HeaderCell style={{ width: 180 }}>지역</Table.HeaderCell>
-                <Table.HeaderCell style={{ width: 220 }}>장소</Table.HeaderCell>
-                <Table.HeaderCell>선택 장소 안내</Table.HeaderCell>
+                <Table.HeaderCell style={{ width: 220 }}>지역</Table.HeaderCell>
+                <Table.HeaderCell>장소</Table.HeaderCell>
                 <Table.HeaderCell style={{ width: 60 }}>삭제</Table.HeaderCell>
               </Table.Row>
             </Table.Header>
@@ -326,29 +317,6 @@ const PlaceReservationBulkCreatePage = ({ placeList }) => {
                         placeholder="장소 선택"
                       />
                     </Table.Cell>
-                    <Table.Cell>
-                      {row.placeInfo ? (
-                        <div style={{ fontSize: '0.9rem', color: '#333' }}>
-                          <strong>
-                            [{RegionKorNameMapping[row.placeInfo.region]}]{' '}
-                            {row.placeInfo.name}
-                          </strong>
-                          <br />
-                          <small style={{ color: '#666' }}>
-                            운영시간:{' '}
-                            <OpeningHoursList
-                              openingHours={JSON.parse(
-                                row.placeInfo.openingHours || '{}',
-                              )}
-                            />
-                          </small>
-                        </div>
-                      ) : (
-                        <span style={{ color: '#aaa' }}>
-                          장소를 선택해 주세요
-                        </span>
-                      )}
-                    </Table.Cell>
                     <Table.Cell textAlign="center">
                       <Button
                         type="button"
@@ -381,25 +349,24 @@ const PlaceReservationBulkCreatePage = ({ placeList }) => {
             </Header>
             <Button
               type="button"
-              color="blue"
+              primary
               size="small"
               icon
               labelPosition="left"
               onClick={handleAddTimeRow}
             >
               <Icon name="plus" />
-              일시 행 추가 (윗행 복사)
+              추가
             </Button>
           </div>
 
-          <Table celled striped compact>
+          <Table celled striped compact style={{ margin: 0 }}>
             <Table.Header>
               <Table.Row>
                 <Table.HeaderCell style={{ width: 40 }}>#</Table.HeaderCell>
-                <Table.HeaderCell>예약 날짜 & 시작/종료 시간</Table.HeaderCell>
-                <Table.HeaderCell style={{ width: 140 }}>
-                  예약 시간
-                </Table.HeaderCell>
+                <Table.HeaderCell>날짜</Table.HeaderCell>
+                <Table.HeaderCell>시작 시간</Table.HeaderCell>
+                <Table.HeaderCell>종료 시간</Table.HeaderCell>
                 <Table.HeaderCell style={{ width: 60 }}>삭제</Table.HeaderCell>
               </Table.Row>
             </Table.Header>
@@ -408,32 +375,82 @@ const PlaceReservationBulkCreatePage = ({ placeList }) => {
                 <Table.Row key={row.id}>
                   <Table.Cell>{idx + 1}</Table.Cell>
                   <Table.Cell>
-                    <div
-                      style={{ display: 'flex', gap: 12, alignItems: 'center' }}
-                    >
-                      <ReservationDatetimePicker
-                        date={row.date}
-                        startTime={row.startTime}
-                        endTime={row.endTime}
-                        setDate={(val) =>
-                          handleUpdateTimeRow(row.id, 'date', val)
+                    <DatePicker
+                      onKeyDown={(e) => e.preventDefault()}
+                      dateFormat={'yyyy-MM-dd'}
+                      minDate={now.toDate()}
+                      selected={row.date.toDate()}
+                      onChange={(d) => {
+                        const targetDate = moment(d).format('YYYY-MM-DD');
+                        const nowDate = now.format('YYYY-MM-DD');
+                        if (targetDate === nowDate) {
+                          handleUpdateTimeRow(row.id, 'date', now);
+                          handleUpdateTimeRow(row.id, 'startTime', now);
+                          handleUpdateTimeRow(row.id, 'endTime', nowNext30Min);
+                        } else {
+                          const newDate = moment(targetDate + 'T00:00');
+                          handleUpdateTimeRow(row.id, 'date', newDate);
+                          handleUpdateTimeRow(
+                            row.id,
+                            'startTime',
+                            moment(targetDate + 'T00:00'),
+                          );
+                          handleUpdateTimeRow(
+                            row.id,
+                            'endTime',
+                            moment(targetDate + 'T00:30'),
+                          );
                         }
-                        setStartTime={(val) =>
-                          handleUpdateTimeRow(row.id, 'startTime', val)
-                        }
-                        setEndTime={(val) =>
-                          handleUpdateTimeRow(row.id, 'endTime', val)
-                        }
-                      />
-                    </div>
+                      }}
+                    />
                   </Table.Cell>
                   <Table.Cell>
-                    <strong>{row.date.format('YYYY-MM-DD')}</strong>
-                    <br />
-                    <small style={{ color: '#555' }}>
-                      {hourDiff(row.startTime, row.endTime)}시간 (
-                      {row.startTime.format('HH:mm')} ~{' '}
-                      {row.endTime.format('HH:mm')})
+                    <DatePicker
+                      showTimeSelect
+                      showTimeSelectOnly
+                      timeIntervals={30}
+                      onKeyDown={(e) => e.preventDefault()}
+                      dateFormat={'hh:mm aa'}
+                      selected={row.startTime.toDate()}
+                      minTime={row.date.toDate()}
+                      maxTime={moment(
+                        row.date.format('YYYY-MM-DD') + 'T23:59',
+                      ).toDate()}
+                      onChange={(st) => {
+                        const newStartTime = moment(st);
+                        const newEndTime = moment(newStartTime).add(
+                          30,
+                          'minute',
+                        );
+                        handleUpdateTimeRow(row.id, 'startTime', newStartTime);
+                        handleUpdateTimeRow(row.id, 'endTime', newEndTime);
+                      }}
+                    />
+                  </Table.Cell>
+                  <Table.Cell>
+                    <DatePicker
+                      showTimeSelect
+                      showTimeSelectOnly
+                      timeIntervals={30}
+                      onKeyDown={(e) => e.preventDefault()}
+                      dateFormat={'hh:mm aa'}
+                      selected={row.endTime.toDate()}
+                      minTime={moment(row.startTime).add(30, 'minute').toDate()}
+                      maxTime={
+                        row.endTime.format('HHmm') === '0000'
+                          ? moment(
+                              row.date.format('YYYY-MM-DD') + 'T00:00',
+                            ).toDate()
+                          : moment(
+                              row.date.format('YYYY-MM-DD') + 'T23:59',
+                            ).toDate()
+                      }
+                      onChange={(et) => {
+                        handleUpdateTimeRow(row.id, 'endTime', moment(et));
+                      }}
+                    />
+                    <small style={{ color: '#666', marginLeft: 8 }}>
+                      ({hourDiff(row.startTime, row.endTime)}시간)
                     </small>
                   </Table.Cell>
                   <Table.Cell textAlign="center">
@@ -479,7 +496,7 @@ const PlaceReservationBulkCreatePage = ({ placeList }) => {
           </Button>
           <Button
             type="button"
-            color="teal"
+            primary
             size="large"
             loading={isSubmitting}
             disabled={isSubmitting || totalCombinations === 0}
