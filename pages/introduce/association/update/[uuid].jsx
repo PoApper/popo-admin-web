@@ -30,6 +30,7 @@ const AssociationUpdatePage = ({ associationInfo }) => {
   const [instagramUrl, setInstagramUrl] = useState(
     associationInfo.instagramUrl,
   );
+  const [youtubeUrl, setYoutubeUrl] = useState(associationInfo.youtubeUrl);
 
   async function handleSubmit() {
     if (!associationType) {
@@ -47,6 +48,7 @@ const AssociationUpdatePage = ({ associationInfo }) => {
       homepageUrl: homepageUrl,
       facebookUrl: facebookUrl,
       instagramUrl: instagramUrl,
+      youtubeUrl: youtubeUrl,
     };
 
     PoPoAxios.put(`/introduce/association/${associationInfo.uuid}`, body)
@@ -124,6 +126,12 @@ const AssociationUpdatePage = ({ associationInfo }) => {
           placeholder={'https://www.instagram.com/OOOOOO'}
           value={instagramUrl}
           onChange={(e) => setInstagramUrl(e.target.value)}
+        />
+        <Form.Input
+          label={'유튜브'}
+          placeholder={'https://www.youtube.com/OOOOOO'}
+          value={youtubeUrl}
+          onChange={(e) => setYoutubeUrl(e.target.value)}
         />
 
         <ImageUploadForm
