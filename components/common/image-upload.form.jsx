@@ -2,18 +2,24 @@ import { useState } from 'react';
 import { Form, Image } from 'semantic-ui-react';
 import { ImageUpload } from '@/utils/file-upload';
 
-const ImageUploadForm = ({ type, uploadApiUri, originalImageUrl }) => {
+const ImageUploadForm = ({
+  type,
+  uploadApiUri,
+  originalImageUrl,
+  isBanner = false,
+}) => {
   const [imageUrl, setImageUrl] = useState(originalImageUrl);
   const [isChanged, setIsChanged] = useState(false);
 
   return (
     <Form>
       <Form.Input
-        label={`${type} 사진`} // 장소 사진, 장비 사진
+        label={`${type} 사진`} // 장소 사진, 장비 사진, 동아리 사진, 배너 사진
         type={'file'}
         accept={'image/*'}
         onChange={async (evt) => {
           const file = evt.target.files[0];
+          if (!file) return;
           ImageUpload(uploadApiUri, file);
           setIsChanged(true);
 
@@ -24,15 +30,32 @@ const ImageUploadForm = ({ type, uploadApiUri, originalImageUrl }) => {
           fileReader.readAsDataURL(file);
         }}
       />
-      <div style={{ margin: '10px 0' }}>
-        <Image
-          src={
-            imageUrl ??
-            'https://react.semantic-ui.com/images/wireframe/image.png'
-          }
-          alt={'place_image'}
-          height={200}
-        />
+      <div
+        style={{
+          margin: '10px 0',
+          maxWidth: isBanner ? '600px' : '300px',
+        }}
+      >
+        {imageUrl ? (
+          <img
+            src={imageUrl}
+            alt={`${type}_image`}
+            style={{
+              width: '100%',
+              height: isBanner ? '160px' : '200px',
+              objectFit: 'cover',
+              borderRadius: '6px',
+              border: '1px solid #e0e0e0',
+              display: 'block',
+            }}
+          />
+        ) : (
+          <Image
+            src={'https://react.semantic-ui.com/images/wireframe/image.png'}
+            alt={'placeholder_image'}
+            height={isBanner ? 160 : 200}
+          />
+        )}
       </div>
       <p>이미지가 없으면 기본 이미지가 표시됩니다.</p>
       {isChanged ? (

@@ -86,7 +86,10 @@ const StudentAssociationUpdatePage = ({ studentAssociationInfo }) => {
         />
         <Form.TextArea
           required
-          label={'소개글'}
+          label={'소개글 (마크다운 Markdown 문법 지원)'}
+          placeholder={
+            '# 제목\n\n**굵은 텍스트**, *기울임*, - 목록 등 마크다운 문법을 사용할 수 있습니다.'
+          }
           value={content}
           onChange={(e) => setContent(e.target.value)}
         />
@@ -144,9 +147,16 @@ const StudentAssociationUpdatePage = ({ studentAssociationInfo }) => {
         />
 
         <ImageUploadForm
-          type={'학생단체'}
+          type={'학생단체 로고'}
           uploadApiUri={`introduce/student_association/image/${studentAssociationInfo.uuid}`}
           originalImageUrl={studentAssociationInfo.imageUrl}
+        />
+
+        <ImageUploadForm
+          type={'학생단체 상단 배너'}
+          uploadApiUri={`introduce/student_association/banner/${studentAssociationInfo.uuid}`}
+          originalImageUrl={studentAssociationInfo.bannerUrl}
+          isBanner={true}
         />
 
         <Form.Group>

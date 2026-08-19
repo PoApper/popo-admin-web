@@ -77,7 +77,10 @@ const ClubUpdatePage = ({ clubInfo }) => {
         />
         <Form.TextArea
           required
-          label={'소개글'}
+          label={'소개글 (마크다운 Markdown 문법 지원)'}
+          placeholder={
+            '# 제목\n\n**굵은 텍스트**, *기울임*, - 목록 등 마크다운 문법을 사용할 수 있습니다.'
+          }
           value={content}
           onChange={(e) => setContent(e.target.value)}
         />
@@ -129,9 +132,16 @@ const ClubUpdatePage = ({ clubInfo }) => {
         />
 
         <ImageUploadForm
-          type={'동아리'}
+          type={'동아리 로고'}
           uploadApiUri={`/introduce/club/image/${clubInfo.uuid}`}
           originalImageUrl={clubInfo.imageUrl}
+        />
+
+        <ImageUploadForm
+          type={'동아리 상단 배너'}
+          uploadApiUri={`/introduce/club/banner/${clubInfo.uuid}`}
+          originalImageUrl={clubInfo.bannerUrl}
+          isBanner={true}
         />
 
         <Form.Group>
