@@ -1,77 +1,141 @@
-import React, { useState } from 'react';
-import { Checkbox, Table, Button } from 'semantic-ui-react';
+import React, { useMemo } from 'react';
+import { Checkbox, Table, Button, Label, Popup } from 'semantic-ui-react';
 import moment from 'moment';
 import PlaceReservationConfirmModal from './place.reservation.confirm.modal';
-import { PoPoAxios } from '@/utils/axios.instance';
+import { getReservationConflicts } from '@/utils/reservation-overlap';
+import { isReservationOutdated } from '@/utils/reservation-period';
+import { useBulkAccept } from '@/utils/use-bulk-accept';
 
-const PlaceReservationWaitTable = ({ reservations }) => {
-  const [selectedUuidList, setSelectedUuidList] = useState([]);
+const PlaceReservationWaitTable = ({
+  reservations,
+  startIdx = 0,
+  onProcessed,
+}) => {
+  const {
+    selectedUuidList,
+    isAllSelected,
+    isSubmitting,
+    submittingAction,
+    toggle,
+    toggleAllInPage,
+    select,
+    submit,
+    reject,
+  } = useBulkAccept('reservation-place', reservations, onProcessed);
 
-  function acceptAllInProgressPlaceReservations() {
-    PoPoAxios.patch('/reservation-place/all/status/accept', {
-      uuidList: selectedUuidList,
-    })
-      .then(() => {
-        alert(`${selectedUuidList.length}개 장소 예약을 일괄 승인했습니다.`);
-        window.location.reload();
-      })
-      .catch((err) => {
-        const errMsg = err.response.data.message;
-        alert(`전체 예약 승인에 실패했습니다.\n${errMsg}`);
-      });
+  const { conflictUuidSet, conflictPartnersByUuid } = useMemo(
+    () => getReservationConflicts(reservations),
+    [reservations],
+  );
+
+  const nonConflictUuidList = useMemo(
+    () =>
+      reservations
+        .filter((reservation) => !conflictUuidSet.has(reservation.uuid))
+        .map((reservation) => reservation.uuid),
+    [reservations, conflictUuidSet],
+  );
+
+  const selectedConflictCount = selectedUuidList.filter((uuid) =>
+    conflictUuidSet.has(uuid),
+  ).length;
+
+  function selectNonConflictReservations() {
+    if (nonConflictUuidList.length === 0) {
+      alert('이 페이지에는 중복되지 않은 대기 예약이 없습니다.');
+      return;
+    }
+    select(nonConflictUuidList);
   }
 
-  function handleCheck(newUuid) {
-    const currentList = selectedUuidList;
-    const isTargetSelected = currentList.includes(newUuid);
-
-    const newList = isTargetSelected
-      ? currentList.filter((uuid) => uuid !== newUuid)
-      : currentList.concat(newUuid);
-
-    setSelectedUuidList(newList);
-  }
+  const bulkActionPanel = (
+    <div
+      style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        textAlign: 'left',
+      }}
+    >
+      <p style={{ fontWeight: 400 }}>
+        일괄 승인/거절은 <b>체크한 예약</b>만 대상으로, 예약 생성 순으로
+        처리됩니다.
+        <br />
+        승인할 수 없는 예약(중복 등)은 <b>건너뛰고</b> 나머지를 계속 처리한 뒤,
+        건너뛴 목록을 알려줍니다.
+        <br />
+        거절은 중복 검사 없이 선택한 건을 그대로 처리합니다.
+        <br />
+        일괄 승인/거절 때는 안내 메일을 보내지 않습니다.
+        {conflictUuidSet.size > 0 && (
+          <>
+            <br />
+            <span style={{ color: 'red' }}>
+              이 페이지에 시간이 겹치는 예약 {conflictUuidSet.size}건이
+              있습니다. &quot;중복&quot; 표시를 확인해주세요.
+            </span>
+          </>
+        )}
+      </p>
+      <div>
+        <Button
+          size="small"
+          floated="right"
+          onClick={selectNonConflictReservations}
+        >
+          중복 없는 예약만 선택 ({nonConflictUuidList.length}건)
+        </Button>
+        <Button
+          positive
+          size="small"
+          floated="right"
+          loading={submittingAction === 'accept'}
+          disabled={isSubmitting}
+          onClick={submit}
+        >
+          예약 일괄 승인 ({selectedUuidList.length}건
+          {selectedConflictCount
+            ? `, 중복 ${selectedConflictCount}건 포함`
+            : ''}
+          )
+        </Button>
+        <Button
+          negative
+          size="small"
+          floated="right"
+          loading={submittingAction === 'reject'}
+          disabled={isSubmitting}
+          onClick={reject}
+        >
+          예약 일괄 거절 ({selectedUuidList.length}건)
+        </Button>
+      </div>
+    </div>
+  );
 
   return (
     <Table celled selectable textAlign={'center'}>
       <Table.Header>
         <Table.Row>
-          <Table.HeaderCell colSpan={6}>
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                textAlign: 'left',
-              }}
-            >
-              <p style={{ fontWeight: 400 }}>
-                일괄 예약 승인은 예약 생성 순으로 처리 됩니다.
-                <br />
-                일괄 처리 도중 예약 Overlap이 발생하면, 처리가 중단 됩니다.
-                <br />
-                일괄 예약 승인 때는 승인 메일을 보내지 않습니다.
-                <br />
-              </p>
-              <div>
-                <Button
-                  positive
-                  size="small"
-                  floated="right"
-                  onClick={acceptAllInProgressPlaceReservations}
-                >
-                  예약 일괄 승인
-                </Button>
-              </div>
-            </div>
-          </Table.HeaderCell>
+          <Table.HeaderCell colSpan={7}>{bulkActionPanel}</Table.HeaderCell>
         </Table.Row>
         <Table.Row>
           <Table.HeaderCell width={1}>idx.</Table.HeaderCell>
           <Table.HeaderCell width={3}>장소명</Table.HeaderCell>
           <Table.HeaderCell width={2}>사용자</Table.HeaderCell>
           <Table.HeaderCell>예약 제목</Table.HeaderCell>
-          <Table.HeaderCell width={4}>예약 기간</Table.HeaderCell>
-          <Table.HeaderCell width={1} />
+          <Table.HeaderCell width={3}>예약 기간</Table.HeaderCell>
+          <Table.HeaderCell width={2}>예약 생성일</Table.HeaderCell>
+          <Table.HeaderCell width={1}>
+            <Checkbox
+              checked={isAllSelected}
+              indeterminate={
+                selectedUuidList.length > 0 &&
+                selectedUuidList.length < reservations.length
+              }
+              onChange={toggleAllInPage}
+              title="이 페이지 전체 선택"
+            />
+          </Table.HeaderCell>
         </Table.Row>
       </Table.Header>
       <Table.Body>
@@ -85,16 +149,21 @@ const PlaceReservationWaitTable = ({ reservations }) => {
             'YYYYMMDD HHmm',
           );
 
-          const isOutdated = moment() > endDatetime;
-          const isNow = startDatetime <= moment() && moment() <= endDatetime;
+          const isOutdated = isReservationOutdated(reservation);
+          const isNow =
+            !isOutdated && startDatetime <= moment() && moment() <= endDatetime;
+          const isConflict = conflictUuidSet.has(reservation.uuid);
+          const conflictPartners =
+            conflictPartnersByUuid.get(reservation.uuid) ?? [];
 
           return (
             <Table.Row
               key={reservation.uuid}
               negative={isOutdated}
               positive={isNow}
+              warning={!isOutdated && !isNow && isConflict}
             >
-              <Table.Cell>{idx + 1}</Table.Cell>
+              <Table.Cell>{startIdx + idx + 1}</Table.Cell>
               <Table.Cell>{reservation.place.name}</Table.Cell>
               <Table.Cell>{reservation.booker.name}</Table.Cell>
               <PlaceReservationConfirmModal
@@ -112,9 +181,76 @@ const PlaceReservationWaitTable = ({ reservations }) => {
                   &nbsp;~&nbsp;
                   {moment(reservation.endTime, 'HHmm').format('HH:mm')}
                 </b>
+                {isConflict && (
+                  <Popup
+                    trigger={
+                      <Label
+                        color="red"
+                        size="mini"
+                        style={{ marginLeft: '0.5rem' }}
+                      >
+                        중복
+                      </Label>
+                    }
+                    content={
+                      conflictPartners.length ? (
+                        <div style={{ textAlign: 'left' }}>
+                          <div style={{ marginBottom: 6 }}>
+                            겹치는 예약 (신청이 빠른 순)
+                          </div>
+                          {[reservation, ...conflictPartners]
+                            .slice()
+                            .sort((a, b) =>
+                              moment(a.createdAt).diff(moment(b.createdAt)),
+                            )
+                            .map((candidate, order) => (
+                              <div key={candidate.uuid}>
+                                {order === 0 ? '① ' : `${order + 1}. `}
+                                {candidate.uuid === reservation.uuid
+                                  ? '(이 예약) '
+                                  : ''}
+                                {candidate.title} ·{' '}
+                                {moment(candidate.startTime, 'HHmm').format(
+                                  'HH:mm',
+                                )}
+                                ~
+                                {moment(candidate.endTime, 'HHmm').format(
+                                  'HH:mm',
+                                )}{' '}
+                                · 신청{' '}
+                                {moment(candidate.createdAt).format(
+                                  'YYYY-MM-DD HH:mm',
+                                )}
+                                {order === 0 && (
+                                  <b style={{ color: 'green' }}> ← 선순위</b>
+                                )}
+                              </div>
+                            ))}
+                          <div style={{ marginTop: 6, color: 'gray' }}>
+                            일괄 승인은 신청이 빠른 건부터 처리하므로, ① 이
+                            승인되고 나머지는 건너뜁니다.
+                          </div>
+                        </div>
+                      ) : (
+                        '같은 장소·시간대에 동시 예약 허용 개수를 초과하는 예약이 있습니다.'
+                      )
+                    }
+                    wide="very"
+                  />
+                )}
               </Table.Cell>
               <Table.Cell>
-                <Checkbox onClick={() => handleCheck(reservation.uuid)} />
+                {moment(reservation.createdAt).format('YYYY-MM-DD')}
+                <br />
+                <span style={{ color: 'gray' }}>
+                  {moment(reservation.createdAt).format('HH:mm')}
+                </span>
+              </Table.Cell>
+              <Table.Cell>
+                <Checkbox
+                  checked={selectedUuidList.includes(reservation.uuid)}
+                  onChange={() => toggle(reservation.uuid)}
+                />
               </Table.Cell>
             </Table.Row>
           );
@@ -123,34 +259,7 @@ const PlaceReservationWaitTable = ({ reservations }) => {
 
       <Table.Footer fullWidth>
         <Table.Row>
-          <Table.HeaderCell colSpan={6}>
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                textAlign: 'left',
-              }}
-            >
-              <p style={{ fontWeight: 400 }}>
-                일괄 예약 승인은 예약 생성 순으로 처리 됩니다.
-                <br />
-                일괄 처리 도중 예약 Overlap이 발생하면, 처리가 중단 됩니다.
-                <br />
-                일괄 예약 승인 때는 승인 메일을 보내지 않습니다.
-                <br />
-              </p>
-              <div>
-                <Button
-                  positive
-                  size="small"
-                  floated="right"
-                  onClick={acceptAllInProgressPlaceReservations}
-                >
-                  예약 일괄 승인
-                </Button>
-              </div>
-            </div>
-          </Table.HeaderCell>
+          <Table.HeaderCell colSpan={7}>{bulkActionPanel}</Table.HeaderCell>
         </Table.Row>
       </Table.Footer>
     </Table>
