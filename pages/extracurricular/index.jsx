@@ -99,6 +99,9 @@ export default function AdminExtracurricularPage() {
   const [bulkProgress, setBulkProgress] = useState({ current: 0, total: 0 });
   const [isBulkDragging, setIsBulkDragging] = useState(false);
   const bulkFileInputRef = useRef(null);
+  const filesToUpload = stagedFiles.filter(
+    (item) => item.status === 'pending' || item.status === 'error',
+  );
 
   const handleOpenBulkModal = () => {
     setBulkActivityId(activities[0]?.uuid || '');
@@ -118,7 +121,7 @@ export default function AdminExtracurricularPage() {
   };
 
   const applyBulkFiles = (files) => {
-    if (!files || files.length === 0) return;
+    if (isBulkUploading || !files || files.length === 0) return;
     const fileArray = Array.from(files);
     const validFiles = fileArray.filter((file) => {
       const ext = file.name.split('.').pop()?.toLowerCase();
@@ -165,6 +168,7 @@ export default function AdminExtracurricularPage() {
   };
 
   const handleBulkSave = async () => {
+    if (isBulkUploading) return;
     if (!bulkActivityId) {
       alert('연관 비교과활동을 선택해 주세요.');
       return;
@@ -173,28 +177,31 @@ export default function AdminExtracurricularPage() {
       alert('수행 시기를 입력해 주세요.');
       return;
     }
-    if (stagedFiles.length === 0) {
+    if (filesToUpload.length === 0) {
       alert('업로드할 파일을 1개 이상 추가해 주세요.');
       return;
     }
 
-    const emptyTitleItem = stagedFiles.find((item) => !item.title.trim());
+    const emptyTitleItem = filesToUpload.find((item) => !item.title.trim());
     if (emptyTitleItem) {
       alert(`[${emptyTitleItem.file.name}]의 보고서 제목을 입력해 주세요.`);
       return;
     }
 
     setIsBulkUploading(true);
-    setBulkProgress({ current: 0, total: stagedFiles.length });
+    setIsBulkDragging(false);
+    setBulkProgress({ current: 0, total: filesToUpload.length });
 
     let successCount = 0;
     let failCount = 0;
 
-    for (let i = 0; i < stagedFiles.length; i++) {
-      const item = stagedFiles[i];
+    for (let i = 0; i < filesToUpload.length; i++) {
+      const item = filesToUpload[i];
 
       setStagedFiles((prev) =>
-        prev.map((f) => (f.id === item.id ? { ...f, status: 'uploading' } : f)),
+        prev.map((f) =>
+          f.id === item.id ? { ...f, status: 'uploading', errorMsg: '' } : f,
+        ),
       );
 
       const payload = new FormData();
@@ -223,7 +230,7 @@ export default function AdminExtracurricularPage() {
         );
       }
 
-      setBulkProgress({ current: i + 1, total: stagedFiles.length });
+      setBulkProgress({ current: i + 1, total: filesToUpload.length });
     }
 
     setIsBulkUploading(false);
@@ -890,7 +897,7 @@ export default function AdminExtracurricularPage() {
                     dragging={isBulkDragging}
                     onDragOver={(e) => {
                       e.preventDefault();
-                      setIsBulkDragging(true);
+                      if (!isBulkUploading) setIsBulkDragging(true);
                     }}
                     onDragLeave={() => setIsBulkDragging(false)}
                     onDrop={handleBulkDrop}
@@ -909,6 +916,7 @@ export default function AdminExtracurricularPage() {
                     ref={bulkFileInputRef}
                     type="file"
                     multiple
+                    disabled={isBulkUploading}
                     accept={ACCEPTED_EXTENSIONS.map((e) => `.${e}`).join(',')}
                     hidden
                     onChange={(e) => {
@@ -984,7 +992,9 @@ export default function AdminExtracurricularPage() {
                             <Table.Cell>
                               <Form.Input
                                 value={item.title}
-                                disabled={isBulkUploading}
+                                disabled={
+                                  isBulkUploading || item.status === 'success'
+                                }
                                 onChange={(e) =>
                                   handleUpdateStagedFileTitle(
                                     item.id,
@@ -1061,10 +1071,11 @@ export default function AdminExtracurricularPage() {
               <Button
                 color="teal"
                 loading={isBulkUploading}
-                disabled={isBulkUploading || stagedFiles.length === 0}
+                disabled={isBulkUploading || filesToUpload.length === 0}
                 onClick={handleBulkSave}
               >
-                <Icon name="upload" /> 일괄 업로드 시작 ({stagedFiles.length}개)
+                <Icon name="upload" /> 일괄 업로드 시작 ({filesToUpload.length}
+                개)
               </Button>
             </Modal.Actions>
           </Modal>
