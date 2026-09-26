@@ -162,7 +162,10 @@ export default function AdminExtracurricularPage() {
   };
 
   const handleRemoveStagedFile = (id) => {
-    setStagedFiles((prev) => prev.filter((item) => item.id !== id));
+    if (isBulkUploading) return;
+    setStagedFiles((prev) =>
+      prev.filter((item) => item.id !== id || item.status === 'success'),
+    );
   };
 
   const handleUpdateStagedFileTitle = (id, title) => {
@@ -1119,7 +1122,9 @@ export default function AdminExtracurricularPage() {
                                 icon="trash"
                                 color="red"
                                 size="tiny"
-                                disabled={isBulkUploading}
+                                disabled={
+                                  isBulkUploading || item.status === 'success'
+                                }
                                 onClick={() => handleRemoveStagedFile(item.id)}
                               />
                             </Table.Cell>
