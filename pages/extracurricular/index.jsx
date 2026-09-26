@@ -88,6 +88,8 @@ export default function AdminExtracurricularPage() {
   // 업로드 대기 중인 실제 File 객체. 수정 시 비어 있으면 기존 파일을 유지한다.
   const [pickedFile, setPickedFile] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [isReportSaving, setIsReportSaving] = useState(false);
+  const reportSavingRef = useRef(false);
   const fileInputRef = useRef(null);
 
   // Bulk Report Modal State
@@ -251,7 +253,14 @@ export default function AdminExtracurricularPage() {
 
   /** 파일을 고르면 제목을 확장자 뺀 파일명으로 자동 채운다. */
   const applyPickedFile = (file) => {
-    if (!file) return;
+    if (reportSavingRef.current || !file) return;
+    const ext = file.name.split('.').pop()?.toLowerCase();
+    if (!ACCEPTED_EXTENSIONS.includes(ext)) {
+      alert(
+        `지원하지 않는 확장자입니다. (${ACCEPTED_EXTENSIONS.join(', ')}만 허용)`,
+      );
+      return;
+    }
     setPickedFile(file);
     setRepForm((prev) => ({
       ...prev,
@@ -266,10 +275,16 @@ export default function AdminExtracurricularPage() {
     applyPickedFile(e.dataTransfer.files?.[0]);
   };
 
-  const closeRepModal = () => {
+  const resetRepModal = () => {
     setIsRepModalOpen(false);
     setPickedFile(null);
     setIsDragging(false);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const closeRepModal = () => {
+    if (reportSavingRef.current) return;
+    resetRepModal();
   };
 
   useEffect(() => {
@@ -360,6 +375,7 @@ export default function AdminExtracurricularPage() {
 
   // Report Handlers
   const handleOpenRepModal = (rep = null) => {
+    if (reportSavingRef.current) return;
     setPickedFile(null);
     if (rep) {
       setRepForm({
@@ -390,6 +406,7 @@ export default function AdminExtracurricularPage() {
   };
 
   const handleSaveReport = async () => {
+    if (reportSavingRef.current) return;
     if (!repForm.title) {
       alert('보고서 제목은 필수 항목입니다.');
       return;
@@ -426,6 +443,9 @@ export default function AdminExtracurricularPage() {
     }
     if (pickedFile) payload.append('file', pickedFile);
 
+    reportSavingRef.current = true;
+    setIsReportSaving(true);
+    setIsDragging(false);
     try {
       if (uuid) {
         await PoPoAxios.patch(`/activity-report/${uuid}`, payload);
@@ -434,10 +454,13 @@ export default function AdminExtracurricularPage() {
         await PoPoAxios.post('/activity-report', payload);
         notify('신규 보고서 수기가 등록되었습니다.');
       }
-      closeRepModal();
+      resetRepModal();
       await fetchData();
     } catch (err) {
       notifyError(`저장하지 못했습니다. ${errorMessageOf(err)}`);
+    } finally {
+      reportSavingRef.current = false;
+      setIsReportSaving(false);
     }
   };
 
@@ -735,6 +758,7 @@ export default function AdminExtracurricularPage() {
                 <Form.Group widths="equal">
                   <Form.Select
                     label="연관 비교과활동"
+                    disabled={isReportSaving}
                     options={activities.map((a) => ({
                       key: a.uuid,
                       text: a.title,
@@ -747,6 +771,7 @@ export default function AdminExtracurricularPage() {
                   />
                   <Form.Input
                     label="수기/보고서 제목*"
+                    disabled={isReportSaving}
                     placeholder="예: 2025 유럽 탄소중립 교통 탐방 보고서"
                     value={repForm.title}
                     onChange={(e) =>
@@ -758,6 +783,7 @@ export default function AdminExtracurricularPage() {
                 <Form.Group widths="equal">
                   <Form.Input
                     label="수행 시기"
+                    disabled={isReportSaving}
                     placeholder="예: 2025학년도 하계"
                     value={repForm.period}
                     onChange={(e) =>
@@ -766,6 +792,7 @@ export default function AdminExtracurricularPage() {
                   />
                   <Form.Input
                     label="전공 (선택)"
+                    disabled={isReportSaving}
                     placeholder="예: 컴퓨터공학과"
                     value={repForm.major}
                     onChange={(e) =>
@@ -774,6 +801,7 @@ export default function AdminExtracurricularPage() {
                   />
                   <Form.Input
                     label="학년 (선택)"
+                    disabled={isReportSaving}
                     placeholder="예: 3학년"
                     value={repForm.grade}
                     onChange={(e) =>
@@ -782,6 +810,7 @@ export default function AdminExtracurricularPage() {
                   />
                   <Form.Input
                     label="작성자 (선택)"
+                    disabled={isReportSaving}
                     placeholder="예: 김*훈"
                     value={repForm.author}
                     onChange={(e) =>
@@ -796,11 +825,14 @@ export default function AdminExtracurricularPage() {
                     dragging={isDragging}
                     onDragOver={(e) => {
                       e.preventDefault();
-                      setIsDragging(true);
+                      if (!reportSavingRef.current) setIsDragging(true);
                     }}
                     onDragLeave={() => setIsDragging(false)}
                     onDrop={handleDrop}
-                    onClick={() => fileInputRef.current?.click()}
+                    onClick={() => {
+                      if (!reportSavingRef.current)
+                        fileInputRef.current?.click();
+                    }}
                   >
                     <Icon name="cloud upload" size="big" />
                     {pickedFile ? (
@@ -828,14 +860,19 @@ export default function AdminExtracurricularPage() {
                   <input
                     ref={fileInputRef}
                     type="file"
+                    disabled={isReportSaving}
                     accept={ACCEPTED_EXTENSIONS.map((e) => `.${e}`).join(',')}
                     hidden
-                    onChange={(e) => applyPickedFile(e.target.files?.[0])}
+                    onChange={(e) => {
+                      applyPickedFile(e.target.files?.[0]);
+                      e.target.value = '';
+                    }}
                   />
                 </Form.Field>
 
                 <Form.TextArea
                   label="메모"
+                  disabled={isReportSaving}
                   placeholder="관리자 메모 (선택)"
                   value={repForm.memo}
                   onChange={(e) =>
@@ -845,8 +882,15 @@ export default function AdminExtracurricularPage() {
               </Form>
             </Modal.Content>
             <Modal.Actions>
-              <Button onClick={closeRepModal}>취소</Button>
-              <Button positive onClick={handleSaveReport}>
+              <Button onClick={closeRepModal} disabled={isReportSaving}>
+                취소
+              </Button>
+              <Button
+                positive
+                onClick={handleSaveReport}
+                disabled={isReportSaving}
+                loading={isReportSaving}
+              >
                 저장
               </Button>
             </Modal.Actions>
