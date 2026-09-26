@@ -62,6 +62,8 @@ export default function AdminExtracurricularPage() {
 
   // Activity Modal State
   const [isActModalOpen, setIsActModalOpen] = useState(false);
+  const [isActivitySaving, setIsActivitySaving] = useState(false);
+  const activitySavingRef = useRef(false);
   const [actForm, setActForm] = useState({
     uuid: '',
     title: '',
@@ -309,6 +311,7 @@ export default function AdminExtracurricularPage() {
 
   // Activity Handlers
   const handleOpenActModal = (act = null) => {
+    if (activitySavingRef.current) return;
     if (act) {
       setActForm(act);
     } else {
@@ -325,7 +328,13 @@ export default function AdminExtracurricularPage() {
     setIsActModalOpen(true);
   };
 
+  const closeActModal = () => {
+    if (activitySavingRef.current) return;
+    setIsActModalOpen(false);
+  };
+
   const handleSaveActivity = async () => {
+    if (activitySavingRef.current) return;
     if (!actForm.title || !actForm.period) {
       alert('활동명과 모집 시기는 필수 항목입니다.');
       return;
@@ -342,6 +351,8 @@ export default function AdminExtracurricularPage() {
       category: actForm.category,
     };
 
+    activitySavingRef.current = true;
+    setIsActivitySaving(true);
     try {
       if (uuid) {
         await PoPoAxios.patch(`/activity/${uuid}`, payload);
@@ -354,6 +365,9 @@ export default function AdminExtracurricularPage() {
       await fetchData();
     } catch (err) {
       notifyError(`저장하지 못했습니다. ${errorMessageOf(err)}`);
+    } finally {
+      activitySavingRef.current = false;
+      setIsActivitySaving(false);
     }
   };
 
@@ -663,11 +677,7 @@ export default function AdminExtracurricularPage() {
           </Segment>
 
           {/* Activity Modal */}
-          <Modal
-            open={isActModalOpen}
-            onClose={() => setIsActModalOpen(false)}
-            size="small"
-          >
+          <Modal open={isActModalOpen} onClose={closeActModal} size="small">
             <Modal.Header>
               {actForm.uuid ? '비교과활동 정보 수정' : '신규 비교과활동 추가'}
             </Modal.Header>
@@ -676,6 +686,7 @@ export default function AdminExtracurricularPage() {
                 <Form.Group widths="equal">
                   <Form.Input
                     label="활동명"
+                    disabled={isActivitySaving}
                     placeholder="예: 세계문화탐방대"
                     value={actForm.title}
                     onChange={(e) =>
@@ -684,6 +695,7 @@ export default function AdminExtracurricularPage() {
                   />
                   <Form.Select
                     label="카테고리"
+                    disabled={isActivitySaving}
                     options={toCategoryOptions(activities, actForm.category)}
                     value={actForm.category}
                     search
@@ -702,6 +714,7 @@ export default function AdminExtracurricularPage() {
                 <Form.Group widths="equal">
                   <Form.Input
                     label="모집 / 시행 시기"
+                    disabled={isActivitySaving}
                     placeholder="예: 매년 하계/동계 방학 중"
                     value={actForm.period}
                     onChange={(e) =>
@@ -710,6 +723,7 @@ export default function AdminExtracurricularPage() {
                   />
                   <Form.Input
                     label="지원 대상"
+                    disabled={isActivitySaving}
                     placeholder="예: 학부 재학생 (평점 3.0 이상)"
                     value={actForm.target}
                     onChange={(e) =>
@@ -720,6 +734,7 @@ export default function AdminExtracurricularPage() {
 
                 <Form.TextArea
                   label="신청 및 선발 절차"
+                  disabled={isActivitySaving}
                   placeholder="지원서 제출 -> 서류 평가 -> 면접 전형..."
                   value={actForm.applicationMethod}
                   onChange={(e) =>
@@ -732,6 +747,7 @@ export default function AdminExtracurricularPage() {
 
                 <Form.TextArea
                   label="활동 상세 설명"
+                  disabled={isActivitySaving}
                   placeholder="프로그램 개요 및 특징 작성..."
                   value={actForm.description}
                   onChange={(e) =>
@@ -741,8 +757,15 @@ export default function AdminExtracurricularPage() {
               </Form>
             </Modal.Content>
             <Modal.Actions>
-              <Button onClick={() => setIsActModalOpen(false)}>취소</Button>
-              <Button primary onClick={handleSaveActivity}>
+              <Button onClick={closeActModal} disabled={isActivitySaving}>
+                취소
+              </Button>
+              <Button
+                primary
+                onClick={handleSaveActivity}
+                disabled={isActivitySaving}
+                loading={isActivitySaving}
+              >
                 저장
               </Button>
             </Modal.Actions>
