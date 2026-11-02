@@ -18,6 +18,7 @@ const PlaceUpdatePage = ({ placeInfo }) => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
   const [name, setName] = useState(placeInfo.name);
+  const [nameEn, setNameEn] = useState(placeInfo.nameEn ?? '');
   const [region, setRegion] = useState(placeInfo.region);
   const [location, setLocation] = useState(placeInfo.location);
   const [description, setDescription] = useState(placeInfo.description);
@@ -46,6 +47,7 @@ const PlaceUpdatePage = ({ placeInfo }) => {
 
     const body = {
       name: name,
+      nameEn: nameEn.trim() || null,
       region: region,
       location: location,
       description: description,
@@ -91,6 +93,15 @@ const PlaceUpdatePage = ({ placeInfo }) => {
             onChange={(e) => setName(e.target.value)}
           />
         </Form.Group>
+        <Form.Input
+          name="nameEn"
+          label={'장소 영문 이름'}
+          placeholder={'예: Student Hall Meeting Room'}
+          maxLength={255}
+          value={nameEn}
+          onChange={(e) => setNameEn(e.target.value)}
+        />
+        <p>영어 화면에 표시할 이름입니다. 비워 두면 기존 이름이 표시됩니다.</p>
         <Form.Input
           required
           label={'위치'}

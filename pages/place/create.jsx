@@ -14,6 +14,7 @@ const PlaceCreatePage = () => {
   const router = useRouter();
 
   const [name, setName] = useState('');
+  const [nameEn, setNameEn] = useState('');
   const [region, setRegion] = useState('');
   const [location, setLocation] = useState('');
   const [description, setDescription] = useState('');
@@ -36,6 +37,7 @@ const PlaceCreatePage = () => {
 
     const body = {
       name: name,
+      nameEn: nameEn.trim() || null,
       region: region,
       location: location,
       description: description,
@@ -79,6 +81,15 @@ const PlaceCreatePage = () => {
             onChange={(e) => setName(e.target.value)}
           />
         </Form.Group>
+        <Form.Input
+          name="nameEn"
+          label={'장소 영문 이름'}
+          placeholder={'예: Student Hall Meeting Room'}
+          maxLength={255}
+          value={nameEn}
+          onChange={(e) => setNameEn(e.target.value)}
+        />
+        <p>영어 화면에 표시할 이름입니다. 비워 두면 기존 이름이 표시됩니다.</p>
         <Form.Input
           required
           label={'위치'}

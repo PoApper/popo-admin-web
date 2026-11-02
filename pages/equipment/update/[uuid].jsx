@@ -18,6 +18,7 @@ const EquipmentUpdatePage = ({ equipmentInfo }) => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
   const [name, setName] = useState(equipmentInfo.name);
+  const [nameEn, setNameEn] = useState(equipmentInfo.nameEn ?? '');
   const [equipOwner, setEquipOwner] = useState(equipmentInfo.equipOwner);
   const [fee, setFee] = useState(equipmentInfo.fee);
   const [description, setDescription] = useState(equipmentInfo.description);
@@ -40,6 +41,7 @@ const EquipmentUpdatePage = ({ equipmentInfo }) => {
 
     const body = {
       name: name,
+      nameEn: nameEn.trim() || null,
       equipOwner: equipOwner,
       fee: fee,
       description: description,
@@ -84,6 +86,15 @@ const EquipmentUpdatePage = ({ equipmentInfo }) => {
             onChange={(e, { value }) => setEquipOwner(value)}
           />
         </Form.Group>
+        <Form.Input
+          name="nameEn"
+          label={'장비 영문 이름'}
+          placeholder={'예: Wireless Microphone'}
+          maxLength={255}
+          value={nameEn}
+          onChange={(e) => setNameEn(e.target.value)}
+        />
+        <p>영어 화면에 표시할 이름입니다. 비워 두면 기존 이름이 표시됩니다.</p>
         <Form.Input
           required
           label={'예약 비용'}

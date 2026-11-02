@@ -13,6 +13,7 @@ import { normalizeReservationRequiredDays } from '@/utils/reservation-required-d
 const EquipmentCreatePage = () => {
   const router = useRouter();
   const [name, setName] = useState('');
+  const [nameEn, setNameEn] = useState('');
   const [equipOwner, setEquipOwner] = useState('');
   const [fee, setFee] = useState('');
   const [description, setDescription] = useState('');
@@ -31,6 +32,7 @@ const EquipmentCreatePage = () => {
 
     const body = {
       name: name,
+      nameEn: nameEn.trim() || null,
       equipOwner: equipOwner,
       fee: fee,
       description: description,
@@ -75,6 +77,16 @@ const EquipmentCreatePage = () => {
             onChange={(e, { value }) => setEquipOwner(value)}
           />
         </Form.Group>
+
+        <Form.Input
+          name="nameEn"
+          label={'장비 영문 이름'}
+          placeholder={'예: Wireless Microphone'}
+          maxLength={255}
+          value={nameEn}
+          onChange={(e) => setNameEn(e.target.value)}
+        />
+        <p>영어 화면에 표시할 이름입니다. 비워 두면 기존 이름이 표시됩니다.</p>
 
         <Form.Input
           required
