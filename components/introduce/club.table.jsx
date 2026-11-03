@@ -9,6 +9,7 @@ const ClubTable = ({ clubs }) => {
         <Table.Row>
           <Table.HeaderCell>idx.</Table.HeaderCell>
           <Table.HeaderCell>단체명</Table.HeaderCell>
+          <Table.HeaderCell>영문명</Table.HeaderCell>
           <Table.HeaderCell>위치</Table.HeaderCell>
           <Table.HeaderCell>단체장</Table.HeaderCell>
           <Table.HeaderCell>연락처</Table.HeaderCell>
@@ -22,6 +23,7 @@ const ClubTable = ({ clubs }) => {
           <Table.Row key={club.uuid}>
             <Table.Cell>{idx + 1}</Table.Cell>
             <Table.Cell>{club.name}</Table.Cell>
+            <Table.Cell>{club.nameEn || '미등록'}</Table.Cell>
             <Table.Cell>{club.location}</Table.Cell>
             <Table.Cell>{club.representative}</Table.Cell>
             <Table.Cell>{club.contact}</Table.Cell>

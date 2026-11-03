@@ -1,3 +1,6 @@
+import BilingualFields, {
+  useBilingualFields,
+} from '@/components/common/bilingual.fields';
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
 import { Button, Form, Icon } from 'semantic-ui-react';
@@ -10,29 +13,20 @@ import ImageUploadForm from '@/components/common/image-upload.form';
 
 const ClubUpdatePage = ({ clubInfo }) => {
   const router = useRouter();
+  const localized = useBilingualFields('club', clubInfo);
 
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [name, setName] = useState(clubInfo.name);
-  const [shortDesc, setShortDesc] = useState(clubInfo.shortDesc);
   const [clubType, setClubType] = useState(clubInfo.clubType);
-  const [content, setContent] = useState(clubInfo.content);
-  const [location, setLocation] = useState(clubInfo.location);
-  const [representative, setRepresentative] = useState(clubInfo.representative);
-  const [contact, setContact] = useState(clubInfo.contact);
   const [homepageUrl, setHomepageUrl] = useState(clubInfo.homepageUrl);
   const [facebookUrl, setFacebookUrl] = useState(clubInfo.facebookUrl);
   const [instagramUrl, setInstagramUrl] = useState(clubInfo.instagramUrl);
   const [youtubeUrl, setYoutubeUrl] = useState(clubInfo.youtubeUrl);
 
   const handleSubmit = async () => {
+    if (!localized.validate()) return;
     const body = {
-      name: name,
-      shortDesc: shortDesc,
+      ...localized.payload(),
       clubType: clubType,
-      content: content,
-      location: location,
-      representative: representative,
-      contact: contact,
       homepageUrl: homepageUrl,
       facebookUrl: facebookUrl,
       instagramUrl: instagramUrl,
@@ -55,52 +49,14 @@ const ClubUpdatePage = ({ clubInfo }) => {
       <h3>동아리 정보 수정</h3>
 
       <Form>
-        <Form.Input
-          required
-          label={'동아리 이름'}
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
-        <Form.Input
-          required
-          label={'짧은 설명'}
-          placeholder={'예: 개발, 축구, 재즈'}
-          value={shortDesc}
-          onChange={(e) => setShortDesc(e.target.value)}
-        />
+        <BilingualFields form={localized} />
+
         <Form.Select
           required
           label={'분과'}
           options={ClubTypeOptions}
           value={clubType}
           onChange={(e) => setClubType(e.target.value)}
-        />
-        <Form.TextArea
-          required
-          label={'소개글'}
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-        />
-        <Form.Input
-          required
-          label={'위치'}
-          placeholder={'예: 학생회관 OOO호'}
-          value={location}
-          onChange={(e) => setLocation(e.target.value)}
-        />
-        <Form.Input
-          required
-          label={'대표자'}
-          placeholder={'홍길동'}
-          value={representative}
-          onChange={(e) => setRepresentative(e.target.value)}
-        />
-        <Form.Input
-          required
-          label={'연락처'}
-          placeholder={'OOOOO@postech.ac.kr'}
-          value={contact}
-          onChange={(e) => setContact(e.target.value)}
         />
 
         <Form.Input
@@ -140,7 +96,7 @@ const ClubUpdatePage = ({ clubInfo }) => {
           </Form.Button>
           <DeleteConfirmModal
             open={deleteModalOpen}
-            target={name}
+            target={localized.values.name}
             deleteURI={`introduce/club/${clubInfo.uuid}`}
             afterDeleteURI={'/introduce/club'}
             trigger={

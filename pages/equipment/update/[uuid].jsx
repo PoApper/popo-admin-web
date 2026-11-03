@@ -1,3 +1,6 @@
+import BilingualFields, {
+  useBilingualFields,
+} from '@/components/common/bilingual.fields';
 import { useState } from 'react';
 import { useRouter } from 'next/router';
 import { Button, Form, Icon } from 'semantic-ui-react';
@@ -14,14 +17,11 @@ import { normalizeReservationRequiredDays } from '@/utils/reservation-required-d
 
 const EquipmentUpdatePage = ({ equipmentInfo }) => {
   const router = useRouter();
+  const localized = useBilingualFields('equipment', equipmentInfo);
 
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-
-  const [name, setName] = useState(equipmentInfo.name);
-  const [nameEn, setNameEn] = useState(equipmentInfo.nameEn ?? '');
   const [equipOwner, setEquipOwner] = useState(equipmentInfo.equipOwner);
   const [fee, setFee] = useState(equipmentInfo.fee);
-  const [description, setDescription] = useState(equipmentInfo.description);
   const [staffEmail, setStaffEmail] = useState(equipmentInfo.staffEmail);
   const [maxMinutes, setMaxMinutes] = useState(equipmentInfo.maxMinutes);
   const [reservationRequiredDays, setReservationRequiredDays] = useState(
@@ -32,6 +32,7 @@ const EquipmentUpdatePage = ({ equipmentInfo }) => {
   );
 
   const handleSubmit = async () => {
+    if (!localized.validate()) return;
     for (const day of Object.keys(openingHours)) {
       if (!checkValid(openingHours[day])) {
         alert(`사용 가능 시간이 올바르지 않습니다: ${day}`);
@@ -40,11 +41,9 @@ const EquipmentUpdatePage = ({ equipmentInfo }) => {
     }
 
     const body = {
-      name: name,
-      nameEn: nameEn.trim() || null,
+      ...localized.payload(),
       equipOwner: equipOwner,
       fee: fee,
-      description: description,
       staffEmail: staffEmail,
       reservationRequiredDays: normalizeReservationRequiredDays(
         reservationRequiredDays,
@@ -71,13 +70,8 @@ const EquipmentUpdatePage = ({ equipmentInfo }) => {
     <ReservationLayout>
       <h3>장비 수정</h3>
       <Form>
+        <BilingualFields form={localized} />
         <Form.Group>
-          <Form.Input
-            required
-            label={'장비 이름'}
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
           <Form.Select
             required
             label={'장비 소속'}
@@ -86,15 +80,6 @@ const EquipmentUpdatePage = ({ equipmentInfo }) => {
             onChange={(e, { value }) => setEquipOwner(value)}
           />
         </Form.Group>
-        <Form.Input
-          name="nameEn"
-          label={'장비 영문 이름'}
-          placeholder={'예: Wireless Microphone'}
-          maxLength={255}
-          value={nameEn}
-          onChange={(e) => setNameEn(e.target.value)}
-        />
-        <p>영어 화면에 표시할 이름입니다. 비워 두면 기존 이름이 표시됩니다.</p>
         <Form.Input
           required
           label={'예약 비용'}
@@ -127,12 +112,6 @@ const EquipmentUpdatePage = ({ equipmentInfo }) => {
           setOpeningHours={setOpeningHours}
         />
 
-        <Form.TextArea
-          required
-          label={'설명'}
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-        />
         <Form.Input
           label={'담당자 이메일'}
           placeholder="장비 예약을 처리할 담당자의 이메일을 작성해주세요"
@@ -153,7 +132,7 @@ const EquipmentUpdatePage = ({ equipmentInfo }) => {
           </Form.Button>
           <DeleteConfirmModal
             open={deleteModalOpen}
-            target={name}
+            target={localized.values.name}
             deleteURI={`equip/${equipmentInfo.uuid}`}
             afterDeleteURI={'/equipment'}
             trigger={

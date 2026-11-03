@@ -1,3 +1,6 @@
+import BilingualFields, {
+  useBilingualFields,
+} from '@/components/common/bilingual.fields';
 import { useState } from 'react';
 import { useRouter } from 'next/router';
 import { Form, Message } from 'semantic-ui-react';
@@ -12,12 +15,8 @@ import { normalizeReservationRequiredDays } from '@/utils/reservation-required-d
 
 const PlaceCreatePage = () => {
   const router = useRouter();
-
-  const [name, setName] = useState('');
-  const [nameEn, setNameEn] = useState('');
+  const localized = useBilingualFields('place');
   const [region, setRegion] = useState('');
-  const [location, setLocation] = useState('');
-  const [description, setDescription] = useState('');
   const [staffEmail, setStaffEmail] = useState('');
   const [maxMinutes, setMaxMinutes] = useState(24 * 60);
   const [maxConcurrentReservation, setMaxConcurrentReservation] = useState(1);
@@ -28,6 +27,7 @@ const PlaceCreatePage = () => {
   const [enableAutoAccept, setEnableAutoAccept] = useState('Inactive');
 
   const handleSubmit = async () => {
+    if (!localized.validate()) return;
     for (const day of Object.keys(openingHours)) {
       if (!checkValid(openingHours[day])) {
         alert(`사용 가능 시간이 올바르지 않습니다: ${day}`);
@@ -36,11 +36,8 @@ const PlaceCreatePage = () => {
     }
 
     const body = {
-      name: name,
-      nameEn: nameEn.trim() || null,
+      ...localized.payload(),
       region: region,
-      location: location,
-      description: description,
       staffEmail: staffEmail,
       maxMinutes: maxMinutes,
       maxConcurrentReservation: maxConcurrentReservation,
@@ -67,6 +64,7 @@ const PlaceCreatePage = () => {
       <h3>장소 생성</h3>
 
       <Form onSubmit={handleSubmit}>
+        <BilingualFields form={localized} />
         <Form.Group>
           <Form.Select
             required
@@ -75,27 +73,7 @@ const PlaceCreatePage = () => {
             options={RegionOptions}
             onChange={(e, { value }) => setRegion(value)}
           />
-          <Form.Input
-            required
-            label={'장소 이름'}
-            onChange={(e) => setName(e.target.value)}
-          />
         </Form.Group>
-        <Form.Input
-          name="nameEn"
-          label={'장소 영문 이름'}
-          placeholder={'예: Student Hall Meeting Room'}
-          maxLength={255}
-          value={nameEn}
-          onChange={(e) => setNameEn(e.target.value)}
-        />
-        <p>영어 화면에 표시할 이름입니다. 비워 두면 기존 이름이 표시됩니다.</p>
-        <Form.Input
-          required
-          label={'위치'}
-          placeholder={'예: 학생회관 304호'}
-          onChange={(e) => setLocation(e.target.value)}
-        />
 
         <Form.Input
           label={'최대 예약가능 시간'}
@@ -143,12 +121,6 @@ const PlaceCreatePage = () => {
             { key: 'inactive', text: '비활성', value: 'Inactive' },
           ]}
           onChange={(e, { value }) => setEnableAutoAccept(value)}
-        />
-
-        <Form.TextArea
-          required
-          label={'설명'}
-          onChange={(e) => setDescription(e.target.value)}
         />
 
         <Form.Input

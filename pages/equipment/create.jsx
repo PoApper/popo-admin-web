@@ -1,3 +1,6 @@
+import BilingualFields, {
+  useBilingualFields,
+} from '@/components/common/bilingual.fields';
 import { useState } from 'react';
 import { useRouter } from 'next/router';
 import { Form, Message } from 'semantic-ui-react';
@@ -12,17 +15,16 @@ import { normalizeReservationRequiredDays } from '@/utils/reservation-required-d
 
 const EquipmentCreatePage = () => {
   const router = useRouter();
-  const [name, setName] = useState('');
-  const [nameEn, setNameEn] = useState('');
+  const localized = useBilingualFields('equipment');
   const [equipOwner, setEquipOwner] = useState('');
   const [fee, setFee] = useState('');
-  const [description, setDescription] = useState('');
   const [staffEmail, setStaffEmail] = useState('');
   const [maxMinutes, setMaxMinutes] = useState();
   const [reservationRequiredDays, setReservationRequiredDays] = useState(0);
   const [openingHours, setOpeningHours] = useState({ Everyday: '00:00-24:00' });
 
   const handleSubmit = async () => {
+    if (!localized.validate()) return;
     for (const day of Object.keys(openingHours)) {
       if (!checkValid(openingHours[day])) {
         alert(`사용 가능 시간이 올바르지 않습니다: ${day}`);
@@ -31,11 +33,9 @@ const EquipmentCreatePage = () => {
     }
 
     const body = {
-      name: name,
-      nameEn: nameEn.trim() || null,
+      ...localized.payload(),
       equipOwner: equipOwner,
       fee: fee,
-      description: description,
       staffEmail: staffEmail,
       reservationRequiredDays: normalizeReservationRequiredDays(
         reservationRequiredDays,
@@ -62,13 +62,8 @@ const EquipmentCreatePage = () => {
     <ReservationLayout>
       <h3>장비 생성</h3>
       <Form>
+        <BilingualFields form={localized} />
         <Form.Group>
-          <Form.Input
-            required
-            label={'장비 이름'}
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
           <Form.Select
             required
             label={'장비 소속'}
@@ -77,16 +72,6 @@ const EquipmentCreatePage = () => {
             onChange={(e, { value }) => setEquipOwner(value)}
           />
         </Form.Group>
-
-        <Form.Input
-          name="nameEn"
-          label={'장비 영문 이름'}
-          placeholder={'예: Wireless Microphone'}
-          maxLength={255}
-          value={nameEn}
-          onChange={(e) => setNameEn(e.target.value)}
-        />
-        <p>영어 화면에 표시할 이름입니다. 비워 두면 기존 이름이 표시됩니다.</p>
 
         <Form.Input
           required
@@ -118,13 +103,6 @@ const EquipmentCreatePage = () => {
           currentOpeningHour={{ Everyday: '00:00-24:00' }}
           openingHour={openingHours}
           setOpeningHours={setOpeningHours}
-        />
-
-        <Form.TextArea
-          required
-          label={'설명'}
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
         />
 
         <Form.Input
