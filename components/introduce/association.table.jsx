@@ -12,6 +12,7 @@ const AssociationTable = (props) => {
         <Table.Row>
           <Table.HeaderCell>idx.</Table.HeaderCell>
           <Table.HeaderCell>단체명</Table.HeaderCell>
+          <Table.HeaderCell>영문명</Table.HeaderCell>
           <Table.HeaderCell>분류</Table.HeaderCell>
           <Table.HeaderCell>위치</Table.HeaderCell>
           <Table.HeaderCell>단체장</Table.HeaderCell>
@@ -26,6 +27,7 @@ const AssociationTable = (props) => {
           <Table.Row key={association.uuid}>
             <Table.Cell>{idx + 1}</Table.Cell>
             <Table.Cell>{association.name}</Table.Cell>
+            <Table.Cell>{association.nameEn || '미등록'}</Table.Cell>
             <Table.Cell>
               {getAssociationTypeDisplayName(association.associationType)}
             </Table.Cell>

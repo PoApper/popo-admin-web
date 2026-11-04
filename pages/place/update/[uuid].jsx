@@ -1,3 +1,6 @@
+import BilingualFields, {
+  useBilingualFields,
+} from '@/components/common/bilingual.fields';
 import { useState } from 'react';
 import { useRouter } from 'next/router';
 import { Button, Form, Icon } from 'semantic-ui-react';
@@ -14,13 +17,10 @@ import { normalizeReservationRequiredDays } from '@/utils/reservation-required-d
 
 const PlaceUpdatePage = ({ placeInfo }) => {
   const router = useRouter();
+  const localized = useBilingualFields('place', placeInfo);
 
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-
-  const [name, setName] = useState(placeInfo.name);
   const [region, setRegion] = useState(placeInfo.region);
-  const [location, setLocation] = useState(placeInfo.location);
-  const [description, setDescription] = useState(placeInfo.description);
   const [staffEmail, setStaffEmail] = useState(placeInfo.staffEmail);
   const [maxMinutes, setMaxMinutes] = useState(placeInfo.maxMinutes);
   const [maxConcurrentReservation, setMaxConcurrentReservation] = useState(
@@ -37,6 +37,7 @@ const PlaceUpdatePage = ({ placeInfo }) => {
   );
 
   const handleSubmit = async () => {
+    if (!localized.validate()) return;
     for (const day of Object.keys(openingHours)) {
       if (!checkValid(openingHours[day])) {
         alert(`사용 가능 시간이 올바르지 않습니다: ${day}`);
@@ -45,10 +46,8 @@ const PlaceUpdatePage = ({ placeInfo }) => {
     }
 
     const body = {
-      name: name,
+      ...localized.payload(),
       region: region,
-      location: location,
-      description: description,
       staffEmail: staffEmail,
       maxMinutes: maxMinutes,
       maxConcurrentReservation: maxConcurrentReservation,
@@ -75,6 +74,7 @@ const PlaceUpdatePage = ({ placeInfo }) => {
       <h3>장소 수정</h3>
 
       <Form>
+        <BilingualFields form={localized} />
         <Form.Group>
           <Form.Select
             required
@@ -84,20 +84,7 @@ const PlaceUpdatePage = ({ placeInfo }) => {
             options={RegionOptions}
             onChange={(e, { value }) => setRegion(value)}
           />
-          <Form.Input
-            required
-            label={'장소 이름'}
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
         </Form.Group>
-        <Form.Input
-          required
-          label={'위치'}
-          placeholder={'예: 학생회관 304호'}
-          value={location}
-          onChange={(e) => setLocation(e.target.value)}
-        />
 
         <Form.Input
           label={'최대 예약가능 기간(단위: 분)'}
@@ -149,13 +136,6 @@ const PlaceUpdatePage = ({ placeInfo }) => {
           onChange={(e, { value }) => setEnableAutoAccept(value)}
         />
 
-        <Form.TextArea
-          required
-          label={'설명'}
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-        />
-
         <Form.Input
           label={'담당자 이메일'}
           placeholder="장소 예약을 처리할 담당자의 이메일을 작성해주세요"
@@ -176,7 +156,7 @@ const PlaceUpdatePage = ({ placeInfo }) => {
           </Form.Button>
           <DeleteConfirmModal
             open={deleteModalOpen}
-            target={name}
+            target={localized.values.name}
             deleteURI={`place/${placeInfo.uuid}`}
             afterDeleteURI={'/place'}
             trigger={

@@ -1,3 +1,6 @@
+import BilingualFields, {
+  useBilingualFields,
+} from '@/components/common/bilingual.fields';
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
 import { Button, Form, Icon } from 'semantic-ui-react';
@@ -9,21 +12,12 @@ import { PoPoAxios } from '@/utils/axios.instance';
 
 const StudentAssociationUpdatePage = ({ studentAssociationInfo }) => {
   const router = useRouter();
+  const localized = useBilingualFields(
+    'student_association',
+    studentAssociationInfo,
+  );
 
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [name, setName] = useState(studentAssociationInfo.name ?? '');
-  const [shortDesc, setShortDesc] = useState(
-    studentAssociationInfo.shortDesc ?? '',
-  );
-  const [content, setContent] = useState(studentAssociationInfo.content ?? '');
-  const [location, setLocation] = useState(
-    studentAssociationInfo.location ?? '',
-  );
-  const [office, setOffice] = useState(studentAssociationInfo.office ?? '');
-  const [representative, setRepresentative] = useState(
-    studentAssociationInfo.representative ?? '',
-  );
-  const [contact, setContact] = useState(studentAssociationInfo.contact ?? '');
   const [homepageUrl, setHomepageUrl] = useState(
     studentAssociationInfo.homepageUrl ?? '',
   );
@@ -38,14 +32,9 @@ const StudentAssociationUpdatePage = ({ studentAssociationInfo }) => {
   );
 
   const handleSubmit = async () => {
+    if (!localized.validate()) return;
     const body = {
-      name: name,
-      shortDesc: shortDesc,
-      content: content,
-      location: location,
-      office: office,
-      representative: representative,
-      contact: contact,
+      ...localized.payload(),
       homepageUrl: homepageUrl,
       facebookUrl: facebookUrl,
       instagramUrl: instagramUrl,
@@ -71,53 +60,8 @@ const StudentAssociationUpdatePage = ({ studentAssociationInfo }) => {
       <h3>학생단체 정보 수정</h3>
 
       <Form>
-        <Form.Input
-          required
-          label={'학생단체 이름'}
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
-        <Form.Input
-          required
-          label={'짧은 설명'}
-          placeholder={'예: 상담, 인권, 국제교류'}
-          value={shortDesc}
-          onChange={(e) => setShortDesc(e.target.value)}
-        />
-        <Form.TextArea
-          required
-          label={'소개글'}
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-        />
-        <Form.Input
-          required
-          label={'위치'}
-          placeholder={'예: 학생회관 OOO호'}
-          value={location}
-          onChange={(e) => setLocation(e.target.value)}
-        />
-        <Form.Input
-          required
-          label={'협력 행정팀'}
-          placeholder={'예: 학생지원팀'}
-          value={office}
-          onChange={(e) => setOffice(e.target.value)}
-        />
-        <Form.Input
-          required
-          label={'대표자'}
-          placeholder={'홍길동'}
-          value={representative}
-          onChange={(e) => setRepresentative(e.target.value)}
-        />
-        <Form.Input
-          required
-          label={'연락처'}
-          placeholder={'OOOOO@postech.ac.kr'}
-          value={contact}
-          onChange={(e) => setContact(e.target.value)}
-        />
+        <BilingualFields form={localized} />
+
         <Form.Input
           label={'홈페이지 링크'}
           placeholder={'https://OOOOOOO'}
@@ -155,7 +99,7 @@ const StudentAssociationUpdatePage = ({ studentAssociationInfo }) => {
           </Form.Button>
           <DeleteConfirmModal
             open={deleteModalOpen}
-            target={name}
+            target={localized.values.name}
             deleteURI={`introduce/student_association/${studentAssociationInfo.uuid}`}
             afterDeleteURI={'/introduce/student_association'}
             trigger={

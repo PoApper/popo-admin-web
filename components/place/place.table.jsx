@@ -53,6 +53,12 @@ const PlaceTable = ({ placeList }) => {
             장소명
           </Table.HeaderCell>
           <Table.HeaderCell
+            sorted={column === 'nameEn' ? direction : null}
+            onClick={() => dispatch({ type: 'CHANGE_SORT', column: 'nameEn' })}
+          >
+            영문 이름
+          </Table.HeaderCell>
+          <Table.HeaderCell
             sorted={column === 'location' ? direction : null}
             onClick={() =>
               dispatch({ type: 'CHANGE_SORT', column: 'location' })
@@ -104,6 +110,7 @@ const PlaceTable = ({ placeList }) => {
           <Table.Row key={place.uuid}>
             <Table.Cell>{idx + 1}</Table.Cell>
             <Table.Cell>{place.name}</Table.Cell>
+            <Table.Cell>{place.nameEn || '미등록'}</Table.Cell>
             <Table.Cell>{place.location}</Table.Cell>
             <Table.Cell>{regionNames[place.region]}</Table.Cell>
             <Table.Cell>

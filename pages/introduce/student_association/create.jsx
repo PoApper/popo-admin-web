@@ -1,3 +1,6 @@
+import BilingualFields, {
+  useBilingualFields,
+} from '@/components/common/bilingual.fields';
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
 import { Form, Message } from 'semantic-ui-react';
@@ -7,28 +10,16 @@ import { PoPoAxios } from '@/utils/axios.instance';
 
 const StudentAssociationIntroduceCreatePage = () => {
   const router = useRouter();
-
-  const [name, setName] = useState('');
-  const [shortDesc, setShortDesc] = useState('');
-  const [content, setContent] = useState('');
-  const [location, setLocation] = useState('');
-  const [office, setOffice] = useState('');
-  const [representative, setRepresentative] = useState('');
-  const [contact, setContact] = useState('');
+  const localized = useBilingualFields('student_association');
   const [homepageUrl, setHomepageUrl] = useState('');
   const [facebookUrl, setFacebookUrl] = useState('');
   const [instagramUrl, setInstagramUrl] = useState('');
   const [youtubeUrl, setYoutubeUrl] = useState('');
 
   const handleSubmit = async () => {
+    if (!localized.validate()) return;
     const body = {
-      name: name,
-      shortDesc: shortDesc,
-      content: content,
-      location: location,
-      office: office,
-      representative: representative,
-      contact: contact,
+      ...localized.payload(),
       homepageUrl: homepageUrl,
       facebookUrl: facebookUrl,
       instagramUrl: instagramUrl,
@@ -51,46 +42,8 @@ const StudentAssociationIntroduceCreatePage = () => {
       <h3>학생단체 소개글 생성</h3>
 
       <Form>
-        <Form.Input
-          required
-          label={'학생단체 이름'}
-          onChange={(e) => setName(e.target.value)}
-        />
-        <Form.Input
-          required
-          label={'짧은 설명'}
-          placeholder={'예: 상담, 인권, 국제교류'}
-          onChange={(e) => setShortDesc(e.target.value)}
-        />
-        <Form.TextArea
-          required
-          label={'소개글'}
-          onChange={(e) => setContent(e.target.value)}
-        />
-        <Form.Input
-          required
-          label={'위치'}
-          placeholder={'예: 학생회관 OOO호'}
-          onChange={(e) => setLocation(e.target.value)}
-        />
-        <Form.Input
-          required
-          label={'협력 행정팀'}
-          placeholder={'예: 학생지원팀'}
-          onChange={(e) => setOffice(e.target.value)}
-        />
-        <Form.Input
-          required
-          label={'대표자'}
-          placeholder={'홍길동'}
-          onChange={(e) => setRepresentative(e.target.value)}
-        />
-        <Form.Input
-          required
-          label={'연락처'}
-          placeholder={'OOOOO@postech.ac.kr'}
-          onChange={(e) => setContact(e.target.value)}
-        />
+        <BilingualFields form={localized} />
+
         <Form.Input
           label={'홈페이지 링크'}
           placeholder={'https://OOOOOOO'}

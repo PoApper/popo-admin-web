@@ -1,3 +1,6 @@
+import BilingualFields, {
+  useBilingualFields,
+} from '@/components/common/bilingual.fields';
 import { useState } from 'react';
 import { useRouter } from 'next/router';
 import { Button, Form, Icon } from 'semantic-ui-react';
@@ -13,18 +16,11 @@ import {
 
 const AssociationUpdatePage = ({ associationInfo }) => {
   const router = useRouter();
+  const localized = useBilingualFields('association', associationInfo);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-
-  const [name, setName] = useState(associationInfo.name);
   const [associationType, setAssociationType] = useState(
     getAssociationTypeValue(associationInfo.associationType),
   );
-  const [content, setContent] = useState(associationInfo.content);
-  const [location, setLocation] = useState(associationInfo.location);
-  const [representative, setRepresentative] = useState(
-    associationInfo.representative,
-  );
-  const [contact, setContact] = useState(associationInfo.contact);
   const [homepageUrl, setHomepageUrl] = useState(associationInfo.homepageUrl);
   const [facebookUrl, setFacebookUrl] = useState(associationInfo.facebookUrl);
   const [instagramUrl, setInstagramUrl] = useState(
@@ -32,18 +28,15 @@ const AssociationUpdatePage = ({ associationInfo }) => {
   );
 
   async function handleSubmit() {
+    if (!localized.validate()) return;
     if (!associationType) {
       alert('자치단체 분류를 선택해주세요.');
       return;
     }
 
     const body = {
-      name: name,
+      ...localized.payload(),
       associationType: associationType,
-      content: content,
-      location: location,
-      representative: representative,
-      contact: contact,
       homepageUrl: homepageUrl,
       facebookUrl: facebookUrl,
       instagramUrl: instagramUrl,
@@ -64,14 +57,8 @@ const AssociationUpdatePage = ({ associationInfo }) => {
     <IntroduceLayout>
       <h3>자치단체 소개글 수정</h3>
       <Form>
-        <Form.Group>
-          <Form.Input
-            required
-            label={'자치단체 이름'}
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-        </Form.Group>
+        <BilingualFields form={localized} />
+
         <Form.Select
           required
           label={'자치단체 분류'}
@@ -80,33 +67,7 @@ const AssociationUpdatePage = ({ associationInfo }) => {
           value={associationType}
           onChange={(e, { value }) => setAssociationType(value)}
         />
-        <Form.TextArea
-          required
-          label={'소개글'}
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-        />
-        <Form.Input
-          required
-          label={'위치'}
-          placeholder={'예: 학생회관 OOO호'}
-          value={location}
-          onChange={(e) => setLocation(e.target.value)}
-        />
-        <Form.Input
-          required
-          label={'대표자'}
-          placeholder={'홍길동'}
-          value={representative}
-          onChange={(e) => setRepresentative(e.target.value)}
-        />
-        <Form.Input
-          required
-          label={'연락처'}
-          placeholder={'OOOOO@postech.ac.kr'}
-          value={contact}
-          onChange={(e) => setContact(e.target.value)}
-        />
+
         <Form.Input
           label={'홈페이지 링크'}
           placeholder={'https://OOOOOOO'}
@@ -138,7 +99,7 @@ const AssociationUpdatePage = ({ associationInfo }) => {
           </Form.Button>
           <DeleteConfirmModal
             open={deleteModalOpen}
-            target={name}
+            target={localized.values.name}
             deleteURI={`introduce/association/${associationInfo.uuid}`}
             afterDeleteURI={'/introduce/association'}
             trigger={

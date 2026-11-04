@@ -1,3 +1,6 @@
+import BilingualFields, {
+  useBilingualFields,
+} from '@/components/common/bilingual.fields';
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
 import { Form, Message } from 'semantic-ui-react';
@@ -8,27 +11,19 @@ import { AssociationTypeOptions } from '@/assets/association.type.options';
 
 const AssociationIntroduceCreatePage = () => {
   const router = useRouter();
-
-  const [name, setName] = useState('');
+  const localized = useBilingualFields('association');
   const [associationType, setAssociationType] = useState('');
-  const [content, setContent] = useState('');
-  const [location, setLocation] = useState('');
-  const [representative, setRepresentative] = useState('');
-  const [contact, setContact] = useState('');
 
   async function handleSubmit() {
+    if (!localized.validate()) return;
     if (!associationType) {
       alert('자치단체 분류를 선택해주세요.');
       return;
     }
 
     const body = {
-      name: name,
+      ...localized.payload(),
       associationType: associationType,
-      content: content,
-      location: location,
-      representative: representative,
-      contact: contact,
     };
 
     PoPoAxios.post('introduce/association', body)
@@ -47,40 +42,14 @@ const AssociationIntroduceCreatePage = () => {
       <h3>자치단체 소개글 생성</h3>
 
       <Form>
-        <Form.Input
-          required
-          label={'자치단체 이름'}
-          onChange={(e) => setName(e.target.value)}
-        />
+        <BilingualFields form={localized} />
+
         <Form.Select
           required
           label={'자치단체 분류'}
           options={AssociationTypeOptions}
           placeholder={'자치단체 분류를 선택하세요.'}
           onChange={(e, { value }) => setAssociationType(value)}
-        />
-        <Form.TextArea
-          required
-          label={'소개글'}
-          onChange={(e) => setContent(e.target.value)}
-        />
-        <Form.Input
-          required
-          label={'위치'}
-          placeholder={'예: 학생회관 OOO호'}
-          onChange={(e) => setLocation(e.target.value)}
-        />
-        <Form.Input
-          required
-          label={'대표자'}
-          placeholder={'홍길동'}
-          onChange={(e) => setRepresentative(e.target.value)}
-        />
-        <Form.Input
-          required
-          label={'연락처'}
-          placeholder={'OOOOO@postech.ac.kr'}
-          onChange={(e) => setContact(e.target.value)}
         />
 
         <Message>

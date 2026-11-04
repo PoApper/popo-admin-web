@@ -9,6 +9,7 @@ const StudentAssociationTable = ({ studentAssociations }) => {
         <Table.Row>
           <Table.HeaderCell>idx.</Table.HeaderCell>
           <Table.HeaderCell>단체명</Table.HeaderCell>
+          <Table.HeaderCell>영문명</Table.HeaderCell>
           <Table.HeaderCell>짧은 설명</Table.HeaderCell>
           <Table.HeaderCell>위치</Table.HeaderCell>
           <Table.HeaderCell>협력 행정팀</Table.HeaderCell>
@@ -24,6 +25,7 @@ const StudentAssociationTable = ({ studentAssociations }) => {
           <Table.Row key={studentAssociation.uuid}>
             <Table.Cell>{idx + 1}</Table.Cell>
             <Table.Cell>{studentAssociation.name}</Table.Cell>
+            <Table.Cell>{studentAssociation.nameEn || '미등록'}</Table.Cell>
             <Table.Cell>{studentAssociation.shortDesc}</Table.Cell>
             <Table.Cell>{studentAssociation.location}</Table.Cell>
             <Table.Cell>{studentAssociation.office}</Table.Cell>

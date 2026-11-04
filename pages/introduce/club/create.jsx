@@ -1,3 +1,6 @@
+import BilingualFields, {
+  useBilingualFields,
+} from '@/components/common/bilingual.fields';
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
 import { Form, Message } from 'semantic-ui-react';
@@ -8,24 +11,14 @@ import { ClubTypeOptions } from '@/assets/club.type.options';
 
 const ClubIntroduceCreatePage = () => {
   const router = useRouter();
-
-  const [name, setName] = useState('');
-  const [shortDesc, setShortDesc] = useState('');
+  const localized = useBilingualFields('club');
   const [clubType, setClubType] = useState('');
-  const [content, setContent] = useState('');
-  const [location, setLocation] = useState('');
-  const [representative, setRepresentative] = useState('');
-  const [contact, setContact] = useState('');
 
   const handleSubmit = async () => {
+    if (!localized.validate()) return;
     const body = {
-      name: name,
-      shortDesc: shortDesc,
+      ...localized.payload(),
       clubType: clubType,
-      content: content,
-      location: location,
-      representative: representative,
-      contact: contact,
     };
 
     PoPoAxios.post('/introduce/club', body)
@@ -44,43 +37,13 @@ const ClubIntroduceCreatePage = () => {
       <h3>동아리 소개글 생성</h3>
 
       <Form>
-        <Form.Input
-          required
-          label={'동아리 이름'}
-          onChange={(e) => setName(e.target.value)}
-        />
-        <Form.Input
-          required
-          label={'짧은 설명'}
-          placeholder={'예: 개발, 축구, 재즈'}
-          onChange={(e) => setShortDesc(e.target.value)}
-        />
+        <BilingualFields form={localized} />
+
         <Form.Select
           required
           label={'분과'}
           options={ClubTypeOptions}
           onChange={(e, { value }) => setClubType(value)}
-        />
-        <Form.TextArea
-          required
-          label={'소개글'}
-          onChange={(e) => setContent(e.target.value)}
-        />
-        <Form.Input
-          required
-          label={'위치'}
-          placeholder={'예: 학생회관 OOO호'}
-          onChange={(e) => setLocation(e.target.value)}
-        />
-        <Form.Input
-          label={'대표자'}
-          placeholder={'홍길동'}
-          onChange={(e) => setRepresentative(e.target.value)}
-        />
-        <Form.Input
-          label={'연락처'}
-          placeholder={'OOOOO@postech.ac.kr'}
-          onChange={(e) => setContact(e.target.value)}
         />
 
         <Message>

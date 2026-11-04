@@ -52,6 +52,12 @@ const EquipmentTable = ({ equipmentList }) => {
             장비명
           </Table.HeaderCell>
           <Table.HeaderCell
+            sorted={column === 'nameEn' ? direction : null}
+            onClick={() => dispatch({ type: 'CHANGE_SORT', column: 'nameEn' })}
+          >
+            영문 이름
+          </Table.HeaderCell>
+          <Table.HeaderCell
             sorted={column === 'equipOwner' ? direction : null}
             onClick={() =>
               dispatch({ type: 'CHANGE_SORT', column: 'equipOwner' })
@@ -103,6 +109,7 @@ const EquipmentTable = ({ equipmentList }) => {
           <Table.Row key={equipment.uuid}>
             <Table.Cell>{idx + 1}</Table.Cell>
             <Table.Cell>{equipment.name}</Table.Cell>
+            <Table.Cell>{equipment.nameEn || '미등록'}</Table.Cell>
             <Table.Cell>{ownerNames[equipment.equipOwner]}</Table.Cell>
             <Table.Cell>{equipment.fee.toLocaleString()}</Table.Cell>
             <Table.Cell>
