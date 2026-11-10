@@ -15,9 +15,9 @@
   "dependencies": {
     "@nivo/bar": "^0.88.0",
     "@nivo/core": "^0.88.0",
-    "axios": "^1.18.0",
+    "axios": "1.21.0",
     "moment": "^2.30.1",
-    "next": "^14.2.32",
+    "next": "15.5.29",
     "react": "^18.3.1",
     "react-datepicker": "^7.4.0",
     "react-dom": "^18.3.1",
@@ -28,10 +28,17 @@
   },
   "devDependencies": {
     "eslint": "^8.57.0",
-    "eslint-config-next": "^14.2.13",
+    "eslint-config-next": "15.5.29",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.2.3",
     "eslint-plugin-react": "^7.36.1",
     "prettier": "^3.3.3"
+  },
+  "engines": {
+    "node": ">=24.22.2 <25",
+    "npm": ">=11 <12"
+  },
+  "overrides": {
+    "postcss": "^8.5.23"
   }
 }
