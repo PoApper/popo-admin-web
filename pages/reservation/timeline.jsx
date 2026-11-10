@@ -134,14 +134,17 @@ const ReservationTimelinePage = () => {
     }
   }, [apiDate, resourceKey, owner]);
 
+  // 승인/거절이 끝나기 전에 조건이 바뀔 수 있어, 처리 후에는 그 시점의 조건으로 다시 조회한다.
+  const fetchLatestReservations = useRef(fetchReservations);
   useEffect(() => {
+    fetchLatestReservations.current = fetchReservations;
     fetchReservations();
   }, [fetchReservations]);
 
   const handleProcessed = useCallback(async () => {
     setRefreshKey((key) => key + 1);
-    await fetchReservations();
-  }, [fetchReservations]);
+    await fetchLatestReservations.current();
+  }, []);
 
   const rows = useMemo(() => {
     if (resourceKey === 'place') {
