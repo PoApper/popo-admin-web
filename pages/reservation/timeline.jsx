@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Button, Checkbox, Form, Label, Segment, Tab } from 'semantic-ui-react';
 import moment from 'moment';
 
@@ -55,8 +55,10 @@ function useWaitingDates(resourceKey, owner, refreshKey) {
     };
     if (resourceKey === 'equip' && owner) params.owner = owner;
 
+    let isStale = false;
     PoPoAxios.get(`/${RESOURCES[resourceKey].endpoint}`, { params })
       .then((res) => {
+        if (isStale) return;
         const counts = new Map();
         res.data.forEach((reservation) => {
           counts.set(reservation.date, (counts.get(reservation.date) ?? 0) + 1);
@@ -68,6 +70,9 @@ function useWaitingDates(resourceKey, owner, refreshKey) {
         );
       })
       .catch((err) => console.log(err));
+    return () => {
+      isStale = true;
+    };
   }, [resourceKey, owner, refreshKey]);
 
   return dateCounts;
@@ -82,6 +87,7 @@ const ReservationTimelinePage = () => {
   const [reservations, setReservations] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [refreshKey, setRefreshKey] = useState(0);
+  const latestRequestId = useRef(0);
 
   const resource = RESOURCES[resourceKey];
   const apiDate = moment(date, DATE_INPUT_FORMAT).format(API_DATE_FORMAT);
@@ -93,7 +99,10 @@ const ReservationTimelinePage = () => {
       .catch((err) => console.log(err));
   }, []);
 
+  // 조건을 빠르게 바꾸면 이전 요청이 늦게 끝날 수 있어, 마지막 요청의 결과만 반영한다.
   const fetchReservations = useCallback(async () => {
+    const requestId = ++latestRequestId.current;
+    const isStale = () => requestId !== latestRequestId.current;
     setIsLoading(true);
     try {
       const params = {
@@ -107,6 +116,7 @@ const ReservationTimelinePage = () => {
       const res = await PoPoAxios.get(`/${RESOURCES[resourceKey].endpoint}`, {
         params,
       });
+      if (isStale()) return;
       // 거절된 예약은 자리를 차지하지 않으므로 그리지 않는다.
       setReservations(
         res.data.filter((reservation) =>
@@ -114,10 +124,13 @@ const ReservationTimelinePage = () => {
         ),
       );
     } catch (err) {
+      if (isStale()) return;
       console.log(err);
+      // 이전 조건의 예약을 이 날짜의 것으로 오인해 승인하지 않도록 비운다.
+      setReservations([]);
       alert('예약 목록을 불러오는데 실패했습니다.');
     } finally {
-      setIsLoading(false);
+      if (!isStale()) setIsLoading(false);
     }
   }, [apiDate, resourceKey, owner]);
 
