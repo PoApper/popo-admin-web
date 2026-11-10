@@ -263,9 +263,9 @@ const ReservationTimeline = ({
           </Label>
         ),
       )}
-      <span style={{ background: '#ffe8e6', padding: '2px 6px' }}>
+      <Label size="mini" style={{ background: '#ffe8e6' }}>
         허용 개수 초과
-      </span>
+      </Label>
     </div>
   );
 
