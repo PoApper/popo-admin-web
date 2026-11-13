@@ -8,6 +8,7 @@ import ReservationTimeline from '@/components/reservation/reservation.timeline';
 import PlaceReservationConfirmModal from '@/components/place/place.reservation.confirm.modal';
 import EquipmentReservationConfirmModal from '@/components/equipment/equipment.reservation.confirm.modal';
 import { OwnerOptions } from '@/assets/owner.options';
+import { useNow } from '@/utils/use-now';
 
 const DATE_INPUT_FORMAT = 'YYYY-MM-DD';
 const API_DATE_FORMAT = 'YYYYMMDD';
@@ -43,13 +44,14 @@ const OWNER_FILTER_OPTIONS = [
   ...OwnerOptions,
 ];
 
-function useWaitingDates(resourceKey, owner, refreshKey) {
+function useWaitingDates(resourceKey, owner, today, refreshKey) {
   const [dateCounts, setDateCounts] = useState([]);
 
   useEffect(() => {
+    if (!today) return undefined;
     const params = {
       status: '심사중',
-      startDate: moment().format(API_DATE_FORMAT),
+      startDate: today,
       orderBy: 'date',
       orderDirection: 'ASC',
     };
@@ -69,18 +71,23 @@ function useWaitingDates(resourceKey, owner, refreshKey) {
           ),
         );
       })
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        if (isStale) return;
+        console.log(err);
+        setDateCounts([]);
+      });
     return () => {
       isStale = true;
     };
-  }, [resourceKey, owner, refreshKey]);
+  }, [resourceKey, owner, today, refreshKey]);
 
   return dateCounts;
 }
 
 const ReservationTimelinePage = () => {
   const [resourceKey, setResourceKey] = useState('place');
-  const [date, setDate] = useState(() => moment().format(DATE_INPUT_FORMAT));
+  const now = useNow();
+  const [date, setDate] = useState(null);
   const [owner, setOwner] = useState('');
   const [showEmptyRows, setShowEmptyRows] = useState(false);
   const [places, setPlaces] = useState([]);
@@ -90,8 +97,19 @@ const ReservationTimelinePage = () => {
   const latestRequestId = useRef(0);
 
   const resource = RESOURCES[resourceKey];
-  const apiDate = moment(date, DATE_INPUT_FORMAT).format(API_DATE_FORMAT);
-  const waitingDates = useWaitingDates(resourceKey, owner, refreshKey);
+  const apiDate = date
+    ? moment(date, DATE_INPUT_FORMAT).format(API_DATE_FORMAT)
+    : null;
+  const waitingDates = useWaitingDates(
+    resourceKey,
+    owner,
+    now?.format(API_DATE_FORMAT),
+    refreshKey,
+  );
+
+  useEffect(() => {
+    if (now && date === null) setDate(now.format(DATE_INPUT_FORMAT));
+  }, [now, date]);
 
   useEffect(() => {
     PoPoAxios.get('/place')
@@ -101,6 +119,7 @@ const ReservationTimelinePage = () => {
 
   // 조건을 빠르게 바꾸면 이전 요청이 늦게 끝날 수 있어, 마지막 요청의 결과만 반영한다.
   const fetchReservations = useCallback(async () => {
+    if (!apiDate) return;
     const requestId = ++latestRequestId.current;
     const isStale = () => requestId !== latestRequestId.current;
     setIsLoading(true);
@@ -182,9 +201,14 @@ const ReservationTimelinePage = () => {
         .add(days, 'day')
         .format(DATE_INPUT_FORMAT),
     );
-  const isToday = date === moment().format(DATE_INPUT_FORMAT);
+  const nowMinutes =
+    now && date === now.format(DATE_INPUT_FORMAT)
+      ? now.hours() * 60 + now.minutes()
+      : null;
 
-  const content = (
+  const content = !date ? (
+    <p style={{ marginTop: 12 }}>로딩 중...</p>
+  ) : (
     <div style={{ marginTop: 12 }}>
       <Segment>
         <Form>
@@ -271,7 +295,7 @@ const ReservationTimelinePage = () => {
           rowsOf={resource.rowsOf}
           ConfirmModal={resource.ConfirmModal}
           onProcessed={handleProcessed}
-          isToday={isToday}
+          nowMinutes={nowMinutes}
         />
       )}
     </div>

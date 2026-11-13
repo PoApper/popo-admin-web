@@ -59,7 +59,7 @@ const ReservationTimeline = ({
   rowsOf,
   ConfirmModal,
   onProcessed,
-  isToday = false,
+  nowMinutes = null,
 }) => {
   const waiting = useMemo(
     () => reservations.filter((reservation) => reservation.status === '심사중'),
@@ -184,7 +184,6 @@ const ReservationTimeline = ({
     .filter((reservation) => predictionAll.acceptUuidSet.has(reservation.uuid))
     .map((reservation) => reservation.uuid);
   const selectedSkipCount = predictionSelected.skipUuidSet.size;
-  const nowMinutes = moment().hours() * 60 + moment().minutes();
 
   const hourLines = hours.map((hour) => (
     <div
@@ -351,7 +350,7 @@ const ReservationTimeline = ({
                   />
                 ))}
                 {hourLines}
-                {isToday && nowMinutes >= rangeStart && (
+                {nowMinutes !== null && nowMinutes >= rangeStart && (
                   <div
                     title="현재 시각"
                     style={{
