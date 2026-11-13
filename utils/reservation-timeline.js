@@ -34,11 +34,14 @@ export function maxConcurrency(intervals, start, end) {
   return max;
 }
 
+// 서버 compareByCreatedAt(popo-nest-api reservation.meta.ts)과 같은 순서여야 예측이 맞는다.
 function byCreatedAt(a, b) {
-  return moment(a.createdAt).diff(moment(b.createdAt));
+  const diff = moment(a.createdAt).diff(moment(b.createdAt));
+  if (diff !== 0) return diff;
+  return a.uuid < b.uuid ? -1 : a.uuid > b.uuid ? 1 : 0;
 }
 
-// 서버 일괄 승인과 같은 순서(신청 빠른 순)로 승인/건너뜀을 예측한다.
+// 서버 일괄 승인과 같은 순서(신청 빠른 순, 같으면 uuid 순)로 승인/건너뜀을 예측한다.
 // 시간 겹침만 보며, 사용 가능 시간·최소 예약 일수는 서버에서만 검사한다.
 export function predictBulkAccept({
   accepted,

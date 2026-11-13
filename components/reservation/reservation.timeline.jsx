@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { Button, Checkbox, Label, Table } from 'semantic-ui-react';
 import moment from 'moment';
 
@@ -86,7 +86,10 @@ const ReservationTimeline = ({
     () => new Map(rows.map((row) => [row.key, row.capacity])),
     [rows],
   );
-  const capacityOf = (rowKey) => capacityByRow.get(rowKey) ?? 1;
+  const capacityOf = useCallback(
+    (rowKey) => capacityByRow.get(rowKey) ?? 1,
+    [capacityByRow],
+  );
 
   // 선택하지 않은 예약은 '전부 승인했다면'을 기준으로 중복 여부를 표시한다.
   const predictionAll = useMemo(
@@ -97,8 +100,7 @@ const ReservationTimeline = ({
         rowsOf,
         capacityOf,
       }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [accepted, waiting, rowsOf, capacityByRow],
+    [accepted, waiting, rowsOf, capacityOf],
   );
 
   const selectedSet = useMemo(
@@ -115,8 +117,7 @@ const ReservationTimeline = ({
         rowsOf,
         capacityOf,
       }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [accepted, waiting, selectedSet, rowsOf, capacityByRow],
+    [accepted, waiting, selectedSet, rowsOf, capacityOf],
   );
 
   function stateOf(reservation) {
