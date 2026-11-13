@@ -9,6 +9,9 @@ export default class ReservationMenubar extends Component {
         <Link href={'/reservation'} passHref>
           <Menu.Item>예약 대기 목록</Menu.Item>
         </Link>
+        <Link href={'/reservation/timeline'} passHref>
+          <Menu.Item>예약 타임라인</Menu.Item>
+        </Link>
         <Link href={'/place'} passHref>
           <Menu.Item>장소 목록</Menu.Item>
         </Link>
