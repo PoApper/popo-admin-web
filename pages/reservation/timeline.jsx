@@ -91,6 +91,7 @@ const ReservationTimelinePage = () => {
   const [owner, setOwner] = useState('');
   const [showEmptyRows, setShowEmptyRows] = useState(false);
   const [places, setPlaces] = useState([]);
+  const [placesStatus, setPlacesStatus] = useState('loading');
   const [reservations, setReservations] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [refreshKey, setRefreshKey] = useState(0);
@@ -112,10 +113,21 @@ const ReservationTimelinePage = () => {
   }, [now, date]);
 
   useEffect(() => {
+    if (placesStatus !== 'loading') return;
+    let isStale = false;
     PoPoAxios.get('/place')
-      .then((res) => setPlaces(res.data))
-      .catch((err) => console.log(err));
-  }, []);
+      .then((res) => {
+        if (isStale) return;
+        setPlaces(res.data);
+        setPlacesStatus('ready');
+      })
+      .catch(() => {
+        if (!isStale) setPlacesStatus('error');
+      });
+    return () => {
+      isStale = true;
+    };
+  }, [placesStatus]);
 
   // 조건을 빠르게 바꾸면 이전 요청이 늦게 끝날 수 있어, 마지막 요청의 결과만 반영한다.
   const fetchReservations = useCallback(async () => {
@@ -279,7 +291,15 @@ const ReservationTimelinePage = () => {
         {resource.label} 예약
       </p>
 
-      {isLoading ? (
+      {resourceKey === 'place' && placesStatus === 'error' ? (
+        <div role="alert">
+          장소 목록을 불러오지 못했습니다.{' '}
+          <Button type="button" onClick={() => setPlacesStatus('loading')}>
+            다시 시도
+          </Button>
+        </div>
+      ) : isLoading ||
+        (resourceKey === 'place' && placesStatus === 'loading') ? (
         <p>로딩 중...</p>
       ) : rows.length === 0 ? (
         <p>
