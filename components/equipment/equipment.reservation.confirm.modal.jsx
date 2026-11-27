@@ -18,7 +18,12 @@ const EquipmentReservationConfirmModal = (props) => {
         {},
       );
       setOpen(false);
-      window.location.reload();
+      if (props.onProcessed) {
+        // 주면 페이지를 새로고침하지 않고 이 콜백만 부른다.
+        await props.onProcessed();
+      } else {
+        window.location.reload();
+      }
     } catch (err) {
       const errMsg = err.response.data.message;
       alert(`예약 승인/거절에 실패했습니다.\n${errMsg}`);
